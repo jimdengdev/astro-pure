@@ -1,0 +1,160 @@
+---
+// 直接从站点配置读取，绕开 virtual:config 的 Zod 校验——
+// 这样 astro-pure 包的 schema 里即使没定义 twikoo 字段也能工作，
+// 不依赖对 node_modules 的手动补丁（bun install 后无需重新打补丁）。
+import { integ } from '@/site-config'
+
+// Twikoo 官方样式（twikoo 2.x 的 exports 未暴露子路径，用相对路径直达文件）
+import '../../../node_modules/twikoo/dist/twikoo.css'
+
+// Twikoo 评论组件（参照 Waline Comment 的 Custom Element + IntersectionObserver 懒加载模式）
+// 配置：site.config.ts → integ.twikoo { enable, envId, region, lang }
+interface TwikooConfig {
+  enable: boolean
+  envId: string
+  region?: string
+  lang?: string
+}
+
+const twikooConfig = (integ as { twikoo?: TwikooConfig }).twikoo
+---
+
+{
+  twikooConfig?.enable && (
+    <comment-component class='comment-component not-prose block'>
+      <div id='tcomment' class='tcomment' />
+    </comment-component>
+  )
+}
+
+<script>
+  import { integ } from '@/site-config'
+
+  interface TwikooConfig {
+    enable: boolean
+    envId: string
+    region?: string
+    lang?: string
+  }
+
+  const twikooConfig = (integ as { twikoo?: TwikooConfig }).twikoo
+
+  if (twikooConfig?.enable) {
+    class CommentComponent extends HTMLElement {
+      connectedCallback() {
+        const initTwikoo = () => {
+          // Twikoo 无 destroy API，重复初始化前先清空容器
+          const container = document.getElementById('tcomment')
+          if (!container) return
+          container.innerHTML = ''
+
+          // 中英文适配：按当前页面语言切换评论 UI 语言（页面语言优先于全局配置）
+          // 中文路由 /zh/... → zh-CN，其余（默认英文站）→ en
+          const pageLang = window.location.pathname.startsWith('/zh') ? 'zh-CN' : 'en'
+
+          // twikoo 2.x 的 exports 仅暴露 '.'（指向 dist/twikoo.min.js）
+          import('twikoo')
+            .then(({ init }) => {
+              init({
+                envId: twikooConfig.envId,
+                el: container,
+                region: twikooConfig.region || undefined,
+                path: window.location.pathname,
+                lang: pageLang
+              })
+            })
+            .catch((err) => {
+              console.error('[Twikoo] 加载失败', err)
+            })
+        }
+
+        // 懒加载：进入视口 200px 范围时初始化
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              if (entries.some((e) => e.isIntersecting)) {
+                observer.disconnect()
+                initTwikoo()
+              }
+            },
+            { rootMargin: '200px' }
+          )
+          observer.observe(this)
+        } else {
+          setTimeout(initTwikoo, 800)
+        }
+      }
+    }
+
+    customElements.define('comment-component', CommentComponent)
+  }
+</script>
+
+<style>
+  /* 主题化覆盖：将 Twikoo 硬编码颜色映射到站点主题变量（参照源博客 twikoo.css）*/
+  :global(.tcomment) {
+    /* 主色 → 站点 primary */
+    .tk-submit-action-btn,
+    .tk-action-btns .tk-action-btn {
+      --twikoo-primary: hsl(var(--primary));
+    }
+    .tk-comments-container .tk-submit-action-btn,
+    .tk-action-btns .tk-action-btn,
+    .tk-icon.__comments,
+    .tk-icon.__like,
+    .tk-icon.__share {
+      color: hsl(var(--primary));
+    }
+    .tk-submit-action-btn:hover,
+    .tk-action-btn:hover {
+      background-color: hsl(var(--primary) / 0.1);
+    }
+
+    /* 输入框适配 */
+    .el-input__inner,
+    .el-textarea__inner {
+      background-color: hsl(var(--muted) / 0.5);
+      border-color: hsl(var(--border));
+      color: hsl(var(--foreground));
+    }
+    .el-input__inner:focus,
+    .el-textarea__inner:focus {
+      border-color: hsl(var(--primary) / 0.5);
+    }
+
+    /* 面板背景 */
+    .tk-comments-container .tk-comment,
+    .tk-replies .tk-comment {
+      background-color: transparent;
+    }
+
+    /* 元信息文字 */
+    .tk-meta,
+    .tk-extra,
+    .tk-time {
+      color: hsl(var(--muted-foreground));
+    }
+    .tk-nick,
+    .tk-comments-title,
+    .tk-comments-no,
+    .tk-icon {
+      color: hsl(var(--foreground));
+    }
+  }
+
+  /* 暗色模式：Twikoo 无内置暗色支持，用 .dark 前缀强行覆盖（参照源博客实现）*/
+  :global(.dark) .tcomment {
+    .el-input__inner,
+    .el-textarea__inner {
+      background-color: hsl(var(--muted) / 0.3);
+      color: hsl(var(--foreground));
+    }
+    .tk-icon {
+      filter: invert(0.8);
+    }
+    .el-button--primary {
+      background-color: hsl(var(--primary));
+      border-color: hsl(var(--primary));
+    }
+  }
+</style>

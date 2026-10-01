@@ -1,0 +1,501 @@
+---
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+---
+
+<about-studio
+  class='studio'
+  data-motion='static'
+  data-label-play={t('hero.play')}
+  data-label-pause={t('hero.pause')}
+  data-aria-play={t('hero.play_aria')}
+  data-aria-pause={t('hero.pause_aria')}
+  aria-labelledby='studio-title'
+>
+<div class='studio-frame'>
+  <div class='studio-art' aria-hidden='true'>
+    <div class='studio-art-plane'>
+      <img
+        class='studio-poster'
+        src='/media/about/tree-studio-poster.webp'
+        alt=''
+        width='1280'
+        height='960'
+        fetchpriority='high'
+      />
+      <video
+        class='studio-video'
+        data-src='/media/about/tree-studio-web.mp4'
+        poster='/media/about/tree-studio-poster.webp'
+        muted
+        loop
+        playsinline
+        preload='none'
+        tabindex='-1'></video>
+    </div>
+    <canvas class='studio-canvas'></canvas>
+  </div>
+
+  <div class='studio-copy'>
+    <p class='studio-eyebrow'><span></span> {t('hero.eyebrow')} <i></i></p>
+    <h2 id='studio-title'>
+      {t('hero.title1')}<br />{t('hero.title2')}<span>{t('hero.title2_accent')}</span>
+    </h2>
+    <p class='studio-description'>
+      {t('hero.desc1')}<br />{t('hero.desc2')}
+    </p>
+    <div class='studio-actions'>
+      <a class='studio-primary' href={getLocalePath(lang, '/blog')}
+        >{t('hero.cta_posts')} <span aria-hidden='true'>↗</span></a
+      >
+      <a class='studio-secondary' href={getLocalePath(lang, '/projects')}
+        >{t('hero.cta_projects')} <span aria-hidden='true'>↗</span></a
+      >
+    </div>
+    <div class='studio-note'>
+      <svg
+        aria-hidden='true'
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='1.2'
+      >
+        <path d='M5 19c9 0 14-6 14-14C11 5 5 10 5 19Z'></path>
+        <path d='m5 19 9-9M9 15v-4m0 4h4'></path>
+      </svg>
+      <span>{t('hero.note')}</span>
+    </div>
+  </div>
+
+  <div class='studio-stamp' aria-hidden='true'>
+    <span>A LITTLE CORNER</span>
+    <svg
+      width='26'
+      height='26'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='1'
+    >
+      <path d='M6 19c8 0 13-6 13-14C11 5 6 10 6 19Z'></path><path d='m6 19 9-9'></path>
+    </svg>
+    <span>OF MY WORLD</span>
+  </div>
+
+  <div class='studio-footer'>
+    <div class='studio-media-controls'>
+      <button class='studio-motion' type='button' hidden aria-label={t('hero.play_aria')}>
+        <svg
+          class='studio-play-icon'
+          aria-hidden='true'
+          width='16'
+          height='16'
+          viewBox='0 0 20 20'
+          fill='currentColor'><path d='m6 3 11 7-11 7Z'></path></svg
+        >
+        <svg
+          class='studio-pause-icon'
+          aria-hidden='true'
+          width='16'
+          height='16'
+          viewBox='0 0 20 20'
+          fill='currentColor'><path d='M5 3h3v14H5zm7 0h3v14h-3z'></path></svg
+        >
+        <span class='studio-motion-label'>{t('hero.play')}</span>
+      </button>
+    </div>
+  </div>
+  </div>
+</about-studio>
+
+<script>
+  import './about-studio'
+</script>
+
+<style>
+  .studio {
+    /* 不再用卡片底色——直接透出页面渐变背景 */
+    --studio-paper: transparent;
+    --studio-ink: #323a33;
+    --studio-muted: #606454;
+    --studio-accent: #855b37;
+    --studio-line: rgba(107, 99, 77, 0.12);
+    display: block;
+    /* 按模块自身宽度适配（位于文章栏内，宽度随侧边栏/视口变化） */
+    container-type: inline-size;
+    margin: 20px 0 8px;
+    color: var(--studio-ink);
+  }
+  .studio-frame {
+    position: relative;
+    isolation: isolate;
+    /* flex 垂直居中：文字块与插画在竖直方向对齐，消除下方空白 */
+    display: flex;
+    align-items: center;
+    min-height: 440px;
+  }
+  :global(html.dark) .studio {
+    --studio-paper: transparent;
+    --studio-ink: #f1eee4;
+    --studio-muted: #c5c9bc;
+    --studio-accent: #e1b986;
+    --studio-line: rgba(218, 220, 201, 0.12);
+  }
+  .studio-art {
+    position: absolute;
+    inset: 0 0 0 30%;
+    overflow: hidden;
+    pointer-events: none;
+    /* 四边羽化：横向 × 纵向两层渐变取交集，插画边缘透明淡出到页面背景，
+       不依赖背景色，亮/暗模式和任意渐变背景都无硬边 */
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent, #000 28%, #000 88%, transparent),
+      linear-gradient(180deg, transparent, #000 14%, #000 80%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent, #000 28%, #000 88%, transparent),
+      linear-gradient(180deg, transparent, #000 14%, #000 80%, transparent);
+    mask-composite: intersect;
+  }
+  .studio-art-plane {
+    position: absolute;
+    inset: -12px;
+    transform: perspective(1000px) translate3d(var(--studio-x, 0px), var(--studio-y, 0px), 0)
+      rotateY(var(--studio-turn, 0deg));
+    transform-origin: 65% 55%;
+  }
+  .studio-poster,
+  .studio-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 50%;
+  }
+  .studio-video {
+    opacity: 0;
+  }
+  .studio[data-video-ready] .studio-video {
+    opacity: 1;
+  }
+  :global(html.dark) .studio-art-plane {
+    filter: brightness(0.67) saturate(0.72);
+  }
+  .studio-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .studio-copy {
+    position: relative;
+    z-index: 3;
+    width: 56%;
+    /* 左内边距为 0：与页面标题「关于」和正文左边缘对齐；
+       上下由 frame 的 flex 居中控制，不再留大底部空白 */
+    padding: 16px 0;
+  }
+  .studio-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 32px;
+    font-family: var(--font-satoshi), sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.17em;
+    color: var(--studio-muted);
+  }
+  .studio-eyebrow span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--studio-accent);
+  }
+  .studio-eyebrow i {
+    width: 34px;
+    height: 1px;
+    background: var(--studio-line);
+  }
+  .studio h2 {
+    margin: 0;
+    font-family: 'LXGW WenKai', 'Songti SC', serif;
+    /* 以模块宽度（cqi）缩放，而非视口宽度 */
+    font-size: clamp(26px, 5.4cqi, 42px);
+    font-weight: 400;
+    line-height: 1.58;
+    letter-spacing: -0.025em;
+    color: var(--studio-ink);
+  }
+  .studio h2 span {
+    color: var(--studio-accent);
+  }
+  .studio-description {
+    margin: 24px 0 0;
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--studio-muted);
+  }
+  .studio-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 27px;
+  }
+  .studio-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 46px;
+    padding: 10px 18px;
+    border: 1px solid var(--studio-line);
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    transition:
+      background-color 180ms,
+      transform 180ms;
+  }
+  .studio-actions a:hover {
+    transform: translateY(-2px);
+  }
+  .studio-primary {
+    background: #855b37;
+    color: #fffaf1;
+    box-shadow: 0 5px 16px #6646281c;
+  }
+  .studio-primary:hover {
+    background: #694425;
+    color: white;
+  }
+  .studio-secondary {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--studio-ink);
+  }
+  :global(html.dark) .studio-secondary {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .studio-secondary:hover {
+    color: var(--studio-accent);
+  }
+  :global(html.dark) .studio-primary {
+    background: #ddbc8b;
+    color: #222e29;
+  }
+  :global(html.dark) .studio-primary:hover {
+    background: #eed1a8;
+    color: #222e29;
+  }
+  .studio-note {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 25px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--studio-muted);
+  }
+  .studio-stamp {
+    position: absolute;
+    z-index: 3;
+    top: 30px;
+    right: 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 82px;
+    height: 82px;
+    border: 1px solid var(--studio-line);
+    outline: 1px solid var(--studio-line);
+    outline-offset: -5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--studio-muted);
+    font:
+      6px var(--font-satoshi),
+      sans-serif;
+    letter-spacing: 0.12em;
+    transform: rotate(12deg);
+  }
+  .studio-footer {
+    position: absolute;
+    z-index: 4;
+    /* 左侧与正文对齐 */
+    inset: auto 0 14px 0;
+    display: flex;
+    align-items: center;
+    /* 仅保留播放按钮，右对齐 */
+    justify-content: flex-end;
+  }
+  .studio-media-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .studio-motion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    min-width: 44px;
+    border: 1px solid var(--studio-line);
+    border-radius: 24px;
+    padding: 8px 13px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--studio-ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .studio-motion[hidden],
+  .studio-pause-icon {
+    display: none;
+  }
+  .studio[data-motion='playing'] .studio-play-icon {
+    display: none;
+  }
+  .studio[data-motion='playing'] .studio-pause-icon {
+    display: block;
+  }
+  .studio a:focus-visible,
+  .studio button:focus-visible {
+    outline: 3px solid var(--studio-accent);
+    outline-offset: 4px;
+  }
+  .studio-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* ---- 容器查询：按模块实际宽度适配（文章栏宽度 ≠ 视口宽度） ---- */
+  @container (max-width: 720px) {
+    .studio-frame {
+      min-height: 420px;
+    }
+    .studio-copy {
+      width: 60%;
+      padding: 8px 0;
+    }
+    .studio-art {
+      inset: 0 0 0 34%;
+    }
+    .studio-description {
+      font-size: 14px;
+    }
+    .studio-stamp {
+      width: 66px;
+      height: 66px;
+      font-size: 5px;
+    }
+  }
+  /* 窄容器：上下堆叠（文字在上、插画在下） */
+  @container (max-width: 560px) {
+    .studio-frame {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding-bottom: 56px;
+    }
+    .studio-copy {
+      order: 0;
+      width: 100%;
+      padding: 16px 0 0;
+      margin-bottom: 8px;
+    }
+    .studio-eyebrow {
+      margin-bottom: 18px;
+      font-size: 9px;
+    }
+    .studio h2 {
+      font-size: clamp(26px, 8cqi, 34px);
+      line-height: 1.5;
+    }
+    .studio-description {
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    .studio-actions {
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .studio-actions a {
+      min-height: 42px;
+      padding: 9px 12px;
+      gap: 12px;
+      font-size: 12px;
+    }
+    .studio-note {
+      margin-top: 18px;
+    }
+    .studio-art {
+      order: 1;
+      position: relative;
+      inset: auto;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      -webkit-mask-image:
+        linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent),
+        linear-gradient(180deg, transparent, #000 14%, #000 82%, transparent);
+      mask-image:
+        linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent),
+        linear-gradient(180deg, transparent, #000 14%, #000 82%, transparent);
+    }
+    .studio-stamp {
+      top: auto;
+      bottom: 70px;
+      right: 8px;
+      width: 56px;
+      height: 56px;
+      font-size: 4.5px;
+    }
+    .studio-footer {
+      inset: auto 0 8px 0;
+    }
+    .studio-media-controls {
+      gap: 8px;
+    }
+    .studio-motion-label {
+      display: none;
+    }
+  }
+  /* 极窄容器（小屏手机）：说明文字换行，按钮铺满 */
+  @container (max-width: 380px) {
+    .studio-description br {
+      display: none;
+    }
+    .studio-actions a {
+      flex: 1 1 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .studio *,
+    .studio *::after {
+      transition: none !important;
+    }
+    .studio-actions a:hover {
+      transform: none;
+    }
+    .studio-art-plane {
+      transform: none;
+    }
+  }
+</style>

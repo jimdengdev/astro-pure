@@ -2,16 +2,19 @@
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
 
-import { Paginator, PostPreview } from 'astro-pure/components/pages'
-import { getBlogCollection, getUniqueTagsWithCount, sortMDByDate } from 'astro-pure/server'
+import { Paginator } from 'astro-pure/components/pages'
+import { getUniqueTagsWithCount, sortMDByDate } from 'astro-pure/server'
 import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/PostPreview.astro'
+import { getBlogByLang } from '@/i18n'
 import config from '@/site-config'
 
 export const prerender = true
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const collections = sortMDByDate(await getBlogCollection())
+  // English blog: only posts explicitly marked language: "English"
+  const collections = sortMDByDate(await getBlogByLang('en'))
   const uniqueTags = getUniqueTagsWithCount(collections).map(([tag]) => tag)
   const collectionsCount = collections.length
   return paginate(collections, {

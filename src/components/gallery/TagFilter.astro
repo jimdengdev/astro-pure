@@ -1,0 +1,63 @@
+---
+interface Props {
+  tags: string[]
+  allLabel: string
+}
+
+const { tags, allLabel } = Astro.props
+---
+
+<div class='tag-filter mb-8 flex flex-wrap gap-2' role='group' aria-label='Album tag filter'>
+  <button
+    type='button'
+    class='rounded-full border px-4 py-1.5 text-sm font-medium transition-colors'
+    data-filter-tag=''
+    aria-pressed='true'
+  >
+    {allLabel}
+  </button>
+  {
+    tags.map((tag) => (
+      <button
+        type='button'
+        class='rounded-full border px-4 py-1.5 text-sm font-medium transition-colors'
+        data-filter-tag={tag}
+        aria-pressed='false'
+      >
+        {tag}
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  const filter = document.querySelector<HTMLElement>('.tag-filter')
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-album-tags]'))
+  const emptyHint = document.getElementById('gallery-empty')
+
+  if (filter && cards.length) {
+    const buttons = Array.from(filter.querySelectorAll<HTMLButtonElement>('[data-filter-tag]'))
+
+    const applyFilter = (tag: string) => {
+      let visibleCount = 0
+      for (const card of cards) {
+        const cardTags = (card.dataset.albumTags || '').split(',')
+        const visible = !tag || cardTags.includes(tag)
+        card.style.display = visible ? '' : 'none'
+        if (visible) visibleCount++
+      }
+      if (emptyHint) emptyHint.style.display = visibleCount === 0 ? '' : 'none'
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => {
+          b.setAttribute('aria-pressed', String(b === btn))
+          b.classList.toggle('bg-primary', b === btn)
+          b.classList.toggle('text-primary-foreground', b === btn)
+        })
+        applyFilter(btn.dataset.filterTag || '')
+      })
+    })
+  }
+</script>

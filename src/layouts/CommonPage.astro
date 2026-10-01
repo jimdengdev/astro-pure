@@ -3,7 +3,7 @@ import type { MarkdownHeading } from 'astro'
 
 import { TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
-import { Comment, PageInfo } from '@/components/waline'
+import { Comment } from '@/components/twikoo'
 
 interface Props {
   title: string
@@ -15,12 +15,14 @@ interface Props {
 const { title, headings, view, comment: enableComment, ...props } = Astro.props
 ---
 
-<PageLayout meta={{ title }} {...props}>
+<PageLayout meta={{ title }} {...props} hasSidebar={!!headings?.length}>
   {headings?.length && <TOC headings={headings} slot='sidebar' />}
 
   <Fragment slot='header'>
     <h1 class='text-2xl font-medium sm:mb-2 sm:text-3xl'>{title}</h1>
-    {view && <PageInfo comment={enableComment} class='italic' />}
+    {/* Optional hero: rendered under the page title, inside the article column
+        (outside #content so typography/prose styles don't leak in) */}
+    <slot name='hero' />
   </Fragment>
 
   <slot />

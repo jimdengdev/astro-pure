@@ -3,18 +3,18 @@ import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } fro
 export const theme: ThemeUserConfig = {
   // [Basic]
   /** Title for your website. Will be used in metadata and as browser tab title. */
-  title: 'Astro Theme Pure',
+  title: "Jimdeng's Blog",
   /** Will be used in index page & copyright declaration */
-  author: 'Pure Lab',
+  author: 'jimdeng',
   /** Description metadata for your website. Can be used in page metadata. */
-  description: 'Stay hungry, stay foolish',
+  description: '后端开发 / Agent 开发 / 海米',
   /** The default favicon for your site which should be a path to an image in the `public/` directory. */
   favicon: '/favicon/favicon.ico',
   /** The default social card image for your site which should be a path to an image in the `public/` directory. */
-  socialCard: '/images/social-card.png',
+  socialCard: '/favicon/favicon-512x512.png',
   /** Specify the default language for this site. */
   locale: {
-    lang: 'en-US',
+    lang: 'en',
     attrs: 'en_US',
     // Date locale
     dateLocale: 'en-US',
@@ -26,8 +26,8 @@ export const theme: ThemeUserConfig = {
   },
   /** Set a logo image to show in the homepage. */
   logo: {
-    src: '/src/assets/avatar.png',
-    alt: 'Avatar'
+    src: '/src/assets/avatar.webp',
+    alt: 'jimdeng'
   },
 
   titleDelimiter: '•',
@@ -48,11 +48,9 @@ export const theme: ThemeUserConfig = {
   /** Configure the header of your site. */
   header: {
     menu: [
-      { title: 'Blog', link: '/blog' },
-      { title: 'Docs', link: '/docs' },
-      { title: 'Projects', link: '/projects' },
-      { title: 'Links', link: '/links' },
-      { title: 'About', link: '/about' }
+      { title: '博客', link: '/blog' },
+      { title: '友链', link: '/links' },
+      { title: '关于', link: '/about' }
     ]
   },
 
@@ -61,25 +59,12 @@ export const theme: ThemeUserConfig = {
     // Year format
     year: `© ${new Date().getFullYear()}`,
     // year: `© 2019 - ${new Date().getFullYear()}`,
-    links: [
-      // Registration link
-      {
-        title: 'Moe ICP 114514',
-        link: 'https://icp.gov.moe/?keyword=114514',
-        style: 'text-sm' // Uno/TW CSS class
-      },
-      // Privacy Policy link
-      {
-        title: 'Site Policy',
-        link: '/terms',
-        pos: 2 // position set to 2 will be appended to copyright line
-      }
-    ],
-    /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
+    links: [],
+    /** Enable displaying a "Astro & Pure theme powered" link in your site's footer. */
     credits: true,
     /** Optional details about the social media accounts for this site. */
     social: [
-      { icon: 'github', label: 'GitHub', href: 'https://github.com/cworld1/astro-theme-pure' },
+      { icon: 'github', label: 'GitHub', href: 'https://github.com/jimdengdev' },
       { icon: 'rss', label: 'RSS', href: '/rss.xml' }
     ]
   },
@@ -107,19 +92,13 @@ export const integ: IntegrationUserConfig = {
   // https://astro-pure.js.org/docs/integrations/links
   links: {
     // Friend logbook
-    logbook: [
-      { date: '2025-03-16', content: 'Is there a leakage?' },
-      { date: '2025-03-16', content: 'A leakage of what?' },
-      { date: '2025-03-16', content: 'I have a full seat of water, like, full of water!' },
-      { date: '2025-03-16', content: 'Must be the water.' },
-      { date: '2025-03-16', content: "Let's add that to the words of wisdom." }
-    ],
+    logbook: [],
     // Yourself link info
     applyTip: [
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://astro-pure.js.org/' },
-      { name: 'Avatar', val: 'https://astro-pure.js.org/favicon/favicon.ico' }
+      { name: 'Link', val: 'https://jimdeng.com/' },
+      { name: 'Avatar', val: 'https://jimdeng.com/favicon/favicon.ico' }
     ],
     // Cache avatars in `public/avatars/` to improve user experience.
     cacheAvatar: false
@@ -162,25 +141,29 @@ export const integ: IntegrationUserConfig = {
     }
   },
   // Comment system
+  // Waline（astro-pure 内置）已禁用，改用源博客的 Twikoo
   waline: {
-    enable: true,
-    // Server service link
-    server: 'https://astro-theme-pure-waline.arthals.ink/',
-    // Show meta info for comments
+    enable: false,
+    server: '',
     showMeta: false,
-    // Refer https://waline.js.org/en/guide/features/emoji.html
     emoji: ['bmoji', 'weibo'],
-    // Refer https://waline.js.org/en/reference/client/props.html
     additionalConfigs: {
-      // search: false,
       locale: {
-        nick: 'Name',
-        mail: 'Email',
-        login: 'Login (Optional)',
-        placeholder: 'Comment here... (Email to receive replies)',
-        reaction0: 'Like'
+        nick: '昵称',
+        mail: '邮箱',
+        login: '登录（可选）',
+        placeholder: '留下你的评论...',
+        reaction0: '赞'
       }
     }
+  },
+  // Twikoo 评论系统（从 astro-homepage 迁移）
+  // envId 为源博客的 Twikoo 服务地址
+  twikoo: {
+    enable: true,
+    envId: 'https://twikoo.jimdeng.com',
+    region: '',
+    lang: 'zh-CN'
   }
 }
 

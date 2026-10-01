@@ -1,0 +1,36 @@
+---
+import { Button, Icon } from 'astro-pure/user'
+import PageLayout from '@/layouts/CommonPage.astro'
+import ProjectSection from '@/components/projects/ProjectSection.astro'
+
+const headings = [
+  { depth: 2, slug: 'programs', text: '项目' },
+  { depth: 2, slug: 'others', text: '其他' }
+]
+---
+
+<PageLayout title='项目' {headings}>
+  <p>以下是我在维护或参与的项目。</p>
+
+  <h2 id='programs'>项目</h2>
+  <ProjectSection
+    projects={[
+      {
+        name: '🚀 个人博客',
+        description: '基于 Astro 构建的个人博客，记录后端技术与 AI 应用的实践笔记',
+        links: [
+          { type: 'github', href: 'https://github.com/jimdengdev' },
+          { type: 'site', href: 'https://jimdeng.com/' }
+        ]
+      }
+    ]}
+  />
+
+  <h2 id='others'>其他</h2>
+  <p>
+    更多项目请访问我的 <a href='https://github.com/jimdengdev' target='_blank'>GitHub 主页</a>。
+  </p>
+  <Button title='访问 GitHub' class='w-fit' href='https://github.com/jimdengdev' variant='ahead'>
+    <Icon class='size-5' name='github' slot='before' />
+  </Button>
+</PageLayout>

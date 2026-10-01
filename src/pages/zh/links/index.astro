@@ -1,0 +1,98 @@
+---
+import links from '@/public/links.json'
+
+import PageLayout from '@/layouts/CommonPage.astro'
+import FriendList from '@/components/links/FriendList.astro'
+import config from 'virtual:config'
+
+const headings = [
+  { depth: 2, slug: 'common-links', text: '友情链接' },
+  { depth: 2, slug: 'special-links', text: '特别链接' },
+  { depth: 2, slug: 'apply-links', text: '申请友链' }
+]
+
+const { friends } = links
+const linksConf = config.integ.links
+
+// 本站信息 YAML（取自 site.config.ts 的 applyTip，单一数据源）
+const tip = Object.fromEntries(linksConf.applyTip.map((t) => [t.name, t.val]))
+const applyYaml = [
+  `- site: ${tip.Name ?? config.title}`,
+  `  url: ${tip.Link ?? ''}`,
+  `  owner: ${config.author}`,
+  `  desc: ${tip.Desc ?? ''}`,
+  `  image: ${tip.Avatar ?? ''}`
+].join('\n')
+---
+
+<PageLayout title='友链' {headings} comment>
+  <p>欢迎交换友链！排名不分先后，随机排序。</p>
+  <h2 id='common-links'>友情链接</h2>
+  <FriendList list={friends[0]} />
+  <h2 id='special-links'>特别链接</h2>
+  <FriendList list={friends[2]} />
+
+  <h2 id='apply-links'>申请友链</h2>
+  <p>请在本页留言，附上本站信息即可：</p>
+  <div class='not-prose group relative my-4'>
+    <button
+      id='copy-apply-yaml'
+      type='button'
+      class='absolute end-2 top-2 z-10 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:text-primary'
+    >
+      复制
+    </button>
+    <pre class='overflow-x-auto rounded-xl bg-muted p-4 text-sm leading-6'><code id='apply-yaml'>{applyYaml}</code></pre>
+  </div>
+  <p>
+    复制上方信息并在下方评论区粘贴，或发送邮件到{' '}
+    <a href='mailto:jimdengdev@qq.com'>jimdengdev@qq.com</a>，收到后会立马更新～
+  </p>
+
+  <p>申请说明：</p>
+  <ul>
+    <li>已在你的网站上推荐了本站</li>
+    <li>站点存活且有正式域名</li>
+    <li>至少五篇原创文章且最近一年有更新</li>
+    <li>内容不违反国家法律</li>
+  </ul>
+</PageLayout>
+
+<script>
+  // 复制申请友链的 YAML 模板（优先 Clipboard API，失败降级 execCommand）
+  const copyBtn = document.getElementById('copy-apply-yaml')
+  const yamlCode = document.getElementById('apply-yaml')
+
+  async function copyText(text: string): Promise<boolean> {
+    if (window.isSecureContext && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text)
+        return true
+      } catch {
+        /* 降级到 execCommand */
+      }
+    }
+    try {
+      const area = document.createElement('textarea')
+      area.value = text
+      area.style.position = 'fixed'
+      area.style.opacity = '0'
+      document.body.appendChild(area)
+      area.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(area)
+      return ok
+    } catch {
+      return false
+    }
+  }
+
+  copyBtn?.addEventListener('click', async () => {
+    const text = yamlCode?.innerText ?? ''
+    const ok = await copyText(text)
+    if (copyBtn) {
+      copyBtn.textContent = ok ? '已复制 ✓' : '复制失败'
+      setTimeout(() => (copyBtn.textContent = '复制'), 1500)
+    }
+  })
+</script>

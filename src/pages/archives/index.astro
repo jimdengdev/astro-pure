@@ -1,12 +1,14 @@
 ---
-import { PostPreview } from 'astro-pure/components/pages'
-import { getBlogCollection, groupCollectionsByYear, sortMDByDate } from 'astro-pure/server'
+import { groupCollectionsByYear, sortMDByDate } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/PostPreview.astro'
+import { getBlogByLang } from '@/i18n'
 
 export const prerender = true
 
-const allPosts = await getBlogCollection()
+// English archives: English posts only (Chinese posts live under /zh/blog)
+const allPosts = await getBlogByLang('en')
 const allPostsByDate = sortMDByDate(allPosts)
 const allPostsByYear = groupCollectionsByYear(allPostsByDate)
 

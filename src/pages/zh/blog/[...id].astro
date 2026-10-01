@@ -1,0 +1,40 @@
+---
+import { render, type CollectionEntry } from 'astro:content'
+
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
+import PostLayout from '@/layouts/BlogPost.astro'
+import { isEnglishPost, getPostSlug } from '@/i18n'
+
+export const prerender = true
+
+export async function getStaticPaths() {
+  const all = await getBlogCollection()
+  const zhPosts = sortMDByDate(all.filter((p) => !isEnglishPost(p)))
+  const enPosts = all.filter((p) => isEnglishPost(p))
+  // Slugs already served by a real Chinese post
+  const zhSlugs = new Set(zhPosts.map((p) => getPostSlug(p)))
+
+  // Chinese routes: Chinese posts first; English-only posts as content fallback
+  // so that every slug exists under /zh/blog/<slug> (Chinese UI + original content)
+  const fallback = enPosts.filter((p) => !zhSlugs.has(getPostSlug(p)))
+
+  return [...zhPosts, ...fallback].map((post) => ({
+    // frontmatter `link` takes priority over the filename as route slug
+    params: { id: getPostSlug(post) },
+    // Related posts (ArticleBottom) stay Chinese
+    props: { post, posts: zhPosts }
+  }))
+}
+
+type Props = {
+  post: CollectionEntry<'blog'>
+  posts: CollectionEntry<'blog'>[]
+}
+
+const { post, posts } = Astro.props
+const { Content, headings, remarkPluginFrontmatter } = await render(post)
+---
+
+<PostLayout {post} {posts} {headings} {remarkPluginFrontmatter}>
+  <Content />
+</PostLayout>

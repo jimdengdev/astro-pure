@@ -1,65 +1,98 @@
 ---
 import links from '@/public/links.json'
 
-import { Collapse, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import FriendList from '@/components/links/FriendList.astro'
 import config from 'virtual:config'
 
 const headings = [
-  { depth: 2, slug: 'common-links', text: 'Common Links' },
+  { depth: 2, slug: 'common-links', text: 'Friend Links' },
   { depth: 2, slug: 'special-links', text: 'Special Links' },
-  { depth: 2, slug: 'apply-links', text: 'Apply Links' }
+  { depth: 2, slug: 'apply-links', text: 'Apply for a Link' }
 ]
 
 const { friends } = links
 const linksConf = config.integ.links
-const linkEditPage = 'https://github.com/cworld1/astro-theme-pure/blob/main/public/links.json'
+
+// Site info YAML (single source: applyTip in site.config.ts)
+const tip = Object.fromEntries(linksConf.applyTip.map((t) => [t.name, t.val]))
+const applyYaml = [
+  `- site: ${tip.Name ?? config.title}`,
+  `  url: ${tip.Link ?? ''}`,
+  `  owner: ${config.author}`,
+  `  desc: ${tip.Desc ?? ''}`,
+  `  image: ${tip.Avatar ?? ''}`
+].join('\n')
 ---
 
 <PageLayout title='Links' {headings} comment>
-  <p>They're sorted randomly.</p>
-  <h2 id='common-links'>Common Links</h2>
+  <p>Welcome to exchange friend links! Listed in no particular order (shuffled).</p>
+  <h2 id='common-links'>Friend Links</h2>
   <FriendList list={friends[0]} />
-  <Collapse title='Links with Bad Status'>
-    <FriendList list={friends[1]} />
-  </Collapse>
-  <Collapse title='Link History Book'>
-    <Timeline events={linksConf.logbook} />
-  </Collapse>
   <h2 id='special-links'>Special Links</h2>
   <FriendList list={friends[2]} />
 
-  <h2 id='apply-links'>Apply Links</h2>
-  <p>本站信息（点击复制）The site information (click to copy)：</p>
-  <blockquote class='not-prose grid grid-cols-[auto_1fr] gap-x-2 break-words border-s-4 ps-4'>
-    {
-      linksConf.applyTip.map(({ name, val }) => {
-        const script = `navigator.clipboard.writeText('${val}');document.dispatchEvent(new CustomEvent('toast',{detail:{message:'Copied "${val}" to clipboard!'}}))`
-        return (
-          <>
-            <span class='text-end'>{name}:</span>
-            <samp class='cursor-pointer' onclick={script}>
-              {val}
-            </samp>
-          </>
-        )
-      })
-    }
-  </blockquote>
-
+  <h2 id='apply-links'>Apply for a Link</h2>
+  <p>Leave a comment below with this site's info:</p>
+  <div class='not-prose group relative my-4'>
+    <button
+      id='copy-apply-yaml'
+      type='button'
+      class='absolute end-2 top-2 z-10 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:text-primary'
+    >
+      Copy
+    </button>
+    <pre class='overflow-x-auto rounded-xl bg-muted p-4 text-sm leading-6'><code id='apply-yaml'>{applyYaml}</code></pre>
+  </div>
   <p>
-    可通过下方留言或 <a href={linkEditPage} target='_blank'>提交 PR</a> 申请友链。申请说明：<br />
-    Apply your link by leaving comment or <a href={linkEditPage} target='_blank'>Submitting a PR</a
-    >. Additional info:
+    Copy the info above and paste it into the comment section below, or email it to{' '}
+    <a href='mailto:jimdengdev@qq.com'>jimdengdev@qq.com</a>. I'll update it as soon as I see it.
   </p>
+
+  <p>Requirements:</p>
   <ul>
-    <li>推荐了本站 You've recommended our link on your website</li>
-    <li>站点活着且有正式域名 Make sure your site is alive with a formal domain</li>
-    <li>
-      至少五篇原创文章且最近一年更新过 At least 5 original articles and exists articles released in
-      recent year
-    </li>
-    <li>内容不违反国家法律 Content does not violate laws</li>
+    <li>You have linked to this site on your website</li>
+    <li>Your site is alive with a formal domain</li>
+    <li>At least 5 original articles, updated within the last year</li>
+    <li>Content does not violate any laws</li>
   </ul>
 </PageLayout>
+
+<script>
+  // Copy the apply-for-link YAML template (Clipboard API first, execCommand fallback)
+  const copyBtn = document.getElementById('copy-apply-yaml')
+  const yamlCode = document.getElementById('apply-yaml')
+
+  async function copyText(text: string): Promise<boolean> {
+    if (window.isSecureContext && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text)
+        return true
+      } catch {
+        /* fall through to execCommand */
+      }
+    }
+    try {
+      const area = document.createElement('textarea')
+      area.value = text
+      area.style.position = 'fixed'
+      area.style.opacity = '0'
+      document.body.appendChild(area)
+      area.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(area)
+      return ok
+    } catch {
+      return false
+    }
+  }
+
+  copyBtn?.addEventListener('click', async () => {
+    const text = yamlCode?.innerText ?? ''
+    const ok = await copyText(text)
+    if (copyBtn) {
+      copyBtn.textContent = ok ? 'Copied ✓' : 'Copy failed'
+      setTimeout(() => (copyBtn.textContent = 'Copy'), 1500)
+    }
+  })
+</script>

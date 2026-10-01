@@ -3,6 +3,7 @@ import { Font } from 'astro:assets'
 
 import { prod } from 'astro-pure/server'
 import type { SiteMeta } from 'astro-pure/types'
+import { getLangFromUrl } from '@/i18n'
 import config from 'virtual:config'
 
 type Props = SiteMeta
@@ -12,6 +13,10 @@ const { articleDate, description, ogImage, title } = Astro.props
 const siteTitle = `${title} ${config.titleDelimiter} ${config.title}`
 const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const socialImageURL = new URL(ogImage ? ogImage : config.socialCard, Astro.url).href
+
+// Chinese pages use LXGW WenKai (霞鹜文楷) webfont; English pages keep Satoshi
+const isZh = getLangFromUrl(Astro.url) === 'zh'
+const wenkaiStylesheet = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css'
 ---
 
 <meta charset='utf-8' />
@@ -32,9 +37,15 @@ const socialImageURL = new URL(ogImage ? ogImage : config.socialCard, Astro.url)
 
 {/* Font preloads */}
 <Font cssVariable='--font-satoshi' preload={[{ subset: 'latin', style: 'normal' }]} />
+{isZh && <link rel='stylesheet' href={wenkaiStylesheet} />}
 <style>
   body {
     font-family: var(--font-satoshi);
+  }
+  /* 霞鹜文楷：中文页面字体（拉丁字符也由文楷渲染，风格统一） */
+  html[lang='zh-CN'] body,
+  html[lang='zh-CN'] .prose {
+    font-family: 'LXGW WenKai', 'LXGW WenKai Screen', var(--font-satoshi);
   }
 </style>
 

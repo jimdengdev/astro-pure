@@ -1,0 +1,42 @@
+---
+import { Button } from 'astro-pure/user'
+import { cn } from 'astro-pure/utils'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import { integ } from '@/site-config'
+
+const meta = {
+  title: '文档',
+  description: '博客相关文档'
+}
+---
+
+<PageLayout {meta}>
+  <Button title='返回' href='/zh' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 text-3xl font-medium'>博客文档</h1>
+    </div>
+
+    <div id='content' class={cn('animate mt-8 max-w-none md:min-w-[45ch]', integ.typography.class)}>
+      <h2 class='text-xl font-medium'>主题文档</h2>
+      <p>
+        本博客基于 <a href='https://github.com/cworld1/astro-theme-pure' target='_blank'
+          >Astro Theme Pure</a
+        > 主题构建，完整主题文档（英文）请访问 <a href='/docs' data-astro-prefetch>英文文档页</a>。
+      </p>
+
+      <h2 class='text-xl font-medium'>博客写作指南</h2>
+      <p>
+        文章位于 <code>src/content/blog/</code> 目录，frontmatter 中可通过
+        <code>link</code> 字段自定义路由名，<code>language</code> 字段标注文章语言（中英文版本使用相同
+        <code>link</code> 即可对齐路由）。
+      </p>
+
+      <h2 class='text-xl font-medium'>问题反馈</h2>
+      <p>
+        如有问题可通过 <a href='https://github.com/jimdengdev' target='_blank'>GitHub</a>
+        或 <a href='mailto:jimdengdev@qq.com'>邮件</a>联系我。
+      </p>
+    </div>
+  </main>
+</PageLayout>

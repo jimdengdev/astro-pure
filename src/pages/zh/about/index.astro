@@ -1,0 +1,46 @@
+---
+import { Timeline } from 'astro-pure/user'
+import PageLayout from '@/layouts/CommonPage.astro'
+import AboutHero from '@/components/about/AboutHero.astro'
+import { getLangFromUrl, useTranslations } from '@/i18n'
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+---
+
+<PageLayout title={t('about.title')} comment>
+  <AboutHero slot='hero' />
+  <p>{t('about.intro')}</p>
+  <p>{t('about.desc')}</p>
+
+  <h2 id='about-me'>{t('about.me')}</h2>
+  {/* not-prose 跳出文章排版约束，SVG 全宽铺开（矢量图缩放不糊） */}
+  <div class='not-prose my-6'>
+    <a href='https://github.com/jimdengdev' target='_blank'>
+      <img
+        src='https://github-readme-stats.vercel.app/api?username=jimdengdev&show_icons=true&hide_border=true&bg_color=fff0f5&title_color=d63384&text_color=6f1d4e&icon_color=d63384'
+        alt='GitHub Stats'
+        class='w-full'
+        loading='lazy'
+      />
+    </a>
+  </div>
+
+  <h2 id='about-blog'>{t('about.about_blog')}</h2>
+  <p>{t('about.history')}</p>
+  <Timeline
+    events={[
+      {
+        date: '2026-09',
+        content: '迁移至 <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a>，追求更简洁的阅读体验'
+      }
+    ]}
+  />
+  <p>{t('about.tech_stack')}</p>
+  <ul>
+    <li>框架：<a href='https://astro.build/' target='_blank'>Astro</a> + <a href='https://github.com/cworld1/astro-theme-pure' target='_blank'>Astro Theme Pure</a></li>
+    <li>部署：<a href='https://vercel.com/' target='_blank'>Vercel</a></li>
+    <li>评论：<a href='https://twikoo.js.org/' target='_blank'>Twikoo</a></li>
+    <li>统计：<a href='https://analytics.google.com/' target='_blank'>Google Analytics</a></li>
+  </ul>
+</PageLayout>

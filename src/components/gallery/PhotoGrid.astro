@@ -1,0 +1,284 @@
+---
+import type { GalleryPhoto } from '@/lib/gallery'
+
+interface Props {
+  photos: GalleryPhoto[]
+}
+
+const { photos } = Astro.props
+---
+
+<div class='photo-grid grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4'>
+  {
+    photos.map((photo, i) => (
+      <button
+        type='button'
+        class='group relative aspect-square overflow-hidden rounded-xl border bg-muted'
+        data-lightbox-trigger={String(i)}
+        aria-label={photo.alt}
+      >
+        <img
+          src={photo.src}
+          alt={photo.alt}
+          class='size-full object-cover transition-transform duration-300 group-hover:scale-105'
+          loading='lazy'
+        />
+        {photo.caption && (
+          <span class='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 text-start text-xs text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
+            {photo.caption}
+          </span>
+        )}
+      </button>
+    ))
+  }
+</div>
+
+{/* 沉浸式灯箱：使用原生 <dialog> 确保覆盖全屏（不受任何父容器 overflow/z-index 影响） */}
+<dialog id='photo-lightbox' class='photo-lightbox'>
+  {/* 沉浸式背景：当前照片放大 + 高斯模糊 + 半透明暗色叠加，营造氛围感 */}
+  <img id='lightbox-bg' alt='' class='photo-lightbox-bg' aria-hidden='true' />
+  <div class='photo-lightbox-overlay'></div>
+
+  <div class='photo-lightbox-inner'>
+    <figure class='photo-lightbox-figure'>
+      <img id='lightbox-img' alt='' class='photo-lightbox-img' />
+      <figcaption class='photo-lightbox-caption'>
+        <span id='lightbox-caption'></span>
+        <span id='lightbox-counter'></span>
+      </figcaption>
+    </figure>
+
+    <button type='button' id='lightbox-close' class='lb-btn lb-close' aria-label='Close'>
+      <svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18' /><line x1='6' y1='6' x2='18' y2='18' /></svg>
+    </button>
+    <button type='button' id='lightbox-prev' class='lb-btn lb-prev' aria-label='Previous'>
+      <svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='15 18 9 12 15 6' /></svg>
+    </button>
+    <button type='button' id='lightbox-next' class='lb-btn lb-next' aria-label='Next'>
+      <svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6' /></svg>
+    </button>
+  </div>
+</dialog>
+
+<style is:global>
+  .photo-lightbox {
+    padding: 0;
+    border: none;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    background: #0a0a0a;
+    color: white;
+    overflow: hidden;
+  }
+  .photo-lightbox::backdrop {
+    background: black;
+  }
+
+  /* 沉浸式背景：当前照片铺满 + 高斯模糊 + 暗色叠加 */
+  .photo-lightbox-bg {
+    position: absolute;
+    inset: -40px; /* 超出边界消除模糊白边 */
+    width: calc(100% + 80px);
+    height: calc(100% + 80px);
+    object-fit: cover;
+    filter: blur(50px) saturate(1.3) brightness(0.35);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .photo-lightbox-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+  }
+
+  .photo-lightbox-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 16px;
+  }
+
+  .photo-lightbox-img {
+    max-height: 82vh;
+    max-width: calc(100vw - 80px);
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    user-select: none;
+  }
+
+  .photo-lightbox-caption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    min-height: 20px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .photo-lightbox-caption #lightbox-counter {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  /* 控制按钮 */
+  .lb-btn {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    backdrop-filter: blur(4px);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .lb-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+  .lb-close {
+    top: 16px;
+    right: 16px;
+  }
+  .lb-prev {
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lb-prev:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+  .lb-next {
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lb-next:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  /* 移动端：隐藏左右箭头（用滑动手势） */
+  @media (max-width: 640px) {
+    .lb-prev, .lb-next { display: none; }
+    .photo-lightbox-img { max-width: calc(100vw - 32px); }
+  }
+</style>
+
+<script>
+  class LightboxController {
+    private dialog: HTMLDialogElement
+    private img: HTMLImageElement
+    private bg: HTMLImageElement | null
+    private caption: HTMLElement | null
+    private counter: HTMLElement | null
+    private photos: { src: string; alt: string; caption: string }[] = []
+    private current = 0
+
+    constructor() {
+      this.dialog = document.getElementById('photo-lightbox') as HTMLDialogElement
+      this.img = document.getElementById('lightbox-img') as HTMLImageElement
+      this.bg = document.getElementById('lightbox-bg') as HTMLImageElement | null
+      this.caption = document.getElementById('lightbox-caption')
+      this.counter = document.getElementById('lightbox-counter')
+      if (!this.dialog || !this.img) return
+      this.collectPhotos()
+      this.bindBannerClick()
+      this.bindControls()
+    }
+
+    private collectPhotos() {
+      for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-lightbox-trigger]')) {
+        const img = btn.querySelector('img')
+        if (!img) continue
+        const idx = Number(btn.dataset.lightboxTrigger || 0)
+        this.photos[idx] = {
+          src: img.getAttribute('src') || img.src,
+          alt: img.alt,
+          caption: btn.querySelector('span')?.textContent?.trim() || ''
+        }
+        btn.addEventListener('click', () => this.open(idx))
+      }
+    }
+
+    /** Banner 封面图点击也能进入灯箱（显示第一张照片） */
+    private bindBannerClick() {
+      const banner = document.querySelector<HTMLElement>('[data-gallery-banner]')
+      if (banner) {
+        banner.style.cursor = 'pointer'
+        banner.addEventListener('click', () => this.open(0))
+      }
+    }
+
+    private bindControls() {
+      document.getElementById('lightbox-close')?.addEventListener('click', () => this.close())
+      document.getElementById('lightbox-prev')?.addEventListener('click', () => this.show(this.current - 1))
+      document.getElementById('lightbox-next')?.addEventListener('click', () => this.show(this.current + 1))
+
+      // 点击空白区域关闭（figure 外层的 inner div）
+      this.dialog.querySelector('.photo-lightbox-inner')?.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) this.close()
+      })
+
+      // <dialog> 原生 Esc 关闭（自动支持），左右箭头切换
+      document.addEventListener('keydown', (e) => {
+        if (!this.dialog.open) return
+        if (e.key === 'ArrowLeft') this.show(this.current - 1)
+        else if (e.key === 'ArrowRight') this.show(this.current + 1)
+      })
+
+      // 触屏滑动切换
+      let touchStartX = 0
+      this.dialog.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX
+      }, { passive: true })
+      this.dialog.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX
+        if (Math.abs(dx) > 50) this.show(this.current + (dx < 0 ? 1 : -1))
+      }, { passive: true })
+    }
+
+    private show(index: number) {
+      if (this.photos.length === 0) return
+      this.current = (index + this.photos.length) % this.photos.length
+      const photo = this.photos[this.current]
+      if (!photo) return
+      this.img.src = photo.src
+      this.img.alt = photo.alt
+      // 同步更新背景虚化图（沉浸式氛围）
+      if (this.bg) this.bg.src = photo.src
+      if (this.caption) this.caption.textContent = photo.caption
+      if (this.counter) this.counter.textContent = `${this.current + 1} / ${this.photos.length}`
+    }
+
+    private open(index: number) {
+      this.show(index)
+      // showModal() 创建顶层模态，自带 ::backdrop，锁定背景滚动
+      this.dialog.showModal()
+    }
+
+    private close() {
+      this.dialog.close()
+    }
+  }
+
+  // Astro 视图转换后重新绑定
+  document.addEventListener('astro:page-load', () => {
+    if (document.getElementById('photo-lightbox')) new LightboxController()
+  })
+  if (document.getElementById('photo-lightbox')) new LightboxController()
+</script>

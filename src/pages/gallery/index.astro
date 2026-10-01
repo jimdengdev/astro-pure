@@ -1,0 +1,40 @@
+---
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import AlbumCard from '@/components/gallery/AlbumCard.astro'
+import TagFilter from '@/components/gallery/TagFilter.astro'
+import { getAlbums, getAlbumTags, localizeAlbum } from '@/lib/gallery'
+import { useTranslations } from '@/i18n'
+
+export const prerender = true
+
+// English routes: localized fields (titleEn/...) with fallback to original content
+const albums = getAlbums().map((a) => localizeAlbum(a, 'en'))
+const tags = getAlbumTags()
+const t = useTranslations('en')
+
+const meta = {
+  description: t('gallery.subtitle'),
+  title: t('gallery.title')
+}
+---
+
+<PageLayout {meta}>
+  <Button title='Back' href='/' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-2 text-3xl font-medium'>{t('gallery.title')}</h1>
+      <p class='mb-8 text-muted-foreground'>{t('gallery.subtitle')}</p>
+    </div>
+
+    <div id='content' class='animate'>
+      <TagFilter tags={tags} allLabel={t('gallery.all')} />
+      <div class='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+        {albums.map((album) => <AlbumCard {album} />)}
+      </div>
+      <p id='gallery-empty' class='mt-8 text-muted-foreground' style='display:none'>
+        {t('gallery.empty')}
+      </p>
+    </div>
+  </main>
+</PageLayout>

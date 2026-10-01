@@ -1,0 +1,44 @@
+{
+  "albums": [
+    {
+      "slug": "chengdu-trip",
+      "title": "成都之旅",
+      "titleEn": "Chengdu Trip",
+      "description": "在成都街头走一走，记录这座城市的烟火与悠闲。",
+      "descriptionEn": "Wandering the streets of Chengdu, capturing the city's fireworks and leisure.",
+      "date": "2024-05-01",
+      "location": "四川·成都",
+      "locationEn": "Chengdu, Sichuan",
+      "tags": ["旅行", "成都", "生活"],
+      "cover": "/img/gallery/onepiece_bg_035.webp",
+      "comments": true,
+      "photos": [
+        { "src": "/img/gallery/luffy_003.webp", "alt": "成都街景", "caption": "街头的烟火气", "captionEn": "Street vibes" },
+        { "src": "/img/gallery/op_char_005.jpg", "alt": "宽窄巷子", "caption": "窄巷里的慢时光", "captionEn": "Slow hours in the narrow alley" },
+        { "src": "/img/gallery/crew_026.webp", "alt": "锦里夜色", "caption": "灯火阑珊" },
+        { "src": "/img/gallery/op_char_023.jpg", "alt": "大熊猫基地", "caption": "圆滚滚的治愈", "captionEn": "Rolling cuteness" },
+        { "src": "/img/gallery/onepiece_bg_013.webp", "alt": "茶馆一角", "caption": "一杯盖碗茶" },
+        { "src": "/img/gallery/luffy_028.webp", "alt": "川剧变脸", "caption": "一秒换脸的惊艳" }
+      ]
+    },
+    {
+      "slug": "shanghai-trip",
+      "title": "上海之旅",
+      "titleEn": "Shanghai Trip",
+      "description": "第一次去上海，外滩、陆家嘴与田子坊留下的记忆。",
+      "descriptionEn": "First visit to Shanghai — memories of the Bund, Lujiazui and Tianzifang.",
+      "date": "2024-06-15",
+      "location": "上海",
+      "locationEn": "Shanghai",
+      "tags": ["旅行", "上海"],
+      "cover": "/img/gallery/onepiece_bg_038.webp",
+      "comments": true,
+      "photos": [
+        { "src": "/img/gallery/op_char_014.jpg", "alt": "外滩夜景", "caption": "黄浦江畔的万家灯火", "captionEn": "Lights along the Huangpu River" },
+        { "src": "/img/gallery/onepiece_bg_002.webp", "alt": "陆家嘴天际线", "caption": "仰望天际" },
+        { "src": "/img/gallery/op_char_047.jpg", "alt": "田子坊", "caption": "弄堂里的文艺角落" },
+        { "src": "/img/gallery/crew_007.webp", "alt": "南京路", "caption": "人潮涌动" }
+      ]
+    }
+  ]
+}

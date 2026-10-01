@@ -39,6 +39,69 @@ html.dark {
   color-scheme: dark;
 }
 
+/* ========================================================================
+   Panoramic Gradient Background — 三层分离：渐变基调 / 光斑 / 噪点
+   （每层独立元素/伪元素，避免多重 background-size 组合的平铺 bug）
+   ======================================================================== */
+
+/* 第一层：渐变基调 */
+#panoramic-gradient {
+  background-attachment: fixed;
+  /* 亮色：晨空（蓝 → 淡紫 → 粉 → 暖白） */
+  background-image: linear-gradient(160deg, #eaf2fd 0%, #f3effe 40%, #fdeef6 75%, #fdf6ec 100%);
+  transition: background-image 0.5s ease;
+}
+.dark #panoramic-gradient {
+  /* 暗色：夜空（深蓝 → 靛紫） */
+  background-image: linear-gradient(160deg, #0b1120 0%, #141326 40%, #0d1524 75%, #0b1120 100%);
+}
+
+/* 第二层：大光斑（独立伪元素，全尺寸渲染，不平铺） */
+#panoramic-gradient::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  /* 亮色：左上蓝光 / 右上紫光 / 底部粉光 */
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 8%, rgba(147, 197, 253, 0.5), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 18%, rgba(196, 181, 253, 0.45), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 55% 92%, rgba(249, 168, 212, 0.35), transparent 70%);
+}
+.dark #panoramic-gradient::before {
+  /* 暗色：深蓝 / 紫 / 青绿极光 */
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 8%, rgba(56, 110, 200, 0.25), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 18%, rgba(126, 84, 200, 0.2), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 55% 92%, rgba(20, 130, 130, 0.14), transparent 70%);
+}
+
+/* 第三层：微噪点（独立伪元素，256px 平铺只作用于自己） */
+#panoramic-gradient::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.06;
+}
+
+/* 主容器 */
+#main-container {
+  position: relative;
+}
+
+/* Header 毛玻璃增强（渐变背景隐约透过，Apple 导航栏质感） */
+header-component.not-top {
+  backdrop-filter: blur(20px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+  background-color: hsl(var(--background) / 0.6) !important;
+}
+.dark header-component.not-top {
+  background-color: hsl(var(--muted) / 0.6) !important;
+}
+
 /* Global */
 a {
   transition: color 0.2s ease;

@@ -25,13 +25,21 @@ import config from './src/site.config.ts'
 // https://astro.build/config
 export default defineConfig({
   // [Basic]
-  site: 'https://astro-pure.js.org',
-  // Deploy to a sub path
-  // https://astro-pure.js.org/docs/setup/deployment#platform-with-base-path
-  // base: '/astro-pure/',
+  site: 'https://jimdeng.com',
   trailingSlash: 'never',
+
+  // [i18n]
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'zh'],
+    routing: {
+      prefixDefaultLocale: false
+    }
+  },
   // root: './my-project-directory',
   server: { host: true },
+  // IDE WebView 预览环境用不到开发工具栏，禁用可避免 entrypoint.js 加载报错
+  devToolbar: { enabled: false },
   // https://docs.astro.build/en/guides/prefetch/
   prefetch: {
     // prefetchAll: true,
@@ -71,8 +79,22 @@ export default defineConfig({
     }
   ],
 
+  // [Vite]
+  // `astro-pure/utils` re-exports `./date`, which imports the virtual module
+  // `virtual:config` provided by the astro-pure integration. Exclude the package
+  // from esbuild dependency pre-bundling: otherwise the optimizer cannot resolve
+  // `virtual:config` and the generated client entry fails to load in the browser.
+  vite: {
+    optimizeDeps: {
+      exclude: ['astro-pure']
+    }
+  },
+
   // [Markdown]
   markdown: {
+    // 注意：Markdown 中的远程图片请直接写 <img src="https://...">，
+    // 不要用 ![alt](https://...) 语法——Astro 渲染时会在服务端抓取远程图片
+    // 推断尺寸（inferSize），网络受限或图床失效会导致整页渲染失败。
     remarkPlugins: [remarkMath],
     rehypePlugins: [
       [rehypeKatex, {}],

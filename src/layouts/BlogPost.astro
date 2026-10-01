@@ -6,9 +6,14 @@ import type { CollectionEntry } from 'astro:content'
 import 'katex/dist/katex.min.css'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, Copyright, Hero, TOC } from 'astro-pure/components/pages'
+import { TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
-import { Comment, PageInfo } from '@/components/waline'
+import Copyright from '@/components/Copyright.astro'
+import Hero from '@/components/Hero.astro'
+import ArticleBottom from '@/components/ArticleBottom.astro'
+import { Comment } from '@/components/twikoo'
+import { getRandomCover } from '@/utils/randomCover'
+import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
 import config from 'virtual:config'
 
 interface Props {
@@ -35,26 +40,33 @@ const {
   comment: enableComment
 } = data
 
+// Fall back to a random cover from `src/assets/images/` when the post has no heroImage.
+const fallbackCover = heroImage ? undefined : getRandomCover(String(id))
+const heroData = fallbackCover ? { ...data, heroImage: { src: fallbackCover } } : data
+
 const socialImage = heroImage
   ? typeof heroImage.src === 'string'
     ? heroImage.src
     : heroImage.src.src
-  : config.socialCard
+  : (fallbackCover?.src ?? config.socialCard)
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-text-opacity))'
+
+// 返回按钮跟随当前语言：/zh 文章 → /zh/blog，英文文章 → /blog
+const pageLang = getLangFromUrl(Astro.url)
+const backHref = getLocalePath(pageLang, '/blog')
 ---
 
 <PageLayout
   meta={{ articleDate, description, ogImage: socialImage, title }}
   highlightColor={primaryColor}
-  back='/blog'
+  back={backHref}
+  hasSidebar={!!headings.length}
 >
   {!!headings.length && <TOC {headings} slot='sidebar' />}
 
-  <Hero {data} {remarkPluginFrontmatter} slot='header'>
-    <Fragment slot='description'>
-      {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
-    </Fragment>
+  <Hero data={heroData} {remarkPluginFrontmatter} slot='header'>
+    {/* PageInfo（浏览量/评论数）为 Waline 专属，Twikoo 暂无对应 API，已移除 */}
   </Hero>
 
   <slot />
@@ -62,8 +74,8 @@ const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-tex
   <Fragment slot='bottom'>
     {/* Copyright */}
     <Copyright {data} />
-    {/* Article recommend */}
-    <ArticleBottom collections={posts} {id} class='mt-3 sm:mt-6' />
+    {/* Article recommend: pass route slug (link field first, fallback to post id) */}
+    <ArticleBottom collections={posts} id={getPostSlug(Astro.props.post)} class='mt-3 sm:mt-6' />
     {/* Comment */}
     {!isDraft && enableComment && <Comment class='mt-3 sm:mt-6' />}
   </Fragment>

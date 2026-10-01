@@ -58,7 +58,22 @@ export const IntegrationConfigSchema = () =>
       emoji: z.array(z.string()).optional(),
       /** Additional configurations for the Waline comment system. */
       additionalConfigs: z.record(z.string(), z.any()).default({})
-    })
+    }),
+
+    /** The Twikoo comment system */
+    twikoo: z
+      .object({
+        /** Enable the Twikoo comment system. */
+        enable: z.boolean().default(false),
+        /** Environment ID: Tencent Cloud environment ID or Vercel/server URL. */
+        envId: z.string(),
+        /** Environment region (Tencent Cloud only, e.g. ap-shanghai). */
+        region: z.string().optional(),
+        /** Language for the comment UI (default: zh-CN). */
+        lang: z.string().default('zh-CN')
+      })
+      .optional()
+      .default({ envId: '', enable: false, lang: 'zh-CN' })
   })
 
 export type IntegrationConfig = z.infer<ReturnType<typeof IntegrationConfigSchema>>

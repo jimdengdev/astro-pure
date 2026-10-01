@@ -1,0 +1,110 @@
+---
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+import { Paginator } from 'astro-pure/components/pages'
+import { getUniqueTagsWithCount, sortMDByDate } from 'astro-pure/server'
+import { Button, Icon } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/PostPreview.astro'
+import { getLangFromUrl, useTranslations, getLocalePath, getBlogByLang } from '@/i18n'
+import config from '@/site-config'
+
+export const prerender = true
+
+export const getStaticPaths = (async ({ paginate }) => {
+  // Chinese blog: posts without an English language tag (default = Chinese)
+  const collections = sortMDByDate(await getBlogByLang('zh'))
+  const uniqueTags = getUniqueTagsWithCount(collections).map(([tag]) => tag)
+  const collectionsCount = collections.length
+  return paginate(collections, {
+    pageSize: config.content.blogPageSize,
+    props: { uniqueTags, collectionsCount }
+  })
+}) satisfies GetStaticPaths
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>
+  uniqueTags: string[]
+  collectionsCount: number
+}
+
+const { page, uniqueTags, collectionsCount } = Astro.props
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+
+const meta = {
+  description: t('blog.description'),
+  title: t('blog.title')
+}
+
+// paginate() 生成的 page.url 已包含 /zh 前缀（路由位于 zh/blog/ 目录下），直接使用
+const paginationProps = {
+  ...(page.url.prev && {
+    prevUrl: {
+      text: t('blog.prev'),
+      url: page.url.prev
+    }
+  }),
+  ...(page.url.next && {
+    nextUrl: {
+      text: t('blog.next'),
+      url: page.url.next
+    }
+  })
+}
+---
+
+<PageLayout {meta}>
+  <Button title={t('common.back')} href='/zh' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 mt-6 text-3xl font-medium sm:mt-10'>{t('blog.title')}</h1>
+    </div>
+    {
+      page.data.length === 0 ? (
+        <p>{t('blog.no_posts')}</p>
+      ) : (
+        <div class='grid gap-y-16 sm:grid-cols-[3fr_1fr] sm:gap-x-8'>
+          <section aria-label='Blog posts list' class='animate' id='content'>
+            <div class='mb-3 flex flex-col justify-between text-sm sm:mb-5 sm:flex-row'>
+              <span class='text-muted-foreground'>
+                {t('blog.page')} {page.currentPage} - {t('blog.showing')} {page.data.length} / {collectionsCount} {t('blog.posts')}
+              </span>
+              <a aria-label='View all blog by years' href={getLocalePath(lang, '/archives')} data-astro-prefetch>
+                {t('blog.view_all')}
+              </a>
+            </div>
+            <ul class='flex flex-col gap-y-4 text-start'>
+              {page.data.map((post) => (
+                <PostPreview {post} detailed />
+              ))}
+            </ul>
+            <Paginator {...paginationProps} />
+          </section>
+
+          {!!uniqueTags.length && (
+            <aside class='animate' id='sidebar'>
+              <h2 class='mb-4 flex items-center text-lg font-medium'>
+                <Icon name='tag-2' class='me-2' />
+                {t('blog.tags')}
+              </h2>
+              <ul class='text-bgColor flex flex-wrap gap-2'>
+                {uniqueTags.slice(0, 50).map((tag) => (
+                  <li>
+                    <Button title={tag} href={getLocalePath(lang, `/tags/${tag}`)} variant='pill' />
+                  </li>
+                ))}
+              </ul>
+              <span class='mt-4 block sm:text-end'>
+                <a aria-label='View all blog categories' href={getLocalePath(lang, '/tags')} data-astro-prefetch>
+                  {t('blog.view_all_tags')}
+                </a>
+              </span>
+            </aside>
+          )}
+        </div>
+      )
+    }
+  </main>
+</PageLayout>

@@ -36,6 +36,11 @@ const blog = defineCollection({
       language: z.string().optional(),
       draft: z.boolean().default(false),
       pin: z.boolean().optional(),
+      // Custom route slug, takes priority over the filename (post.id).
+      // Used to align route names across language versions of the same post,
+      // e.g. sync-upstream-theme.md & sync-upstream-theme-en.md both use
+      // link: sync-upstream-theme → /blog/... and /zh/blog/...
+      link: z.string().optional(),
       // Special fields
       comment: z.boolean().default(true)
     })

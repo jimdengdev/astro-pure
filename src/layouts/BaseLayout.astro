@@ -1,7 +1,9 @@
 ---
-import { Footer, Header, ThemeProvider } from 'astro-pure/components/basic'
+import { Footer, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import BaseHead from '@/components/BaseHead.astro'
+import Header from '@/components/Header.astro'
+import { getLangFromUrl } from '@/i18n'
 import config from '@/site-config'
 
 // Import the global.css file here so that it is included on
@@ -19,15 +21,21 @@ const {
   highlightColor,
   ...props
 } = Astro.props
+
+const lang = getLangFromUrl(Astro.url)
+const htmlLang = lang === 'zh' ? 'zh-CN' : 'en'
 ---
 
-<html lang={config.locale.lang}>
+<html lang={htmlLang}>
   <head>
     <BaseHead {articleDate} {description} {ogImage} {title} />
     <ThemeProvider />
   </head>
 
-  <body class='flex justify-center bg-background text-foreground' {...props}>
+  <body class='flex justify-center text-foreground' {...props}>
+    {/* 渐变背景层（配色由 CSS 的 light/dark 变量控制）+ 噪点质感 */}
+    <div id='panoramic-gradient' class='pointer-events-none fixed inset-0 -z-10' aria-hidden='true'></div>
+
     {
       highlightColor && (
         <div
