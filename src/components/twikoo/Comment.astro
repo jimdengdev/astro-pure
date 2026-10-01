@@ -40,6 +40,9 @@ const twikooConfig = (integ as { twikoo?: TwikooConfig }).twikoo
   const twikooConfig = (integ as { twikoo?: TwikooConfig }).twikoo
 
   if (twikooConfig?.enable) {
+    // 收窄为确定非空：TS 不会把 if 内的收窄带进闭包，捕获为局部常量即可
+    const cfg = twikooConfig
+
     class CommentComponent extends HTMLElement {
       connectedCallback() {
         const initTwikoo = () => {
@@ -56,9 +59,9 @@ const twikooConfig = (integ as { twikoo?: TwikooConfig }).twikoo
           import('twikoo')
             .then(({ init }) => {
               init({
-                envId: twikooConfig.envId,
+                envId: cfg.envId,
                 el: container,
-                region: twikooConfig.region || undefined,
+                region: cfg.region || undefined,
                 path: window.location.pathname,
                 lang: pageLang
               })
