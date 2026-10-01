@@ -48,11 +48,6 @@ const LEAF_ANCHORS = [
   [0.38, 0.74]
 ] as const
 
-// Per-leaf progress around the wind arc (0 = crown, 1 = far drift), so leaves
-// travel instead of hovering at a fixed spot.
-const LEAF_TRAVEL = [0.18, 0.42, 0.09, 0.55, 0.3, 0.68, 0.48, 0.22, 0.75, 0.15, 0.62, 0.36] as const
-const LEAF_TRAVEL_SPEED = 0.016
-
 function sample(index: number, seed: number): number {
   return THREE.MathUtils.euclideanModulo(Math.sin(index * 127.1 + seed * 311.7) * 43758.5453, 1)
 }

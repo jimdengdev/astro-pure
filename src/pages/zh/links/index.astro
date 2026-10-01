@@ -79,7 +79,9 @@ const applyYaml = [
       area.style.opacity = '0'
       document.body.appendChild(area)
       area.select()
-      const ok = document.execCommand('copy')
+      // execCommand 已废弃，但作为 navigator.clipboard 不可用时的兜底保留；
+      // 断言绕开 deprecated 诊断
+      const ok = (document as any).execCommand('copy') as boolean
       document.body.removeChild(area)
       return ok
     } catch {

@@ -87,7 +87,17 @@ export const theme: ThemeUserConfig = {
   }
 }
 
-export const integ: IntegrationUserConfig = {
+// 官方 astro-pure 的 IntegrationUserConfig 不含 twikoo（本站自定义扩展，
+// 由 src/components/twikoo/Comment.astro 直接消费），这里显式扩展类型，
+// 保证在官方包类型下（如 Vercel 干净安装）也能通过 astro check
+export const integ: IntegrationUserConfig & {
+  twikoo?: {
+    enable: boolean
+    envId: string
+    region?: string
+    lang?: string
+  }
+} = {
   // [Links]
   // https://astro-pure.js.org/docs/integrations/links
   links: {
