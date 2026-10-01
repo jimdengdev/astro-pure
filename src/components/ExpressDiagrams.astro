@@ -1,0 +1,173 @@
+{/*
+  客户端图形增强：将 ```mermaid / ```infographic 代码块渲染为图形。
+  - 构建期 Shiki 输出纯文本源码（langAlias），这里在浏览器端替换为图形
+  - 依赖按需加载（动态 import），无图形的页面零开销
+  - 跟随站点亮/暗主题自动重渲染
+  - 脚本由 Astro 打包为 module，只注入一次，通过 astro:page-load 增量扫描
+*/}
+
+<script>
+  type Rerender = () => Promise<void>
+
+  const registry = new Map<HTMLElement, { rerender: Rerender }>()
+
+  let mmdSeq = 0
+  let themeObserver: MutationObserver | null = null
+  let lastDark = document.documentElement.classList.contains('dark')
+
+  const isDark = () => document.documentElement.classList.contains('dark')
+
+  const extractCode = (block: HTMLElement) =>
+    block.querySelector('pre')?.textContent?.trim() ?? ''
+
+  const showError = (box: HTMLElement, message: string) => {
+    box.classList.add('diagram-error')
+    const pre = document.createElement('pre')
+    pre.textContent = message
+    box.replaceChildren(pre)
+  }
+
+  async function mountMermaid(source: HTMLElement) {
+    const code = extractCode(source)
+    if (!code) return
+    const box = document.createElement('div')
+    box.className = 'express-diagram express-mermaid'
+    source.replaceWith(box)
+
+    const rerender: Rerender = async () => {
+      try {
+        const mermaid = (await import('mermaid')).default
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'loose',
+          theme: isDark() ? 'dark' : 'default'
+        })
+        const { svg } = await mermaid.render(`express-mmd-${++mmdSeq}`, code)
+        box.classList.remove('diagram-error')
+        box.innerHTML = svg
+        const el = box.querySelector('svg')
+        if (el) {
+          el.style.maxWidth = '100%'
+          el.style.height = 'auto'
+        }
+      } catch (err) {
+        console.error('[Mermaid] 渲染失败：', err)
+        showError(box, code)
+      }
+    }
+
+    registry.set(box, { rerender })
+    await rerender()
+  }
+
+  async function mountInfographic(source: HTMLElement) {
+    const code = extractCode(source)
+    if (!code) return
+    const box = document.createElement('div')
+    box.className = 'express-diagram express-infographic'
+    source.replaceWith(box)
+
+    const { Infographic, parseSyntax } = await import('@antv/infographic')
+    let instance: InstanceType<typeof Infographic> | null = null
+
+    const rerender: Rerender = async () => {
+      const { options, errors } = parseSyntax(code)
+      if (errors.length) {
+        console.error('[Infographic] 语法错误：', errors)
+        showError(
+          box,
+          errors.map((e) => `第 ${e.line} 行：${e.message}`).join('\n')
+        )
+        return
+      }
+      try {
+        instance?.destroy()
+        instance = new Infographic({
+          ...options,
+          container: box,
+          width: Math.max(320, Math.floor(box.clientWidth || 680)),
+          // 用户 DSL 显式指定的 theme 优先，否则跟随站点亮/暗
+          theme: options.theme ?? (isDark() ? 'dark' : 'light')
+        })
+        instance.render()
+        box.classList.remove('diagram-error')
+      } catch (err) {
+        console.error('[Infographic] 渲染失败：', err)
+        showError(box, code)
+      }
+    }
+
+    registry.set(box, { rerender })
+    await rerender()
+  }
+
+  function enhanceAll() {
+    document
+      .querySelectorAll<HTMLElement>('[data-language="mermaid"]')
+      .forEach((el) => void mountMermaid(el))
+    document
+      .querySelectorAll<HTMLElement>('[data-language="infographic"]')
+      .forEach((el) => void mountInfographic(el))
+  }
+
+  // 主题切换（html.dark）时全量重渲染
+  function watchTheme() {
+    if (themeObserver) return
+    themeObserver = new MutationObserver(() => {
+      const dark = isDark()
+      if (dark !== lastDark) {
+        lastDark = dark
+        registry.forEach(({ rerender }) => void rerender())
+      }
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    // 清理已离开 DOM 的条目，再扫描新出现的代码块
+    registry.forEach((_, el) => {
+      if (!el.isConnected) registry.delete(el)
+    })
+    enhanceAll()
+    watchTheme()
+  })
+
+  // 未启用 view transitions 的首次直载兜底
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => enhanceAll())
+  } else {
+    enhanceAll()
+  }
+</script>
+
+<style is:global>
+  .express-diagram {
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+  .express-diagram svg {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
+  .express-infographic svg {
+    border-radius: 12px;
+  }
+  .express-diagram.diagram-error {
+    border: 1px solid hsl(0 72% 51% / 0.45);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+  .express-diagram.diagram-error pre {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    color: hsl(0 72% 51%);
+  }
+</style>

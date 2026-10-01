@@ -11,6 +11,7 @@ import PageLayout from '@/layouts/ContentLayout.astro'
 import Copyright from '@/components/Copyright.astro'
 import Hero from '@/components/Hero.astro'
 import ArticleBottom from '@/components/ArticleBottom.astro'
+import ExpressDiagrams from '@/components/ExpressDiagrams.astro'
 import { Comment } from '@/components/twikoo'
 import { getRandomCover } from '@/utils/randomCover'
 import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
@@ -84,3 +85,5 @@ const backHref = getLocalePath(pageLang, '/blog')
 </PageLayout>
 
 {config.integ.mediumZoom.enable && <MediumZoom />}
+{/* ```mermaid / ```infographic 代码块渲染为图形 */}
+<ExpressDiagrams />

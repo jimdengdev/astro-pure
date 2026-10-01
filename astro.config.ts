@@ -110,6 +110,9 @@ export default defineConfig({
     ],
     // https://docs.astro.build/en/guides/syntax-highlighting/
     shikiConfig: {
+      // `infographic` / `mermaid` 代码块由客户端渲染为图形（ExpressDiagrams），
+      // Shiki 只需按纯文本输出源码，别名避免 "language doesn't exist" 警告
+      langAlias: { infographic: 'text' },
       themes: {
         light: 'github-light',
         dark: 'github-dark'

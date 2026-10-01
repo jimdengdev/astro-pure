@@ -4,6 +4,7 @@ import type { SiteMeta } from 'astro-pure/types'
 import { Button, Icon } from 'astro-pure/user'
 import { cn } from 'astro-pure/utils'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
 import { integ } from '@/site-config'
 
 interface Props {
@@ -22,16 +23,21 @@ interface Props {
 const {
   meta,
   highlightColor,
-  back = '/',
+  // 未显式指定时返回语言化首页（中文页 → /zh，英文页 → /）
+  back,
   // 无目录（TOC）时不渲染侧栏占位，让正文占满全宽、左右边距对称
   hasSidebar = Astro.slots.has('sidebar'),
   ...props
 } = Astro.props
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const backHref = back ?? getLocalePath(lang, '/')
 ---
 
 <PageLayout {meta} {highlightColor} {...props}>
   <slot name='hero' />
-  <Button title='Back' href={back} variant='back' />
+  <Button title={t('common.back')} href={backHref} variant='back' />
   <main class='mt-6 items-start gap-x-10 md:flex'>
     {
       hasSidebar && (
