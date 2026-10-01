@@ -25,7 +25,7 @@
     "@astrojs/vercel": "11.0.11",
     "@waline/client": "^3.15.2",
     "astro": "6.4.8",
-    "astro-pure": "1.4.9",
+    "astro-pure": "file:packages/pure",
     "katex": "^0.16.47",
     "mermaid": "^12.0.0",
     "rehype-katex": "^7.0.1",
