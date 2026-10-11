@@ -11,6 +11,8 @@ import { Image } from 'astro:assets'
 import type { InferEntrySchema } from 'astro:content'
 
 import { FormattedDate, Icon } from 'astro-pure/user'
+import { getLangFromUrl, getLocalePath } from '@/i18n'
+import { findSeriesBySlug, localizeSeries } from '@/lib/series'
 
 interface Props {
   data: InferEntrySchema<'blog'>
@@ -18,13 +20,25 @@ interface Props {
 }
 
 const {
-  data: { title, description, draft, heroImage, publishDate, updatedDate, tags, language },
+  data: {
+    title,
+    description,
+    draft,
+    heroImage,
+    publishDate,
+    updatedDate,
+    tags,
+    language,
+    series
+  },
   remarkPluginFrontmatter
 } = Astro.props
 
-const dateTimeOptions: Intl.DateTimeFormatOptions = {
-  month: 'short'
-}
+// 系列徽标（frontmatter series 字段），显示在 tag 左侧并跳转到系列详情页
+const lang = getLangFromUrl(Astro.url)
+const seriesMeta = series ? findSeriesBySlug(series) : undefined
+const postSeries = seriesMeta ? localizeSeries(seriesMeta, lang) : undefined
+
 ---
 
 {
@@ -48,18 +62,14 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
     {/* Article date */}
     <div class='flex items-center gap-1'>
       <Icon name='calendar' class='size-5' />
-      <FormattedDate class='font-sans' date={publishDate} dateTimeOptions={dateTimeOptions} />
+      <FormattedDate class='font-sans' date={publishDate} />
       {
         updatedDate && (
           <div class='flex items-center gap-1'>
             <span> / </span>
             <span>
               Update
-              <FormattedDate
-                class='font-sans'
-                date={updatedDate}
-                dateTimeOptions={dateTimeOptions}
-              />
+              <FormattedDate class='font-sans' date={updatedDate} />
             </span>
           </div>
         )
@@ -77,6 +87,19 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
           <Icon name='earth' class='size-5' />
           {language}
         </span>
+      )
+    }
+    {
+      // Series badge: 用酒红文字色与 tag 区分（不填充背景），点击进系列详情页
+      postSeries && (
+        <a
+          class='inline-flex items-center gap-1 font-medium text-[#B7282E] no-underline transition-colors hover:underline hover:underline-offset-4 dark:text-red-400'
+          href={getLocalePath(lang, `/series/${postSeries.slug}`)}
+          data-astro-prefetch
+        >
+          <Icon name='list' class='size-4' />
+          {postSeries.title}
+        </a>
       )
     }
     {

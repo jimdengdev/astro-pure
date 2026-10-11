@@ -176,6 +176,9 @@ export default defineConfig({
     presetMini(), // required
     presetTypography(typographyConfig)
   ],
+  // 主题由 ThemeProvider 切换 html.dark 类（而非跟随系统），
+  // 因此 dark: 变体必须用 class 策略，否则与手动切换的主题不一致
+  darkMode: 'class',
   rules,
   theme: {
     colors: themeColors

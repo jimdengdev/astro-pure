@@ -13,7 +13,7 @@ import Hero from '@/components/Hero.astro'
 import ArticleBottom from '@/components/ArticleBottom.astro'
 import ExpressDiagrams from '@/components/ExpressDiagrams.astro'
 import { Comment } from '@/components/twikoo'
-import { getRandomCover } from '@/utils/randomCover'
+import { coverUrl, getRandomCover } from '@/utils/randomCover'
 import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
 import config from 'virtual:config'
 
@@ -41,14 +41,12 @@ const {
   comment: enableComment
 } = data
 
-// Fall back to a random cover from `src/assets/images/` when the post has no heroImage.
+// Fall back to a random remote cover (image CDN) when the post has no heroImage.
 const fallbackCover = heroImage ? undefined : getRandomCover(String(id))
-const heroData = fallbackCover ? { ...data, heroImage: { src: fallbackCover } } : data
+const heroData = fallbackCover ? { ...data, heroImage: fallbackCover } : data
 
 const socialImage = heroImage
-  ? typeof heroImage.src === 'string'
-    ? heroImage.src
-    : heroImage.src.src
+  ? coverUrl(heroImage.src)
   : (fallbackCover?.src ?? config.socialCard)
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-text-opacity))'

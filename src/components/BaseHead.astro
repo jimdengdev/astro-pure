@@ -10,7 +10,8 @@ type Props = SiteMeta
 
 const { articleDate, description, ogImage, title } = Astro.props
 
-const siteTitle = `${title} ${config.titleDelimiter} ${config.title}`
+// 首页等页面传空标题时，浏览器标签只显示站点名，避免出现「主页 • Jimdeng's Blog」
+const siteTitle = title ? `${title} ${config.titleDelimiter} ${config.title}` : config.title
 const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const socialImageURL = new URL(ogImage ? ogImage : config.socialCard, Astro.url).href
 

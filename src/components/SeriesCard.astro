@@ -1,0 +1,60 @@
+---
+import { Button } from 'astro-pure/user'
+import { useTranslations, getLocalePath, type Lang } from '@/i18n'
+import type { SeriesMeta } from '@/lib/series'
+
+interface Props {
+  series: SeriesMeta
+  postCount: number
+  topTags: string[]
+  cover: { src: string; width?: number; height?: number }
+  lang: Lang
+}
+
+const { series, postCount, topTags, cover, lang } = Astro.props
+const t = useTranslations(lang)
+const seriesHref = getLocalePath(lang, `/series/${series.slug}`)
+---
+
+<div
+  class='series-card group relative flex flex-col overflow-hidden rounded-2xl border bg-background transition-colors hover:bg-muted'
+>
+  {/* 封面图（可点击进详情页），底部渐隐到卡片背景，与文字形成虚化过渡 */}
+  <a href={seriesHref} data-astro-prefetch aria-label={series.title}>
+    <img
+      src={cover.src}
+      width={cover.width}
+      height={cover.height}
+      alt={series.title}
+      loading='lazy'
+      class='series-card-cover h-28 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]'
+    />
+  </a>
+  <div class='relative z-10 -mt-7 flex flex-1 flex-col gap-y-2 px-3 pb-3'>
+    <a href={seriesHref} data-astro-prefetch>
+      <h3 class='font-medium leading-6 transition-colors group-hover:text-primary'>
+        {series.title}
+      </h3>
+    </a>
+    {
+      topTags.length > 0 && (
+        // 最多显示 6 个（数据层限制）且最多两行（视觉层用 max-height 裁掉多余行）
+        <ul class='flex max-h-[4.25rem] flex-wrap gap-1.5 overflow-hidden'>
+          {topTags.map((tag) => (
+            <li>
+              <Button title={tag} href={getLocalePath(lang, `/tags/${tag}`)} variant='pill' />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    <span class='mt-auto text-xs text-muted-foreground'>{postCount} {t('series.posts')}</span>
+  </div>
+</div>
+
+<style>
+  .series-card-cover {
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 100%);
+  }
+</style>

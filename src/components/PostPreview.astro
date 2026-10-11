@@ -6,6 +6,7 @@ import { render, type CollectionEntry, type CollectionKey } from 'astro:content'
 import { cn } from 'astro-pure/utils'
 import { Button, FormattedDate, Icon } from 'astro-pure/user'
 import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
+import { findSeriesBySlug, localizeSeries } from '@/lib/series'
 import { getRandomCover } from '@/utils/randomCover'
 
 type Props<T extends CollectionKey> = {
@@ -20,7 +21,7 @@ const { remarkPluginFrontmatter } = await render(post)
 const postDate = data.updatedDate ?? data.publishDate
 type PreviewMetadata = {
   heroImage?: {
-    src: ImageMetadata
+    src: ImageMetadata | string
     alt?: string
     inferSize?: boolean
     width?: number
@@ -32,10 +33,10 @@ type PreviewMetadata = {
 }
 const previewData = data as typeof data & Partial<PreviewMetadata>
 
-// Fall back to a random cover from `src/assets/images/` when the post has no heroImage.
+// Fall back to a random remote cover (image CDN) when the post has no heroImage.
 const fallbackCover = getRandomCover(String(id))
 const cover: PreviewMetadata['heroImage'] | undefined =
-  previewData.heroImage ?? (fallbackCover ? { src: fallbackCover, alt: data.title } : undefined)
+  previewData.heroImage ?? (fallbackCover ? { ...fallbackCover, alt: data.title } : undefined)
 
 // Link follows the current page's language: every slug exists under both
 // /blog/<slug> and /zh/blog/<slug> (the route without a real translation
@@ -43,6 +44,12 @@ const cover: PreviewMetadata['heroImage'] | undefined =
 // Route slug: frontmatter `link` takes priority over filename
 const pageLang = getLangFromUrl(Astro.url)
 const postHref = getLocalePath(pageLang, `/blog/${getPostSlug(post)}`)
+
+// 系列归属（仅 blog 有 series 字段），用于在 tag 最左侧显示系列徽标
+const seriesSlug = (data as { series?: string }).series
+const seriesMeta = seriesSlug ? findSeriesBySlug(seriesSlug) : undefined
+const postSeries = seriesMeta ? localizeSeries(seriesMeta, pageLang) : undefined
+const seriesHref = postSeries ? getLocalePath(pageLang, `/series/${postSeries.slug}`) : undefined
 ---
 
 <li
@@ -62,14 +69,29 @@ const postHref = getLocalePath(pageLang, `/blog/${getPostSlug(post)}`)
     data-astro-prefetch
   >
     {
-      detailed && cover && (
-        <Image
-          alt={cover.alt || data.title}
-          class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
-          loading='eager'
-          {...cover}
-        />
-      )
+      detailed && cover &&
+        (typeof cover.src === 'string' ? (
+          // 远程封面（Astro 要求远程图必须带 width/height）：CDN 兜底图自带真实尺寸，
+          // frontmatter 里手写的远程图缺尺寸时用 16:9 兜底（CSS object-cover 决定实际裁剪）
+          <Image
+            alt={cover.alt || data.title}
+            class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
+            loading='eager'
+            src={cover.src}
+            width={cover.width ?? 1920}
+            height={cover.height ?? 1080}
+          />
+        ) : (
+          // 本地图片：Astro 不会把三元窄化后的类型带入 spread，故显式断言
+          <Image
+            alt={cover.alt || data.title}
+            class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
+            loading='eager'
+            src={cover.src as ImageMetadata}
+            width={cover.width}
+            height={cover.height}
+          />
+        ))
     }
     <div
       class={cn('relative flex flex-col gap-1', !detailed && 'sm:flex-row sm:items-center')}
@@ -79,7 +101,7 @@ const postHref = getLocalePath(pageLang, `/blog/${getPostSlug(post)}`)
 
       {/* title */}
       <div class='flex justify-between flex-grow'>
-        <div class={cn(detailed && 'font-medium')}>
+        <div class={cn(detailed && 'font-bold text-[#B7282E] dark:text-red-400')}>
           {previewData.pin && <span class='text-primary me-1'>[Pin]</span>}
           {data.draft && <span class='text-red-500 me-1'>(Draft)</span>}
           {data.title}
@@ -132,9 +154,21 @@ const postHref = getLocalePath(pageLang, `/blog/${getPostSlug(post)}`)
                 </span>
               )}
             </div>
-            {data.tags.length > 0 && (
+            {(postSeries || data.tags.length > 0) && (
               <object title='Tags' aria-label='Tags' aria-labelledby='Tags'>
-                <ul class='tag-list mt-1 flex gap-2'>
+                <ul class='tag-list mt-1 flex flex-wrap gap-2'>
+                  {postSeries && seriesHref && (
+                    <li>
+                      {/* 系列徽标：与 tag 同形状，但酒红填充以区分，点击进系列详情页 */}
+                      <a
+                        class='series-badge inline-flex items-center rounded-xl border border-[#B7282E] bg-[#B7282E] px-2 py-1 text-sm text-white no-underline transition-colors hover:bg-[#9c2026] hover:text-white dark:border-red-400 dark:bg-red-400 dark:text-[#1c1917] dark:hover:bg-red-500 dark:hover:text-[#1c1917]'
+                        href={seriesHref}
+                        data-astro-prefetch
+                      >
+                        {postSeries.title}
+                      </a>
+                    </li>
+                  )}
                   {data.tags.map((tag: string) => (
                     <li>
                       <Button as='a' title={tag} href={getLocalePath(pageLang, `/tags/${tag}`)} variant='pill' />
@@ -171,6 +205,17 @@ const postHref = getLocalePath(pageLang, `/blog/${getPostSlug(post)}`)
       & > a .preview-redirect {
         stroke: var(--preview-highlight-final) !important;
       }
+    }
+    /* 系列徽标在卡片 hover 时保持酒红外观，不被上面的高亮规则覆盖 */
+    .post-preview:hover .series-badge {
+      background-color: #b7282e !important;
+      border-color: #b7282e !important;
+      color: #fff !important;
+    }
+    :global(.dark) .post-preview:hover .series-badge {
+      background-color: #f87171 !important;
+      border-color: #f87171 !important;
+      color: #1c1917 !important;
     }
     .cover-image {
       -webkit-mask-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);

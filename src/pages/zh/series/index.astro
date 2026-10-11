@@ -1,0 +1,47 @@
+---
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import SeriesCard from '@/components/SeriesCard.astro'
+import { getBlogByLang, useTranslations, getLangFromUrl, getLocalePath } from '@/i18n'
+import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
+import { getRandomCover } from '@/utils/randomCover'
+
+export const prerender = true
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const posts = await getBlogByLang('zh')
+
+const meta = {
+  title: t('series.title'),
+  description: t('series.description')
+}
+
+const items = getSeries()
+  .map((s) => {
+    const stats = getSeriesStats(posts, s.slug)
+    // 优先使用 json 配置的 cover；为空时回退到图床随机封面池
+    const cover = s.cover ? { src: s.cover } : getRandomCover(s.slug)
+    return { series: localizeSeries(s, 'zh'), ...stats, cover: cover! }
+  })
+  // 0 篇文章的系列不外显
+  .filter((item) => item.postCount > 0)
+---
+
+<PageLayout {meta}>
+  <Button title='返回' href={getLocalePath(lang, '/')} variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 mt-6 text-3xl font-medium sm:mt-10'>{t('series.title')}</h1>
+    </div>
+    {
+      items.length === 0 ? (
+        <p>{t('series.no_series')}</p>
+      ) : (
+        <div id='content' class='animate grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5'>
+          {items.map((item) => <SeriesCard {...item} lang={lang} />)}
+        </div>
+      )
+    }
+  </main>
+</PageLayout>

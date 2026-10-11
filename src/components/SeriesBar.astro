@@ -1,0 +1,44 @@
+---
+import { cn } from 'astro-pure/utils'
+
+interface Props {
+  title: string
+  description: string
+  postCount: number
+  /** 文章数单位文案（articles / 篇文章） */
+  postsLabel: string
+  href: string
+  class?: string
+}
+
+const { title, description, postCount, postsLabel, href, class: className } = Astro.props
+---
+
+<a
+  class={cn(
+    'group flex items-center justify-between gap-3 rounded-2xl border bg-background px-4 py-2.5 no-underline transition-colors hover:bg-muted',
+    className
+  )}
+  href={href}
+  data-astro-prefetch
+>
+  <div class='flex min-w-0 flex-col gap-0.5'>
+    <span class='font-medium group-hover:text-primary'>{title}</span>
+    <span class='line-clamp-2 text-xs text-muted-foreground'>{description}</span>
+    <span class='text-xs text-muted-foreground'>{postCount} {postsLabel}</span>
+  </div>
+  {/* 跳转标识 */}
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    class='size-4 shrink-0 text-muted-foreground group-hover:text-primary'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    stroke-width='2'
+    stroke-linecap='round'
+    stroke-linejoin='round'
+    aria-hidden='true'
+  >
+    <polyline points='9 18 15 12 9 6'></polyline>
+  </svg>
+</a>

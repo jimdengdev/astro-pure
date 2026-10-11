@@ -17,7 +17,7 @@ const blog = defineCollection({
   schema: ({ image }) =>
     z.object({
       // Required
-      title: z.string().max(60),
+      title: z.string().max(80),
       description: z.string().max(160),
       publishDate: z.coerce.date(),
       // Optional
@@ -41,6 +41,8 @@ const blog = defineCollection({
       // e.g. sync-upstream-theme.md & sync-upstream-theme-en.md both use
       // link: sync-upstream-theme → /blog/... and /zh/blog/...
       link: z.string().optional(),
+      // 系列归属：值需与 src/assets/series.json 中某个条目的 slug 一致
+      series: z.string().optional(),
       // Special fields
       comment: z.boolean().default(true)
     })

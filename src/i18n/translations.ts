@@ -15,6 +15,7 @@ export const translations = {
     // Nav
     'nav.home': 'Home',
     'nav.blog': 'Blog',
+    'nav.series': 'Series',
     'nav.docs': 'Docs',
     'nav.projects': 'Projects',
     'nav.links': 'Links',
@@ -49,6 +50,12 @@ export const translations = {
     'blog.no_posts': 'No posts yet.',
     'blog.prev': '← Previous Posts',
     'blog.next': 'Next Posts →',
+    // Series
+    'series.title': 'Series',
+    'series.description': 'Article series organized by topic',
+    'series.posts': 'articles',
+    'series.no_series': 'No series yet.',
+    'series.no_posts': 'No posts in this series yet.',
     // About
     'about.title': 'About',
     'about.intro': 'Backend engineer / AI application developer',
@@ -84,8 +91,9 @@ export const translations = {
     'site.title': 'Jimdeng 的博客',
     'site.description': '后端开发 / Agent 开发',
     // Nav
-    'nav.home': '首页',
+    'nav.home': '主页',
     'nav.blog': '博客',
+    'nav.series': '系列',
     'nav.docs': '文档',
     'nav.projects': '项目',
     'nav.links': '友链',
@@ -120,6 +128,12 @@ export const translations = {
     'blog.no_posts': '暂无文章。',
     'blog.prev': '← 上一页',
     'blog.next': '下一页 →',
+    // Series
+    'series.title': '系列',
+    'series.description': '按主题组织的系列文章',
+    'series.posts': '篇文章',
+    'series.no_series': '暂无系列。',
+    'series.no_posts': '该系列暂无文章。',
     // About
     'about.title': '关于',
     'about.intro': '后端工程师 / AI 应用从业者',
