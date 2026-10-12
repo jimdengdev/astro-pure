@@ -8,14 +8,31 @@
  * - The heavy "blur ghost" duplicate image is replaced by a light, soft shadow.
  */
 import { Image } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
 import type { InferEntrySchema } from 'astro:content'
 
 import { FormattedDate, Icon } from 'astro-pure/user'
 import { getLangFromUrl, getLocalePath } from '@/i18n'
 import { findSeriesBySlug, localizeSeries } from '@/lib/series'
 
+/**
+ * `heroImage.src` 可以是本地图片（Astro `ImageMetadata`），也可以是远程封面
+ * （BlogPost 传入的图床兜底封面，形如 `{ src: string, width, height }`），
+ * 因此在 `InferEntrySchema` 基础上放宽 `heroImage` 的类型。
+ */
+type HeroImageData = Omit<InferEntrySchema<'blog'>, 'heroImage'> & {
+  heroImage?: {
+    src: ImageMetadata | string
+    alt?: string
+    inferSize?: boolean
+    width?: number
+    height?: number
+    color?: string
+  }
+}
+
 interface Props {
-  data: InferEntrySchema<'blog'>
+  data: HeroImageData
   remarkPluginFrontmatter: Record<string, unknown>
 }
 
@@ -42,17 +59,30 @@ const postSeries = seriesMeta ? localizeSeries(seriesMeta, lang) : undefined
 ---
 
 {
-  heroImage && (
-    <figure class='hero-image mb-6 flex justify-center'>
+  heroImage &&
+    (typeof heroImage.src === 'string' ? (
+      // 远程封面：Astro 要求远程图必须带 width/height（兜底封面自带真实尺寸）
       <Image
         alt={heroImage.alt || title}
         class='cover-image h-auto w-full max-w-[65ch] rounded-xl object-contain'
         fetchpriority='high'
         loading='eager'
-        {...heroImage}
+        src={heroImage.src}
+        width={heroImage.width ?? 1920}
+        height={heroImage.height ?? 1080}
       />
-    </figure>
-  )
+    ) : (
+      // 本地图片：TS 不会把三元窄化带入 spread，故显式断言
+      <Image
+        alt={heroImage.alt || title}
+        class='cover-image h-auto w-full max-w-[65ch] rounded-xl object-contain'
+        fetchpriority='high'
+        loading='eager'
+        src={heroImage.src as ImageMetadata}
+        width={heroImage.width}
+        height={heroImage.height}
+      />
+    ))
 }
 
 {draft ? <span class='text-red-500'>(Draft)</span> : null}
