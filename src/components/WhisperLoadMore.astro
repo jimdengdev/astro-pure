@@ -1,0 +1,95 @@
+---
+/**
+ * 下滑加载更多（对齐 astro-homepage 的 CursorPagination 思路）：
+ * IntersectionObserver 进入视口底部即 fetch 下一页 HTML，
+ * 用 DOMParser 只取时间轴里的 <li> 追加到当前列表。
+ */
+interface Props {
+  /** 下一页地址（paginate 生成，如 /whispers/2），没有则不渲染 */
+  nextUrl?: string
+  lang: 'en' | 'zh'
+}
+
+const { nextUrl, lang } = Astro.props
+const loadingText = lang === 'zh' ? '加载中…' : 'Loading…'
+---
+
+{
+  nextUrl && (
+    <whispers-load-more
+      class='flex justify-center py-2'
+      data-next={nextUrl}
+      data-loading-text={loadingText}
+    >
+      <span class='text-xs text-muted-foreground'>{loadingText}</span>
+    </whispers-load-more>
+  )
+}
+
+<style>
+  whispers-load-more::before {
+    content: '';
+    display: block;
+    height: 1px;
+  }
+</style>
+
+<script>
+  class WhispersLoadMore extends HTMLElement {
+    private busy = false
+
+    connectedCallback() {
+      const sentinel = document.createElement('span')
+      sentinel.setAttribute('data-load-more-sentinel', '')
+      sentinel.style.cssText = 'display:block;height:1px'
+      this.appendChild(sentinel)
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) this.load()
+        },
+        // 提前 320px 触发，与 astro-homepage 一致
+        { rootMargin: '0px 0px 320px 0px' }
+      )
+      observer.observe(sentinel)
+    }
+
+    private async load() {
+      if (this.busy) return
+      const next = this.dataset.next
+      if (!next) return
+
+      this.busy = true
+      try {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), 15000)
+        const res = await fetch(next, { signal: controller.signal })
+        clearTimeout(timer)
+        if (!res.ok) throw new Error(`status ${res.status}`)
+
+        const html = await res.text()
+        const doc = new DOMParser().parseFromString(html, 'text/html')
+        const incoming = doc.querySelectorAll('ol[data-whispers-timeline] > li')
+        const list = document.querySelector('ol[data-whispers-timeline]')
+        incoming.forEach((li) => list?.appendChild(document.adoptNode(li)))
+
+        // 下一页地址随请求结果推进；没有下一页则移除组件（结束无限滚动）
+        const nextNext = doc.querySelector('whispers-load-more')?.getAttribute('data-next')
+        if (nextNext) {
+          this.dataset.next = nextNext
+        } else {
+          this.remove()
+        }
+      } catch (error) {
+        console.warn('[whispers] failed to load more:', error)
+        this.remove()
+      } finally {
+        this.busy = false
+      }
+    }
+  }
+
+  if (!customElements.get('whispers-load-more')) {
+    customElements.define('whispers-load-more', WhispersLoadMore)
+  }
+</script>

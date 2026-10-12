@@ -64,4 +64,23 @@ const docs = defineCollection({
     })
 })
 
-export const collections = { blog, docs }
+// Define whispers (moments) collection — 短动态/碎碎念，独立于博客
+const whispers = defineCollection({
+  loader: glob({ base: './src/content/whispers', pattern: '**/*.{md,mdx}' }),
+  schema: () =>
+    z.object({
+      // Optional: most whispers are short notes without a title
+      title: z.string().max(80).optional(),
+      // Optional one-line summary (falls back to the body excerpt)
+      description: z.string().max(160).optional(),
+      publishDate: z.coerce.date(),
+      updatedDate: z.coerce.date().optional(),
+      // Remote image URLs (image CDN)
+      images: z.array(z.string()).default([]),
+      tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+      language: z.string().optional(),
+      draft: z.boolean().default(false)
+    })
+})
+
+export const collections = { blog, docs, whispers }

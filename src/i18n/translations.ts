@@ -22,6 +22,14 @@ export const translations = {
     'nav.about': 'About',
     'nav.search': 'Search',
     'nav.gallery': 'Gallery',
+    'nav.whispers': 'Moments',
+    // Whispers (moments)
+    'whispers.title': 'Moments',
+    'whispers.description': 'Short notes, small observations and life updates.',
+    'whispers.empty': 'No moments yet.',
+    'whispers.tags': 'Tags',
+    'whispers.tags_desc': 'All topics used in moments',
+    'whispers.view_all_tags': 'View all tags →',
     // Gallery
     'gallery.title': 'Gallery',
     'gallery.subtitle': 'Capturing the beautiful moments in life',
@@ -33,8 +41,10 @@ export const translations = {
     'home.about': 'About',
     'home.about.desc': 'Backend engineer / AI application developer. Passionate about building high-performance systems and exploring AI applications in real-world scenarios.',
     'home.more_about': 'More about me',
-    'home.posts': 'Posts',
+    'home.posts': 'Blog',
     'home.more_posts': 'More posts',
+    'home.whispers': 'Moments',
+    'home.more_whispers': 'More moments',
     'home.skills': 'Skills',
     'home.location': 'Beijing, China',
     // Blog
@@ -100,6 +110,14 @@ export const translations = {
     'nav.about': '关于',
     'nav.search': '搜索',
     'nav.gallery': '相册',
+    'nav.whispers': '时光',
+    // Whispers (moments)
+    'whispers.title': '时光',
+    'whispers.description': '记录零散的片段、细小的观察与日常。',
+    'whispers.empty': '暂无记录。',
+    'whispers.tags': '标签',
+    'whispers.tags_desc': '时光中用到的全部话题',
+    'whispers.view_all_tags': '查看全部标签 →',
     // Gallery
     'gallery.title': '相册',
     'gallery.subtitle': '记录生活中的美好瞬间',
@@ -108,11 +126,13 @@ export const translations = {
     'gallery.back': '返回相册',
     'gallery.photos': '张照片',
     // Home
-    'home.about': '关于我',
+    'home.about': '关于',
     'home.about.desc': '后端工程师 / AI 应用从业者。专注于构建高性能、高可用的系统架构，同时积极探索人工智能在实际场景中的落地应用。',
     'home.more_about': '了解更多',
-    'home.posts': '最新文章',
+    'home.posts': '博客',
     'home.more_posts': '更多文章',
+    'home.whispers': '时光',
+    'home.more_whispers': '更多时光',
     'home.skills': '技能',
     'home.location': '中国 北京',
     // Blog
