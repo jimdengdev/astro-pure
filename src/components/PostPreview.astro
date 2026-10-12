@@ -74,7 +74,7 @@ const seriesHref = postSeries ? getLocalePath(pageLang, `/series/${postSeries.sl
           // 远程封面（Astro 要求远程图必须带 width/height）：CDN 兜底图自带真实尺寸，
           // frontmatter 里手写的远程图缺尺寸时用 16:9 兜底（CSS object-cover 决定实际裁剪）
           <Image
-            alt={cover.alt || data.title}
+            alt={cover.alt || data.title || ''}
             class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
             loading='eager'
             src={cover.src}
@@ -84,7 +84,7 @@ const seriesHref = postSeries ? getLocalePath(pageLang, `/series/${postSeries.sl
         ) : (
           // 本地图片：Astro 不会把三元窄化后的类型带入 spread，故显式断言
           <Image
-            alt={cover.alt || data.title}
+            alt={cover.alt || data.title || ''}
             class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
             loading='eager'
             src={cover.src as ImageMetadata}
