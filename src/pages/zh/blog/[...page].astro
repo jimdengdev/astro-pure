@@ -7,19 +7,43 @@ import { getUniqueTagsWithCount, sortMDByDate } from 'astro-pure/server'
 import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/PostPreview.astro'
+import SeriesBar from '@/components/SeriesBar.astro'
 import { getLangFromUrl, useTranslations, getLocalePath, getBlogByLang } from '@/i18n'
+import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
 import config from '@/site-config'
 
 export const prerender = true
 
+export interface SeriesListItem {
+  slug: string
+  title: string
+  description: string
+  postCount: number
+}
+
 export const getStaticPaths = (async ({ paginate }) => {
   // Chinese blog: posts without an English language tag (default = Chinese)
-  const collections = sortMDByDate(await getBlogByLang('zh'))
-  const uniqueTags = getUniqueTagsWithCount(collections).map(([tag]) => tag)
+  // sortMDByDate 返回 CollectionEntry<CollectionKey>[]（blog/docs 联合），断言收窄到 blog
+  const collections = sortMDByDate(await getBlogByLang('zh')) as CollectionEntry<'blog'>[]
+  const uniqueTags = getUniqueTagsWithCount(collections)
+    .slice(0, 20)
+    .map(([tag]) => tag)
   const collectionsCount = collections.length
+  // 侧边栏系列列表（0 篇文章的系列不外显）
+  const seriesList: SeriesListItem[] = getSeries()
+    .map((s) => {
+      const meta = localizeSeries(s, 'zh')
+      return {
+        slug: s.slug,
+        title: meta.title,
+        description: meta.description,
+        postCount: getSeriesStats(collections, s.slug).postCount
+      }
+    })
+    .filter((s) => s.postCount > 0)
   return paginate(collections, {
     pageSize: config.content.blogPageSize,
-    props: { uniqueTags, collectionsCount }
+    props: { uniqueTags, collectionsCount, seriesList }
   })
 }) satisfies GetStaticPaths
 
@@ -27,9 +51,10 @@ interface Props {
   page: Page<CollectionEntry<'blog'>>
   uniqueTags: string[]
   collectionsCount: number
+  seriesList: SeriesListItem[]
 }
 
-const { page, uniqueTags, collectionsCount } = Astro.props
+const { page, uniqueTags, collectionsCount, seriesList } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
 
@@ -83,24 +108,68 @@ const paginationProps = {
             <Paginator {...paginationProps} />
           </section>
 
-          {!!uniqueTags.length && (
+          {!!(uniqueTags.length || seriesList.length) && (
             <aside class='animate' id='sidebar'>
-              <h2 class='mb-4 flex items-center text-lg font-medium'>
-                <Icon name='tag-2' class='me-2' />
-                {t('blog.tags')}
-              </h2>
-              <ul class='text-bgColor flex flex-wrap gap-2'>
-                {uniqueTags.slice(0, 50).map((tag) => (
-                  <li>
-                    <Button title={tag} href={getLocalePath(lang, `/tags/${tag}`)} variant='pill' />
-                  </li>
-                ))}
-              </ul>
-              <span class='mt-4 block sm:text-end'>
-                <a aria-label='View all blog categories' href={getLocalePath(lang, '/tags')} data-astro-prefetch>
-                  {t('blog.view_all_tags')}
-                </a>
-              </span>
+              {!!uniqueTags.length && (
+                <>
+                  <h2 class='mb-4 flex items-center text-lg font-medium'>
+                    <Icon name='tag-2' class='me-2' />
+                    {t('blog.tags')}
+                  </h2>
+                  <ul class='text-bgColor flex flex-wrap gap-2'>
+                    {uniqueTags.slice(0, 20).map((tag) => (
+                      <li>
+                        <Button
+                          title={tag}
+                          href={getLocalePath(lang, `/tags/${tag}`)}
+                          variant='pill'
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                  <span class='mt-4 block sm:text-end'>
+                    <a
+                      aria-label='View all blog categories'
+                      href={getLocalePath(lang, '/tags')}
+                      data-astro-prefetch
+                    >
+                      {t('blog.view_all_tags')}
+                    </a>
+                  </span>
+                </>
+              )}
+
+              {/* 系列列表（条形）：系列名 + 描述 + 文章数 + 跳转标识 */}
+              {!!seriesList.length && (
+                <div class='mt-8'>
+                  <h2 class='mb-4 flex items-center text-lg font-medium'>
+                    <Icon name='list' class='me-2' />
+                    {t('series.title')}
+                  </h2>
+                  <ul class='flex flex-col gap-2'>
+                    {seriesList.map((s) => (
+                      <li>
+                        <SeriesBar
+                          title={s.title}
+                          description={s.description}
+                          postCount={s.postCount}
+                          postsLabel={t('series.posts')}
+                          href={getLocalePath(lang, `/series/${s.slug}`)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                  <span class='mt-4 block sm:text-end'>
+                    <a
+                      aria-label='View all series'
+                      href={getLocalePath(lang, '/series')}
+                      data-astro-prefetch
+                    >
+                      {t('blog.view_all_tags')}
+                    </a>
+                  </span>
+                </div>
+              )}
             </aside>
           )}
         </div>

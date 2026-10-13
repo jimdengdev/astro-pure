@@ -1,0 +1,20 @@
+{
+  "series": [
+    {
+      "slug": "genkit-go",
+      "title": "Genkit Go",
+      "titleEn": "Genkit Go",
+      "description": "对 Genkit Go 官方教程的学习心得与实践记录，覆盖环境搭建、Flow 定义、模型接入、调试与 CLI 使用等。",
+      "descriptionEn": "Notes and hands-on lessons from the official Genkit Go tutorial: setup, flows, model integration, debugging and CLI.",
+      "cover": "https://jimimg.pages.dev/file/1791734376362_genkit-lightmode.dgpPZY8Y_1waD6I.svg"
+    },
+    {
+      "slug": "astro-koharu",
+      "title": "astro-koharu 使用指南",
+      "titleEn": "astro-koharu Guide",
+      "description": "astro-koharu 博客主题的完整使用指南，涵盖快速开始、配置说明、文章写作与界面功能。",
+      "descriptionEn": "A complete guide to the astro-koharu blog theme: quick start, configuration, writing and features.",
+      "cover": ""
+    }
+  ]
+}

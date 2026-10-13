@@ -1,0 +1,144 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { render } from 'astro:content'
+
+import { Button, FormattedDate } from 'astro-pure/user'
+import { getLocalePath, type Lang } from '@/i18n'
+
+interface Props {
+  entry: CollectionEntry<'whispers'>
+  lang: Lang
+}
+
+const { entry, lang } = Astro.props
+const { data } = entry
+const { Content } = await render(entry)
+---
+
+<li class='whispers-item' data-whisper-id={entry.id} data-date={data.publishDate.toISOString()}>
+  {/* 时间 */}
+  <div class='whispers-time'>
+    <FormattedDate class='text-xs font-medium' date={data.publishDate} />
+  </div>
+
+  {/* 时间轴：节点 + 竖线（竖线由全局 CSS 的 :last-child 规则控制） */}
+  <div class='whispers-axis' aria-hidden='true'></div>
+
+  {/* 内容卡片 */}
+  <div class='whispers-body'>
+    <article class='whispers-card'>
+      {data.title && <h2 class='mb-1 font-medium'>{data.title}</h2>}
+      <div class='text-sm leading-relaxed text-foreground/85'>
+        <Content />
+      </div>
+
+      {
+        data.images.length > 0 && (
+          <ul class='mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3'>
+            {data.images.map((src) => (
+              <li>
+                <a href={src} target='_blank' rel='noopener noreferrer' title={src}>
+                  <img
+                    src={src}
+                    alt=''
+                    loading='lazy'
+                    class='h-28 w-full rounded-xl object-cover transition-opacity duration-200 hover:opacity-85 sm:h-32'
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        data.tags.length > 0 && (
+          <ul class='mt-2.5 flex flex-wrap gap-1.5'>
+            {data.tags.map((tag) => (
+              <li>
+                <Button
+                  title={tag}
+                  href={getLocalePath(lang, `/whispers/tags/${tag}`)}
+                  variant='pill'
+                />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </article>
+  </div>
+</li>
+
+{/*
+  全局样式：服务端渲染、无限滚动追加、客户端搜索结果三处共用，
+  因此不能使用 scoped style（动态插入的 DOM 拿不到 scope hash）
+*/}
+<style is:global>
+  .whispers-timeline > .whispers-item {
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+  }
+  .whispers-timeline > .whispers-item:last-child .whispers-body {
+    padding-bottom: 0;
+  }
+  @media (min-width: 640px) {
+    .whispers-timeline > .whispers-item {
+      gap: 1rem;
+    }
+  }
+  .whispers-item .whispers-time {
+    width: 6.75rem;
+    flex-shrink: 0;
+    padding-top: 0.25rem;
+    text-align: end;
+  }
+  .whispers-item .whispers-axis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .whispers-item .whispers-axis::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.375rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background-color: hsl(var(--primary));
+  }
+  .whispers-item .whispers-axis::after {
+    content: '';
+    width: 1px;
+    margin: 0.25rem 0;
+    flex: 1;
+    background-color: hsl(var(--border));
+  }
+  /* 最后一条不画竖线 */
+  .whispers-timeline > .whispers-item:last-child .whispers-axis::after {
+    display: none;
+  }
+  .whispers-item .whispers-body {
+    min-width: 0;
+    flex: 1;
+    padding-bottom: 1.25rem;
+  }
+  .whispers-card {
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--background) / var(--un-bg-opacity, 1));
+    padding: 0.75rem 1rem;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .whispers-card:hover {
+    background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  }
+  @media (min-width: 640px) {
+    .whispers-card {
+      padding: 0.875rem 1.25rem;
+    }
+  }
+</style>

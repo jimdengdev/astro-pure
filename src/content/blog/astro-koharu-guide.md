@@ -7,6 +7,7 @@ tags:
   - "博客"
   - "教程"
   - "工具"
+series: "astro-koharu"
 draft: true
 ---
 

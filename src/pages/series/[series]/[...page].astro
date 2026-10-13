@@ -1,0 +1,100 @@
+---
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+import { Paginator } from 'astro-pure/components/pages'
+import { sortMDByDate } from 'astro-pure/server'
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/PostPreview.astro'
+import { getBlogByLang, useTranslations } from '@/i18n'
+import { findSeriesBySlug, getSeries, getSeriesPosts, localizeSeries } from '@/lib/series'
+import { getRandomCover } from '@/utils/randomCover'
+import config from '@/site-config'
+
+export const prerender = true
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  // sortMDByDate 返回 CollectionEntry<CollectionKey>[]（blog/docs 联合），断言收窄到 blog
+  const allPosts = sortMDByDate(await getBlogByLang('en')) as CollectionEntry<'blog'>[]
+  return getSeries().flatMap((s) => {
+    const seriesPosts = getSeriesPosts(allPosts, s.slug)
+    return paginate(seriesPosts, {
+      pageSize: config.content.blogPageSize,
+      params: { series: s.slug },
+      props: { postCount: seriesPosts.length }
+    })
+  })
+}
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>
+  postCount: number
+}
+
+const { page, postCount } = Astro.props
+const slug = Astro.params.series ?? ''
+const t = useTranslations('en')
+
+const seriesMeta = findSeriesBySlug(slug)
+const series = seriesMeta ? localizeSeries(seriesMeta, 'en') : undefined
+const cover = seriesMeta?.cover ? { src: seriesMeta.cover } : getRandomCover(slug)
+
+const meta = {
+  title: series ? `Series: ${series.title}` : 'Series',
+  description: series?.description ?? 'Series detail'
+}
+
+const paginationProps = {
+  ...(page.url.prev && {
+    prevUrl: { text: '← Previous', url: page.url.prev }
+  }),
+  ...(page.url.next && {
+    nextUrl: { text: 'Next →', url: page.url.next }
+  })
+}
+---
+
+<PageLayout {meta}>
+  <Button title='Back' href='/series' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate mb-8'>
+      {/* 系列头部：封面图 + 标题/描述/文章数 */}
+      <div class='flex items-center gap-4 sm:gap-5'>
+        {
+          cover && (
+            <img
+              src={cover.src}
+              alt={series?.title ?? slug}
+              class='h-16 w-16 shrink-0 rounded-xl object-cover sm:h-20 sm:w-20'
+              loading='eager'
+            />
+          )
+        }
+        <div class='flex flex-col gap-y-1.5'>
+          <h1 class='flex items-end gap-x-2 text-2xl font-medium sm:text-3xl'>
+            {t('series.title')}:
+            <span class='text-xl sm:text-2xl'>{series?.title ?? slug}</span>
+          </h1>
+          {series?.description && (
+            <p class='text-sm text-muted-foreground'>{series.description}</p>
+          )}
+          <span class='text-xs text-muted-foreground'>{postCount} {t('series.posts')}</span>
+        </div>
+      </div>
+    </div>
+
+    <section id='content' class='animate' aria-label='Blog post list'>
+      {
+        page.data.length === 0 ? (
+          <p>{t('series.no_posts')}</p>
+        ) : (
+          <ul class='flex flex-col gap-y-3 text-start'>
+            {page.data.map((post) => <PostPreview {post} detailed />)}
+          </ul>
+        )
+      }
+      <Paginator {...paginationProps} />
+    </section>
+  </main>
+</PageLayout>

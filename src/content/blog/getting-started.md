@@ -6,6 +6,7 @@ tags:
   - "入门"
   - "Astro"
   - "工具"
+series: "astro-koharu"
 draft: true
 pin: true
 ---

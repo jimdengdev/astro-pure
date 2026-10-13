@@ -1,14 +1,22 @@
 ---
 import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
 
 import { Quote } from 'astro-pure/advanced'
-import { sortMDByDate } from 'astro-pure/server'
+import { prod, sortMDByDate } from 'astro-pure/server'
 import { Button, Icon, Label } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/PostPreview.astro'
+import WhisperRow from '@/components/WhisperRow.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
-import { getLangFromUrl, useTranslations, getLocalePath, getBlogByLang } from '@/i18n'
+import {
+  getLangFromUrl,
+  useTranslations,
+  getLocalePath,
+  getBlogByLang,
+  isEnglishPost
+} from '@/i18n'
 import config from '@/site-config'
 
 const lang = getLangFromUrl(Astro.url)
@@ -19,29 +27,52 @@ const backend = ['Docker', 'PostgreSQL', 'Redis', 'Caddy']
 const ai = ['LangChain', 'Agent', 'RAG', 'Prompt Engineering']
 
 const MAX_POSTS = 6
+const MAX_WHISPERS = 5
 const allPosts = await getBlogByLang(lang)
 const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
+// 时光：按语言过滤后取最近 N 条
+const allWhispers = (
+  await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))
+)
+  .filter((entry) => (lang === 'en' ? isEnglishPost(entry) : !isEnglishPost(entry)))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, MAX_WHISPERS)
 
 const imagePath = config.logo.src
+const isRemoteImage = /^https?:\/\//.test(imagePath)
 const images = import.meta.glob<{ default: ImageMetadata }>(
   '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
 )
-if (!images[imagePath])
+if (!isRemoteImage && !images[imagePath])
   throw new Error(
     `"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`
   )
 ---
 
-<PageLayout meta={{ title: t('nav.home') }} highlightColor='#659EB9'>
+<PageLayout meta={{ title: '' }} highlightColor='#659EB9'>
   <main class='flex w-full flex-col items-center'>
     <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
-      <Image
-        src={images[imagePath]()}
-        alt={config.logo.alt || 'Profile'}
-        class='h-28 w-auto rounded-full border p-1'
-        loading='eager'
-        fetchpriority='high'
-      />
+      {
+        isRemoteImage ? (
+          // 远程头像走普通 <img>：Astro 的 <Image> 会在构建时抓取远程图推断尺寸，
+          // 图床不可用会导致整页渲染失败
+          <img
+            src={imagePath}
+            alt={config.logo.alt || 'Profile'}
+            class='h-28 w-auto rounded-full border p-1'
+            loading='eager'
+            fetchpriority='high'
+          />
+        ) : (
+          <Image
+            src={images[imagePath]()}
+            alt={config.logo.alt || 'Profile'}
+            class='h-28 w-auto rounded-full border p-1'
+            loading='eager'
+            fetchpriority='high'
+          />
+        )
+      }
       <div class='flex flex-col items-center gap-y-4'>
         <h1 class='text-3xl font-medium'>{config.author}</h1>
         <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
@@ -76,6 +107,19 @@ if (!images[imagePath])
               ))}
             </ul>
             <Button title={t('home.more_posts')} class='w-fit self-end' href={getLocalePath(lang, '/blog')} variant='ahead' />
+          </Section>
+        )
+      }
+
+      {
+        allWhispers.length > 0 && (
+          <Section title={t('home.whispers')}>
+            <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
+              {allWhispers.map((w) => (
+                <WhisperRow entry={w} lang={lang} />
+              ))}
+            </ul>
+            <Button title={t('home.more_whispers')} class='w-fit self-end' href={getLocalePath(lang, '/whispers')} variant='ahead' />
           </Section>
         )
       }

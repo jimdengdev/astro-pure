@@ -17,16 +17,22 @@ export const theme: ThemeUserConfig = {
     lang: 'en',
     attrs: 'en_US',
     // Date locale
-    dateLocale: 'en-US',
+    // sv-SE（ISO 风格）输出 `2026-10-12 17:16`：日期用短横线、日期与时间用空格分隔
+    dateLocale: 'sv-SE',
     dateOptions: {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      // 固定时区，避免构建机（如 Vercel UTC）与本地浏览时区的显示差异
+      timeZone: 'Asia/Shanghai'
     }
   },
   /** Set a logo image to show in the homepage. */
   logo: {
-    src: '/src/assets/avatar.webp',
+    src: 'https://jimimg.pages.dev/file/blog_image/1791729037971_avatar.webp',
     alt: 'jimdeng'
   },
 

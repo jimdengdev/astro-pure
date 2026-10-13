@@ -1,0 +1,249 @@
+---
+/**
+ * 时光页内搜索：关键词 + 时间范围。
+ * 静态站点无法服务端检索，故把全量条目的轻量索引内嵌到页面，
+ * 由客户端脚本过滤并渲染结果（样式复用 WhisperItem 的全局类）。
+ */
+import { Icon } from 'astro-pure/user'
+import { cn } from 'astro-pure/utils'
+import type { Lang } from '@/i18n'
+
+export interface WhisperIndexItem {
+  id: string
+  iso: string
+  excerpt: string
+  tags: string[]
+  /** 标签页基础路径（含语言前缀），客户端渲染标签链接用 */
+  tagBase: string
+}
+
+interface Props {
+  items: WhisperIndexItem[]
+  lang: Lang
+  /** 客户端渲染结果的目标列表容器 id */
+  targetId?: string
+  class?: string
+}
+
+const { items, lang, targetId = 'whispers-results', class: className } = Astro.props
+const tagsPath = lang === 'zh' ? '/zh/whispers/tags' : '/whispers/tags'
+
+const timeRanges = [
+  { value: 'all', label: lang === 'zh' ? '全部时间' : 'All time' },
+  { value: 'today', label: lang === 'zh' ? '今天' : 'Today' },
+  { value: 'week', label: lang === 'zh' ? '近 7 天' : 'Last 7 days' },
+  { value: 'month', label: lang === 'zh' ? '近 30 天' : 'Last 30 days' },
+  { value: 'year', label: lang === 'zh' ? '今年' : 'This year' }
+]
+
+const labels = {
+  search: lang === 'zh' ? '搜索时光' : 'Search moments',
+  placeholder: lang === 'zh' ? '输入关键词…' : 'Type a keyword…',
+  time: lang === 'zh' ? '时间范围' : 'Time range',
+  tags: lang === 'zh' ? '全部标签' : 'All tags',
+  empty: lang === 'zh' ? '没有找到匹配的时光。' : 'No matching moments found.',
+  hint: lang === 'zh' ? '共 {n} 条时光' : '{n} moments'
+}
+---
+
+<whispers-search
+  class={cn('flex w-full flex-col gap-3', className)}
+  data-target={targetId}
+  data-empty-text={labels.empty}
+  data-count-template={labels.hint}
+>
+  <form class='flex w-full flex-col gap-2 sm:flex-row sm:items-center'>
+    {/* 关键词 */}
+    <label
+      class='flex min-w-[10rem] flex-1 items-center gap-1.5 rounded-xl border bg-background px-2.5 py-1.5'
+    >
+      <Icon name='search' class='text-muted-foreground size-3.5 shrink-0' />
+      <span class='sr-only'>{labels.search}</span>
+      <input
+        type='search'
+        name='q'
+        autocomplete='off'
+        placeholder={labels.placeholder}
+        aria-label={labels.search}
+        class='w-full bg-transparent text-sm leading-5 outline-none placeholder:text-muted-foreground'
+      />
+    </label>
+
+    {/* 时间范围 */}
+    <label class='flex items-center gap-1.5 rounded-xl border bg-background px-2.5 py-1.5'>
+      <Icon name='time' class='text-muted-foreground size-3.5 shrink-0' />
+      <span class='sr-only'>{labels.time}</span>
+      <select
+        name='range'
+        aria-label={labels.time}
+        class='bg-transparent text-sm leading-5 outline-none'
+      >
+        {timeRanges.map((r) => <option value={r.value}>{r.label}</option>)}
+      </select>
+    </label>
+
+    {/* 搜索按钮（仅图标） */}
+    <button
+      type='submit'
+      aria-label={labels.search}
+      title={labels.search}
+      class='flex items-center justify-center rounded-xl border border-[hsl(var(--primary))] bg-[hsl(var(--primary))] px-2.5 py-1.5 text-white transition-opacity hover:opacity-90'
+    >
+      <Icon name='search' class='size-3.5' />
+    </button>
+
+    <a
+      href={tagsPath}
+      class='flex items-center gap-1 self-center rounded-lg border px-2 py-1 text-sm leading-5 transition-colors hover:bg-muted hover:text-primary'
+    >
+      <Icon name='tag-2' class='size-3.5' />
+      {labels.tags}
+    </a>
+  </form>
+
+  <p class='hidden text-xs text-muted-foreground' data-whispers-count></p>
+</whispers-search>
+
+<script type='application/json' data-whispers-index set:html={JSON.stringify(items)} />
+
+<script>
+  interface IndexItem {
+    id: string
+    iso: string
+    excerpt: string
+    tags: string[]
+    tagBase: string
+  }
+
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+
+  class WhispersSearch extends HTMLElement {
+    private target: HTMLElement | null = null
+    private targetId: string | null = null
+    private original = ''
+    private input: HTMLInputElement | null = null
+    private select: HTMLSelectElement | null = null
+    private count: HTMLElement | null = null
+    private index: IndexItem[] = []
+
+    constructor() {
+      super()
+      this.targetId = this.dataset.target ?? null
+      this.original = ''
+    }
+
+    connectedCallback() {
+      // 注意：必须等 connectedCallback 再查找目标容器与备份原始内容，
+      // 自定义元素可能在后续兄弟节点解析前就执行 constructor
+      this.target = this.targetId ? document.getElementById(this.targetId) : null
+      this.original = this.target?.innerHTML ?? ''
+
+      this.input = this.querySelector<HTMLInputElement>('input[name="q"]')
+      this.select = this.querySelector<HTMLSelectElement>('select[name="range"]')
+      this.count = this.querySelector<HTMLElement>('[data-whispers-count]')
+
+      const data = document.querySelector<HTMLScriptElement>('[data-whispers-index]')
+      if (data?.textContent) {
+        try {
+          this.index = JSON.parse(data.textContent)
+        } catch {
+          this.index = []
+        }
+      }
+
+      // 点击搜索按钮或按回车时过滤（避免输入过程中列表频繁跳动）
+      this.querySelector('form')?.addEventListener('submit', (e) => {
+        e.preventDefault()
+        this.apply()
+      })
+    }
+
+    private rangeStart(range: string): number {
+      const now = new Date()
+      const days = range === 'today' ? 0 : range === 'week' ? 6 : range === 'month' ? 29 : -1
+      if (range === 'year') return new Date(now.getFullYear(), 0, 1).getTime()
+      if (days < 0) return 0
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days)
+      return start.getTime()
+    }
+
+    private apply() {
+      if (!this.target) return
+      const q = (this.input?.value ?? '').trim().toLowerCase()
+      const range = this.select?.value ?? 'all'
+
+      // 无筛选条件：恢复服务端渲染的内容
+      if (!q && range === 'all') {
+        this.target.innerHTML = this.original
+        this.count?.classList.add('hidden')
+        return
+      }
+
+      const from = this.rangeStart(range)
+      const matched = this.index.filter((item) => {
+        const time = new Date(item.iso).getTime()
+        if (from > 0 && time < from) return false
+        if (!q) return true
+        const haystack = `${item.excerpt} ${item.tags.join(' ')}`.toLowerCase()
+        return haystack.includes(q)
+      })
+
+      this.render(matched)
+    }
+
+    private render(items: IndexItem[]) {
+      if (!this.target) return
+      const emptyText = this.dataset.emptyText ?? ''
+      if (items.length === 0) {
+        this.target.innerHTML = `<li class="text-sm text-muted-foreground">${escapeHtml(
+          emptyText
+        )}</li>`
+        this.count?.classList.add('hidden')
+        return
+      }
+
+      const formatDate = (iso: string) => {
+        const d = new Date(iso)
+        const p = (n: number) => String(n).padStart(2, '0')
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+      }
+
+      this.target.innerHTML = items
+        .map((item) => {
+          const tags = item.tags
+            .map(
+              (tag) =>
+                `<li><a class="inline-flex items-center rounded-lg border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-card" href="${item.tagBase}/${encodeURIComponent(
+                  tag
+                )}">${escapeHtml(tag)}</a></li>`
+            )
+            .join('')
+          return `<li class="whispers-item" data-date="${item.iso}">
+            <div class="whispers-time"><span class="text-xs font-medium">${formatDate(item.iso)}</span></div>
+            <div class="whispers-axis" aria-hidden="true"></div>
+            <div class="whispers-body">
+              <article class="whispers-card">
+                <div class="text-sm leading-relaxed text-foreground/85">${escapeHtml(item.excerpt)}</div>
+                ${tags ? `<ul class="mt-2.5 flex flex-wrap gap-1.5">${tags}</ul>` : ''}
+              </article>
+            </div>
+          </li>`
+        })
+        .join('')
+
+      if (this.count) {
+        this.count.textContent = (this.dataset.countTemplate ?? '{n}').replace('{n}', String(items.length))
+        this.count.classList.remove('hidden')
+      }
+    }
+  }
+
+  if (!customElements.get('whispers-search')) {
+    customElements.define('whispers-search', WhispersSearch)
+  }
+</script>
