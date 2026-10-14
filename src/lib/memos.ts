@@ -11,7 +11,9 @@ import sanitizeHtml from 'sanitize-html'
 
 export const MEMOS_ORIGIN = 'https://memos.kits.de5.net'
 
-const REQUEST_TIMEOUT_MS = 8_000
+const REQUEST_TIMEOUT_MS = 4_000
+/** 全量拉取的总时限：Serverless（如 Vercel Hobby 默认 10s）必须在函数超时前返回 */
+const TOTAL_BUDGET_MS = 6_000
 const MAX_PAGE_SIZE = 100
 /** 单次渲染最多向后翻 10 页游标（1000 条封顶，防止极端数据量拖垮响应） */
 const MAX_FETCH_PAGES = 10
@@ -179,9 +181,12 @@ function toWhisperView(memo: MemosMemoDto): WhisperView {
 
 /** 拉取全量时光信息流（新→旧）。失败抛 MemosApiError，由页面层决定呈现方式。 */
 export async function listWhispers(): Promise<WhisperView[]> {
+  const deadline = Date.now() + TOTAL_BUDGET_MS
   const collected: MemosMemoDto[] = []
   let pageToken: string | undefined
   for (let fetched = 0; fetched < MAX_FETCH_PAGES; fetched++) {
+    // 总时限内尽量多取；超时则返回已取到的部分，避免函数被平台强制中断
+    if (Date.now() > deadline) break
     const data = await fetchMemosPage(pageToken)
     collected.push(...(data.memos ?? []).filter(inFeed))
     if (!data.nextPageToken) break

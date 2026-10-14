@@ -48,7 +48,8 @@ export default defineConfig({
 
   // [Adapter]
   // https://docs.astro.build/en/guides/deploy/
-  adapter: vercel({ imageService: true }),
+  // maxDuration：SSR 路由（时光页）需访问外部 memos API，放宽函数时限避免冷启动+网络延迟触发平台超时
+  adapter: vercel({ imageService: true, maxDuration: 30 }),
   output: 'server',
   // Local (standalone)
   // adapter: node({ mode: 'standalone' }),
@@ -87,6 +88,31 @@ export default defineConfig({
   vite: {
     optimizeDeps: {
       exclude: ['astro-pure']
+    },
+    ssr: {
+      // sanitize-html（CJS）会 require ESM-only 的 htmlparser2，
+      // Vercel Serverless 运行时不支持 require(ESM)，会抛 ERR_REQUIRE_ESM 导致 500。
+      // 强制打包进 bundle，由构建期 esbuild 处理 CJS/ESM 互操作。
+      noExternal: [
+        'sanitize-html',
+        'marked',
+        'htmlparser2',
+        'domhandler',
+        'domutils',
+        'dom-serializer',
+        'domelementtype',
+        'launder',
+        'entities',
+        'boolbase',
+        'postcss',
+        'nanoid',
+        'picocolors',
+        'source-map-js',
+        'deepmerge',
+        'is-plain-object',
+        'parse-srcset',
+        'escape-string-regexp'
+      ]
     }
   },
 
