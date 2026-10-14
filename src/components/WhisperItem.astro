@@ -22,6 +22,8 @@ if (entry) ({ Content } = await render(entry))
 
 const images = data ? data.images : (item?.images ?? [])
 const tags = data ? data.tags : (item?.tags ?? [])
+const expandText = lang === 'zh' ? '展开全部' : 'Show all'
+const collapseText = lang === 'zh' ? '收起' : 'Collapse'
 ---
 
 <li
@@ -43,12 +45,23 @@ const tags = data ? data.tags : (item?.tags ?? [])
       {data?.title && <h2 class='mb-1 font-medium'>{data.title}</h2>}
       {
         entry && Content ? (
-          <div class='text-sm leading-relaxed text-foreground/85'>
+          <whispers-content
+            data-collapsed
+            data-expand-text={expandText}
+            data-collapse-text={collapseText}
+            class='text-sm leading-relaxed text-foreground/85'
+          >
             <Content />
-          </div>
+          </whispers-content>
         ) : item ? (
           <div class='flex items-start justify-between gap-2'>
-            <div class='min-w-0 flex-1 text-sm leading-relaxed text-foreground/85' set:html={item.html} />
+            <whispers-content
+              data-collapsed
+              data-expand-text={expandText}
+              data-collapse-text={collapseText}
+              class='min-w-0 flex-1 text-sm leading-relaxed text-foreground/85'
+              set:html={item.html}
+            />
             <a
               href={item.sourceUrl}
               target='_blank'
@@ -60,6 +73,14 @@ const tags = data ? data.tags : (item?.tags ?? [])
           </div>
         ) : null
       }
+
+      {/* 内容超过 10 行时由脚本显示展开/收起按钮（样式对齐代码块折叠） */}
+      <button type='button' hidden class='whispers-collapse-toggle mt-2'>
+        <svg class='size-4' aria-hidden='true'>
+          <use href='/icons/code.svg#mingcute-arrow-down-line' />
+        </svg>
+        <span data-label></span>
+      </button>
 
       {
         images.length > 0 && (
@@ -174,4 +195,147 @@ const tags = data ? data.tags : (item?.tags ?? [])
       padding: 0.875rem 1.25rem;
     }
   }
+  /* 内容默认折叠为 10 行，超出由 whispers-content 脚本提供展开/收起 */
+  whispers-content {
+    display: block;
+    position: relative;
+  }
+  whispers-content[data-collapsed] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
+    overflow: hidden;
+  }
+  /* 折叠时底部渐变淡出（对齐代码块的 collapse-fade） */
+  whispers-content[data-collapsed]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3.5rem;
+    pointer-events: none;
+    user-select: none;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      hsl(var(--background) / var(--un-bg-opacity, 1)) 90%
+    );
+  }
+  /* 全宽展开/收起按钮条（对齐代码块的 collapse-toggle） */
+  .whispers-collapse-toggle {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.3rem;
+    padding: 0.375rem 0;
+    border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+    border-radius: 0.5rem;
+    background-color: hsl(var(--card) / var(--un-bg-opacity, 1));
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    user-select: none;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+  /* hidden 属性被上面的 display:flex 覆盖，需要显式还原 */
+  .whispers-collapse-toggle[hidden] {
+    display: none;
+  }
+  .whispers-collapse-toggle:hover {
+    color: hsl(var(--primary));
+  }
+  .whispers-collapse-toggle svg {
+    transition: transform 0.2s ease;
+  }
+  .whispers-collapse-toggle.expanded svg {
+    transform: rotate(180deg);
+  }
 </style>
+
+<script>
+  /**
+   * 内容折叠：默认 data-collapsed（CSS 截断为 10 行），
+   * 溢出时显示卡片内的展开/收起按钮。
+   * 自定义元素对无限滚动追加的节点会自动升级生效。
+   */
+  class WhispersContent extends HTMLElement {
+    private toggle: HTMLButtonElement | null = null
+    private expanded = false
+    private measured = false
+
+    connectedCallback() {
+      // 等一帧布局稳定后再测量溢出（含无限滚动追加的场景）
+      requestAnimationFrame(() => this.check())
+    }
+
+    check() {
+      if (!this.toggle) {
+        this.toggle =
+          this.closest('.whispers-card')?.querySelector<HTMLButtonElement>(
+            '.whispers-collapse-toggle'
+          ) ?? null
+        if (this.toggle) this.toggle.onclick = () => this.switch()
+      }
+      if (!this.toggle) return
+      // 已展开：保持按钮可见（文案为「收起」），无需重新检测
+      if (this.expanded) return
+      // 已确认为溢出的折叠状态：保持折叠，仅确保按钮可见
+      if (this.measured && this.hasAttribute('data-collapsed')) {
+        if (this.toggle.hidden) this.setLabel()
+        this.toggle.hidden = false
+        return
+      }
+      // 首次检测 / 复测（未折叠状态）：对比自然高度与折叠高度。
+      // line-clamp 下溢出内容不参与布局，scrollHeight 测不到真实高度，
+      // 因此临时移除折叠属性量出完整高度再恢复（同步执行，不会闪烁）
+      this.removeAttribute('data-collapsed')
+      const fullHeight = this.scrollHeight
+      this.setAttribute('data-collapsed', '')
+      const clampedHeight = this.clientHeight
+      const overflow = fullHeight > clampedHeight + 1
+      this.measured = true
+      if (!overflow) {
+        // 不超过 10 行：移除折叠（连带去掉虚化遮罩），不显示按钮
+        this.removeAttribute('data-collapsed')
+      }
+      this.toggle.hidden = !overflow
+      if (overflow) this.setLabel()
+    }
+
+    private setLabel() {
+      if (!this.toggle) return
+      this.toggle.classList.toggle('expanded', this.expanded)
+      const label = this.toggle.querySelector<HTMLElement>('[data-label]')
+      if (label) {
+        label.textContent = this.expanded
+          ? (this.dataset.collapseText ?? '收起')
+          : (this.dataset.expandText ?? '展开全部')
+      }
+    }
+
+    private switch() {
+      this.expanded = !this.expanded
+      if (this.expanded) {
+        this.removeAttribute('data-collapsed')
+      } else {
+        this.setAttribute('data-collapsed', '')
+      }
+      this.setLabel()
+    }
+  }
+
+  if (!customElements.get('whispers-content')) {
+    customElements.define('whispers-content', WhispersContent)
+  }
+
+  // 字体加载完成 / 窗口尺寸变化后复测，避免误判溢出
+  const recheckAll = () =>
+    document.querySelectorAll('whispers-content').forEach((el) => (el as WhispersContent).check())
+  document.fonts?.ready.then(recheckAll)
+  window.addEventListener('load', recheckAll)
+  window.addEventListener('resize', recheckAll)
+</script>
