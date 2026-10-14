@@ -1,9 +1,9 @@
 ---
 import { render, type CollectionEntry } from 'astro:content'
+import { getPostSlug, isEnglishPost } from '@/i18n'
 
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import PostLayout from '@/layouts/BlogPost.astro'
-import { isEnglishPost, getPostSlug } from '@/i18n'
 
 export const prerender = true
 

@@ -28,19 +28,19 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
 
    ```yaml
    ---
-   title: "文章标题"            # 必填，最多 60 字符（中文也算 60 个）
-   link: url-slug              # 可选，自定义路由名（优先于文件名）
-   publishDate: "2026-09-30T10:00:00"  # 必填，ISO 格式字符串（带引号！）
-   updatedDate: "2026-09-30T10:00:00"  # 可选，同上格式
-   description: "一句话描述，50-100 字"  # 必填，最多 160 字符
-   tags:                       # 可选，承载分类语义
-     - "笔记"
-     - "后端"
-     - "Go"
-   language: "English"         # 可选！仅英文文章需要标注；中文文章不写此字段
-   draft: false                # 可选，默认 false
-   pin: false                  # 可选，置顶
-   comment: true               # 可选，默认 true
+   title: '文章标题' # 必填，最多 60 字符（中文也算 60 个）
+   link: url-slug # 可选，自定义路由名（优先于文件名）
+   publishDate: '2026-09-30T10:00:00' # 必填，ISO 格式字符串（带引号！）
+   updatedDate: '2026-09-30T10:00:00' # 可选，同上格式
+   description: '一句话描述，50-100 字' # 必填，最多 160 字符
+   tags: # 可选，承载分类语义
+     - '笔记'
+     - '后端'
+     - 'Go'
+   language: 'English' # 可选！仅英文文章需要标注；中文文章不写此字段
+   draft: false # 可选，默认 false
+   pin: false # 可选，置顶
+   comment: true # 可选，默认 true
    ---
    ```
 
@@ -53,10 +53,10 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
 
    同一篇文章的中英文版本使用**相同的 `link`**，路由自动对齐，语言切换器直达对应版本：
 
-   | 文件 | frontmatter | 路由 |
-   | --- | --- | --- |
-   | `my-post.md`（中文） | 无 `language` 字段 | `/zh/blog/my-post` |
-   | `my-post-en.md`（英文） | `language: "English"` + 同样的 `link: my-post` | `/blog/my-post` |
+   | 文件                    | frontmatter                                    | 路由               |
+   | ----------------------- | ---------------------------------------------- | ------------------ |
+   | `my-post.md`（中文）    | 无 `language` 字段                             | `/zh/blog/my-post` |
+   | `my-post-en.md`（英文） | `language: "English"` + 同样的 `link: my-post` | `/blog/my-post`    |
 
    **规则**：
    - 中文文章：不写 `language`，文件名即默认 slug
@@ -78,12 +78,13 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
   ```yaml
   heroImage:
     src: ./thumbnail.jpg
-    color: '#4891B2'   # 可选，卡片主题色
+    color: '#4891B2' # 可选，卡片主题色
   ```
 
 ## 标签建议
 
 常用标签体系（替代旧分类系统）：
+
 - 一级语义：`笔记`、`工具`、`随笔`、`周刊`
 - 技术：`Go`、`Python`、`Docker`、`Cloudflare`、`Astro` 等
 - 标签会自动去重并转小写（英文标签），中文标签原样保留
@@ -118,10 +119,15 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
 
 ```markdown
 ## 简介
+
 ## 安装/准备
+
 ## 基本使用
+
 ## 高级功能
+
 ## 实用技巧
+
 ## 总结
 ```
 
@@ -163,13 +169,13 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
 2. frontmatter（无 `language` 字段）：
    ```yaml
    ---
-   title: "Docker Compose 多服务部署实战"
-   publishDate: "2026-09-30T10:00:00"
-   description: "使用 Docker Compose 在单机部署多个服务，共享数据库与反向代理的完整方案。"
+   title: 'Docker Compose 多服务部署实战'
+   publishDate: '2026-09-30T10:00:00'
+   description: '使用 Docker Compose 在单机部署多个服务，共享数据库与反向代理的完整方案。'
    tags:
-     - "笔记"
-     - "Docker"
-     - "部署"
+     - '笔记'
+     - 'Docker'
+     - '部署'
    ---
    ```
 3. 提供文章结构框架
@@ -185,14 +191,14 @@ description: 帮助用户按照 astro-pure 博客的规范创建新博文。自�
 2. 创建 `src/content/blog/sync-upstream-theme-en.md`：
    ```yaml
    ---
-   title: "Syncing Upstream Theme Updates After a Repo Copy"   # ≤60 字符
+   title: 'Syncing Upstream Theme Updates After a Repo Copy' # ≤60 字符
    link: sync-upstream-theme
-   language: "English"
-   publishDate: "2026-09-05T18:30:00"
-   description: "..."   # ≤160 字符
+   language: 'English'
+   publishDate: '2026-09-05T18:30:00'
+   description: '...' # ≤160 字符
    tags:
-     - "Git"
-     - "Astro"
+     - 'Git'
+     - 'Astro'
    ---
    ```
 3. 验证 `/blog/sync-upstream-theme` 与 `/zh/blog/sync-upstream-theme` 双路由可达、切换器互指

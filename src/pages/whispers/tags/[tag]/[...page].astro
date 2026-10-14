@@ -1,19 +1,19 @@
 ---
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
+import { getCollection } from 'astro:content'
+import { getLangFromUrl, getLocalePath, isEnglishPost, useTranslations } from '@/i18n'
 
 import { Paginator } from 'astro-pure/components/pages'
-import { prod, getUniqueTagsWithCount } from 'astro-pure/server'
+import { getUniqueTagsWithCount, prod } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import WhisperItem from '@/components/WhisperItem.astro'
-import { getCollection } from 'astro:content'
-import { getLangFromUrl, isEnglishPost, useTranslations, getLocalePath } from '@/i18n'
 
 export const prerender = true
 
 export const getStaticPaths = (async ({ paginate }) => {
-  // English moments only
+  // 英文模式（旧数据）：whispers 内容集合
   const all = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))).filter(
     isEnglishPost
   )
@@ -62,7 +62,10 @@ const paginationProps = {
         <span class='text-2xl'>#{tag}</span>
       </h1>
       <span class='mt-4 block text-sm text-muted-foreground'>
-        <a href={getLocalePath(lang, '/whispers/tags')} class='hover:underline hover:underline-offset-4'>
+        <a
+          href={getLocalePath(lang, '/whispers/tags')}
+          class='hover:underline hover:underline-offset-4'
+        >
           {t('whispers.view_all_tags')}
         </a>
       </span>

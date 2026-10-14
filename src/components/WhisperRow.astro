@@ -1,26 +1,28 @@
 ---
 import type { CollectionEntry } from 'astro:content'
+import { getLocalePath, type Lang } from '@/i18n'
+import type { WhisperView } from '@/lib/memos'
 
 import { FormattedDate } from 'astro-pure/user'
-import { getLocalePath, type Lang } from '@/i18n'
 
 interface Props {
-  entry: CollectionEntry<'whispers'>
+  /** 旧数据（英文模式）：内容集合条目 */
+  entry?: CollectionEntry<'whispers'>
+  /** memos 数据（中文模式）：适配后的视图 */
+  item?: WhisperView
   lang: Lang
 }
 
-const { entry, lang } = Astro.props
-const { data } = entry
+const { entry, item, lang } = Astro.props
+const data = entry?.data
+const publishDate = data ? data.publishDate : item!.publishDate
 
 /**
- * 摘要：优先 frontmatter description，其次从正文提取纯文本
- * （去掉图片、链接与 Markdown 标记后截断）
+ * 摘要：旧数据优先 frontmatter description，其次从正文提取纯文本；
+ * memos 数据在适配层已完成同样的剥离。
  */
-const excerpt = (
-  data.description ??
-  entry.body ??
-  ''
-)
+const source = data?.description ?? entry?.body ?? item?.description ?? ''
+const excerpt = source
   .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
   .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
   .replace(/[#>*`_\-]+/g, ' ')
@@ -34,12 +36,12 @@ const excerpt = (
 >
   <a
     class='block w-full'
-    href={getLocalePath(lang, '/whispers')}
+    href={item ? getLocalePath(lang, `/whispers/m/${item.id}`) : getLocalePath(lang, '/whispers')}
     data-astro-prefetch
     aria-label={excerpt}
   >
     <div class='relative flex flex-col gap-1 sm:flex-row sm:items-center'>
-      <FormattedDate class='min-w-[9.5rem] text-xs' date={data.publishDate} />
+      <FormattedDate class='min-w-[9.5rem] text-xs' date={publishDate} />
       <div class='flex flex-1 items-center justify-between gap-2'>
         <span class='text-sm'>{excerpt}</span>
         <svg

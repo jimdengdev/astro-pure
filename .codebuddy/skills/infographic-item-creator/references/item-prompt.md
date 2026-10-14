@@ -3,6 +3,7 @@
 本文件用于指导生成符合框架规范的 Item 组件代码。
 
 ## 目录
+
 - 数据项核心概念
 - 数据项设计理念
 - 技术规范
@@ -46,54 +47,54 @@
 
 ```typescript
 export interface BaseItemProps {
-  x?: number;
-  y?: number;
-  id?: string;
-  indexes: number[];
-  data: Data;
-  datum: Data['items'][number];
-  themeColors: ThemeColors;
-  positionH?: 'normal' | 'center' | 'flipped';
-  positionV?: 'normal' | 'middle' | 'flipped';
-  valueFormatter?: (value: number) => string | number;
-  [key: string]: any;
+  x?: number
+  y?: number
+  id?: string
+  indexes: number[]
+  data: Data
+  datum: Data['items'][number]
+  themeColors: ThemeColors
+  positionH?: 'normal' | 'center' | 'flipped'
+  positionV?: 'normal' | 'middle' | 'flipped'
+  valueFormatter?: (value: number) => string | number
+  [key: string]: any
 }
 
 export interface Data {
-  title?: string;
-  desc?: string;
-  items: ItemDatum[];
-  illus?: Record<string, string | ResourceConfig>;
-  [key: string]: any;
+  title?: string
+  desc?: string
+  items: ItemDatum[]
+  illus?: Record<string, string | ResourceConfig>
+  [key: string]: any
 }
 
 export interface ItemDatum {
-  icon?: string | ResourceConfig;
-  label?: string;
-  desc?: string;
-  value?: number;
-  illus?: string | ResourceConfig;
-  children?: ItemDatum[];
-  [key: string]: any;
+  icon?: string | ResourceConfig
+  label?: string
+  desc?: string
+  value?: number
+  illus?: string | ResourceConfig
+  children?: ItemDatum[]
+  [key: string]: any
 }
 
 export interface ThemeColors {
   /** 原始主色 */
-  colorPrimary: string;
+  colorPrimary: string
   /** 主色浅色背景 */
-  colorPrimaryBg: string;
+  colorPrimaryBg: string
   /** 主色背景上的文本颜色 */
-  colorPrimaryText: string;
+  colorPrimaryText: string
   /** 最深文本颜色 */
-  colorText: string;
+  colorText: string
   /** 次要文本颜色 */
-  colorTextSecondary: string;
+  colorTextSecondary: string
   /** 纯白色 */
-  colorWhite: string;
+  colorWhite: string
   /** 背景色 */
-  colorBg: string;
+  colorBg: string
   /** 卡片背景色 */
-  colorBgElevated: string;
+  colorBgElevated: string
 }
 ```
 
@@ -302,19 +303,16 @@ export interface ThemeColors {
 
   ```typescript
   // 从 props 中提取指定的自定义属性，避免传递给 restProps
-  const [extractedProps, restProps] = getItemProps(props, [
-    'width',
-    'height',
-    'iconSize',
-  ]);
+  const [extractedProps, restProps] = getItemProps(props, ['width', 'height', 'iconSize'])
   // extractedProps: 包含所有 BaseItemProps + 指定自定义属性的对象
   // restProps: 剩余的 props，通常传给最外层 Group（避免 DOM 警告）
   ```
 
 - **getItemKeyFromIndexes**: 从索引数组生成 key
   ```typescript
-  import { getItemKeyFromIndexes } from '../../utils';
-  const key = getItemKeyFromIndexes([0, 1]); // "0-1"
+  import { getItemKeyFromIndexes } from '../../utils'
+
+  const key = getItemKeyFromIndexes([0, 1]) // "0-1"
   ```
 
 ### 4. 第三方库支持
@@ -324,74 +322,64 @@ export interface ThemeColors {
 - **d3**:
 
   ```typescript
-  import { xxx } from 'd3';
+  import { xxx } from 'd3'
   ```
 
 - **lodash-es**: 工具函数（推荐按需导入）
 
   ```typescript
-  import { xxx } from 'lodash-es';
+  import { xxx } from 'lodash-es'
   ```
 
 - **tinycolor2**: 颜色处理
 
   ```typescript
-  import tinycolor from 'tinycolor2';
+  import tinycolor from 'tinycolor2'
 
   // 实例方法 - 链式调用
-  tinycolor(color).darken(20).toHexString();
-  tinycolor(color).lighten(10).toHexString();
+  tinycolor(color).darken(20).toHexString()
+  tinycolor(color).lighten(10).toHexString()
 
   // 静态方法 - 混合颜色
-  tinycolor.mix(themeColors.colorPrimary, '#fff', 40).toHexString();
+  tinycolor.mix(themeColors.colorPrimary, '#fff', 40).toHexString()
 
   // 克隆方法 - 避免修改原对象
-  const base = tinycolor(baseColor);
-  const gradStart = base.clone().darken(4).toHexString();
-  const gradEnd = base.clone().lighten(12).toHexString();
+  const base = tinycolor(baseColor)
+  const gradStart = base.clone().darken(4).toHexString()
+  const gradEnd = base.clone().lighten(12).toHexString()
   ```
 
 - **round-polygon**: 圆角多边形处理
   ```typescript
-  import roundPolygon, { getSegments } from 'round-polygon';
-  const rounded = roundPolygon(points, radius);
-  const segments = getSegments(rounded, 'AMOUNT', 10);
+  import roundPolygon, { getSegments } from 'round-polygon'
+
+  const rounded = roundPolygon(points, radius)
+  const segments = getSegments(rounded, 'AMOUNT', 10)
   ```
 
 ### 5. 导入模板
 
 ```typescript
-import { ComponentType, Group } from '../../jsx';
-
 // 根据需要选择性导入原子组件和类型
 import {
-  getElementBounds,
+  ComponentType,
   Defs,
   Ellipse,
+  getElementBounds,
+  Group,
   Path,
-  type Point, // Polygon 需要的点类型
   Polygon,
   Rect,
   Text,
-} from '../../jsx';
-
+  type Point // Polygon 需要的点类型
+} from '../../jsx'
 // 根据需要选择性导入封装组件
-import {
-  Gap,
-  Illus,
-  ItemDesc,
-  ItemIcon,
-  ItemIconCircle,
-  ItemLabel,
-  ItemValue,
-} from '../components';
-
+import { Gap, Illus, ItemDesc, ItemIcon, ItemIconCircle, ItemLabel, ItemValue } from '../components'
 // 根据需要选择性导入布局组件
-import { AlignLayout, FlexLayout } from '../layouts';
-
-import { registerItem } from './registry';
-import type { BaseItemProps } from './types';
-import { getItemProps } from './utils';
+import { AlignLayout, FlexLayout } from '../layouts'
+import { registerItem } from './registry'
+import type { BaseItemProps } from './types'
+import { getItemProps } from './utils'
 
 // 根据需要导入第三方库
 // import { xxx } from 'd3';
@@ -416,20 +404,20 @@ import { getItemProps } from './utils';
 // 如果组件使用了 ItemLabel 和 ItemDesc
 registerItem('simple-text', {
   component: SimpleText,
-  composites: ['label', 'desc'],
-});
+  composites: ['label', 'desc']
+})
 
 // 如果组件使用了 ItemIcon, ItemLabel, ItemValue 和 ItemDesc
 registerItem('full-card', {
   component: FullCard,
-  composites: ['icon', 'label', 'value', 'desc'],
-});
+  composites: ['icon', 'label', 'value', 'desc']
+})
 
 // 如果组件使用了 Illus, ItemLabel 和 ItemDesc
 registerItem('illus-item', {
   component: IllusItem,
-  composites: ['illus', 'label', 'desc'],
-});
+  composites: ['illus', 'label', 'desc']
+})
 ```
 
 ### 7. 组件结构模板
@@ -539,11 +527,11 @@ registerItem('[item-name]', {
 
 ```typescript
 // 生成序号
-const indexNumber = indexes[0] + 1;
-const indexStr = String(indexes[0] + 1).padStart(2, '0'); // "01", "02", ...
+const indexNumber = indexes[0] + 1
+const indexStr = String(indexes[0] + 1).padStart(2, '0') // "01", "02", ...
 
 // 判断奇偶（用于交替样式）
-const isEven = indexes[0] % 2 === 0;
+const isEven = indexes[0] % 2 === 0
 ```
 
 ### 9. 关键设计原则
@@ -559,23 +547,14 @@ const iconX =
     ? width - iconSize // 右对齐
     : positionH === 'center'
       ? (width - iconSize) / 2 // 居中
-      : 0; // 默认左对齐
+      : 0 // 默认左对齐
 
 // positionV 处理示例
 const iconY =
-  positionV === 'middle'
-    ? (height - iconSize) / 2
-    : positionV === 'flipped'
-      ? height - iconSize
-      : 0;
+  positionV === 'middle' ? (height - iconSize) / 2 : positionV === 'flipped' ? height - iconSize : 0
 
 // 文本对齐方式
-const textAlign =
-  positionH === 'flipped'
-    ? 'right'
-    : positionH === 'center'
-      ? 'center'
-      : 'left';
+const textAlign = positionH === 'flipped' ? 'right' : positionH === 'center' ? 'center' : 'left'
 ```
 
 #### 主题色彩使用
@@ -689,16 +668,16 @@ const patternId = `${uniqueId}-pattern`;
 1. 添加 `data-element-type="shape"` 属性
 
 ```tsx
-<Rect data-element-type="shape" width="100" height="100" />
+<Rect data-element-type='shape' width='100' height='100' />
 ```
 
 2. 使用 ShapesGroup 包裹
 
 ```tsx
 <ShapesGroup>
-  <Rect width="100" height="100" />
-  <Rect x="100" width="100" height="100" />
-  <Rect x="200" width="100" height="100" />
+  <Rect width='100' height='100' />
+  <Rect x='100' width='100' height='100' />
+  <Rect x='200' width='100' height='100' />
 </ShapesGroup>
 ```
 
@@ -708,15 +687,13 @@ const patternId = `${uniqueId}-pattern`;
 
 ```tsx
 // 基于内容动态调整
-const labelBounds = getElementBounds(
-  <ItemLabel indexes={indexes}>{datum.label}</ItemLabel>,
-);
-const totalHeight = iconSize + gap + labelBounds.height;
+const labelBounds = getElementBounds(<ItemLabel indexes={indexes}>{datum.label}</ItemLabel>)
+const totalHeight = iconSize + gap + labelBounds.height
 
 // 基于数据集合计算比例
-const values = data.items.map((item) => item.value ?? 0);
-const maxValue = Math.max(...values);
-const barHeight = (value / maxValue) * availableHeight;
+const values = data.items.map((item) => item.value ?? 0)
+const maxValue = Math.max(...values)
+const barHeight = (value / maxValue) * availableHeight
 ```
 
 #### 复杂 SVG 路径绘制
@@ -836,11 +813,11 @@ const displayValue = value ?? 0; // 用于显示
 
 ```typescript
 // 推荐：基于颜色和用途（可复用）
-const gradientId = `${themeColors.colorPrimary}-progress`;
+const gradientId = `${themeColors.colorPrimary}-progress`
 
 // 或基于索引（用于必须唯一的场景）
-const uniqueId = `letter-card-${indexes.join('-')}`;
-const gradientId = `${uniqueId}-gradient`;
+const uniqueId = `letter-card-${indexes.join('-')}`
+const gradientId = `${uniqueId}-gradient`
 ```
 
 ### tinycolor 使用
@@ -848,24 +825,24 @@ const gradientId = `${uniqueId}-gradient`;
 ❌ **错误做法**：
 
 ```typescript
-tinycolor.darken(color, 20); // 静态方法不存在
-tinycolor.lighten(color, 10); // 静态方法不存在
+tinycolor.darken(color, 20) // 静态方法不存在
+tinycolor.lighten(color, 10) // 静态方法不存在
 ```
 
 ✅ **正确做法**：
 
 ```typescript
 // 实例方法 - 链式调用
-tinycolor(color).darken(20).toHexString();
-tinycolor(color).lighten(10).toHexString();
+tinycolor(color).darken(20).toHexString()
+tinycolor(color).lighten(10).toHexString()
 
 // 静态方法 - 混合颜色
-tinycolor.mix(themeColors.colorPrimary, '#fff', 40).toHexString();
+tinycolor.mix(themeColors.colorPrimary, '#fff', 40).toHexString()
 
 // 克隆方法 - 避免修改原对象
-const base = tinycolor(baseColor);
-const gradStart = base.clone().darken(4).toHexString();
-const gradEnd = base.clone().lighten(12).toHexString();
+const base = tinycolor(baseColor)
+const gradStart = base.clone().darken(4).toHexString()
+const gradEnd = base.clone().lighten(12).toHexString()
 ```
 
 ### 动态布局示例
@@ -890,18 +867,18 @@ const textWidth = showIcon && datum.icon ? width - iconSize - gap : width;
 
 ```typescript
 // 字符串格式化
-String(indexes[0] + 1).padStart(2, '0'); // "01", "02", ...
-datum.label?.[0].toUpperCase(); // 可选链 + 首字母大写
+String(indexes[0] + 1).padStart(2, '0') // "01", "02", ...
+datum.label?.[0].toUpperCase() // 可选链 + 首字母大写
 
 // 数学常量
-Math.SQRT2; // √2 ≈ 1.414
-Math.PI; // π ≈ 3.14159
+Math.SQRT2 // √2 ≈ 1.414
+Math.PI // π ≈ 3.14159
 
 // 计算圆的质心（用于圆弧图形）
-const CIRCLE_MASS = (4 * radius) / (3 * Math.PI);
+const CIRCLE_MASS = (4 * radius) / (3 * Math.PI)
 
 // 圆环进度计算
-const radius = (size - strokeWidth) / 2;
-const circumference = 2 * Math.PI * radius;
-const strokeDashoffset = circumference * (1 - percentage);
+const radius = (size - strokeWidth) / 2
+const circumference = 2 * Math.PI * radius
+const strokeDashoffset = circumference * (1 - percentage)
 ```

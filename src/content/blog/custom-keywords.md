@@ -1,13 +1,12 @@
 ---
-title: "自定义关键词示例"
-publishDate: "2026-04-06T02:43:11"
-description: "展示如何设置文章关键词。"
+title: '自定义关键词示例'
+publishDate: '2026-04-06T02:43:11'
+description: '展示如何设置文章关键词。'
 tags:
-  - "教程"
-  - "笔记"
+  - '教程'
+  - '笔记'
 draft: true
 ---
-
 
 本文展示如何设置文章关键词。
 
@@ -30,5 +29,5 @@ keywords:
 然后生成的页面会包含以下 meta 标签：
 
 ```html
-<meta name="keywords" content="示例关键词一, 示例关键词二, ... site.keywords">
+<meta name="keywords" content="示例关键词一, 示例关键词二, ... site.keywords" />
 ```

@@ -1,12 +1,12 @@
 ---
-title: "Syncing Upstream Theme Updates After a Repo Copy"
+title: 'Syncing Upstream Theme Updates After a Repo Copy'
 comment: true
 link: sync-upstream-theme
-publishDate: "2026-09-05T18:30:00"
-updatedDate: "2026-09-05T18:30:00"
+publishDate: '2026-09-05T18:30:00'
+updatedDate: '2026-09-05T18:30:00'
 draft: false
-language: "English"
-description: "Your GitHub blog repo was copied without shared git history. This post covers adding upstream, classifying 185 merge conflicts, and fixing build errors."
+language: 'English'
+description: 'Your GitHub blog repo was copied without shared git history. This post covers adding upstream, classifying 185 merge conflicts, and fixing build errors.'
 tags:
   - Git
   - GitHub
@@ -29,11 +29,11 @@ Worse, I had added custom features along the way — photo gallery, diary, GA4 a
 
 ## Choosing Among Three Approaches
 
-| Approach | How it works | Best for |
-|----------|--------------|----------|
-| `koharu update` | Theme's built-in CLI: auto backup + conflict classification | When the theme ships an update tool |
-| Manual `merge --allow-unrelated-histories` | Bypasses the common-ancestor restriction directly | When you want full control of the merge |
-| `koharu update --clean` | Overwrites everything with upstream, then restores user content | Too many conflicts, want a fresh start |
+| Approach                                   | How it works                                                    | Best for                                |
+| ------------------------------------------ | --------------------------------------------------------------- | --------------------------------------- |
+| `koharu update`                            | Theme's built-in CLI: auto backup + conflict classification     | When the theme ships an update tool     |
+| Manual `merge --allow-unrelated-histories` | Bypasses the common-ancestor restriction directly               | When you want full control of the merge |
+| `koharu update --clean`                    | Overwrites everything with upstream, then restores user content | Too many conflicts, want a fresh start  |
 
 I picked the first as the entry point and handled conflicts manually, because I knew exactly where my changes lived — a blanket overwrite would have wiped out 200+ lines of custom styles.
 
@@ -72,11 +72,11 @@ git ls-tree -r <initial-commit> | awk '{print $4 " " $3}' > initial-blobs.txt
 
 For the 22 true conflicts, my decision rules were simple:
 
-| Criterion | Action |
-|-----------|--------|
-| Core customizations (gallery, diary, brand colors, routes) | `git checkout --ours` — keep mine |
-| Upstream changes unrelated to my features, upstream more polished | Take theirs |
-| i18n translation files where both sides added keys | Script a key-level merge |
+| Criterion                                                         | Action                            |
+| ----------------------------------------------------------------- | --------------------------------- |
+| Core customizations (gallery, diary, brand colors, routes)        | `git checkout --ours` — keep mine |
+| Upstream changes unrelated to my features, upstream more polished | Take theirs                       |
+| i18n translation files where both sides added keys                | Script a key-level merge          |
 
 The i18n merge deserves a mention. My `en.ts`/`zh.ts` had gallery-related keys; upstream added 90+ new keys; neither side could lose. I wrote a small Node script: my version is the baseline, upstream-only keys get appended, and on same-key collisions my values win. Three lines of core logic — far more reliable than copy-pasting by hand.
 
@@ -95,7 +95,7 @@ The build failed with `Cannot read properties of undefined (reading 'enabled')`,
 The root issue: **when you resolve a conflict with "keep mine," you may silently cut an internal dependency that upstream code now relies on**. Since I don't use the Moments feature, I emptied the live collection:
 
 ```ts
-export const collections = {} as unknown as ReturnType<typeof defineLiveCollection>;
+export const collections = {} as unknown as ReturnType<typeof defineLiveCollection>
 ```
 
 ### Pitfall 3: My own component depended on a missing package

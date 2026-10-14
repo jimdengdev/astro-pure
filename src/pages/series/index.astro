@@ -1,9 +1,10 @@
 ---
+import { getBlogByLang, getLangFromUrl, useTranslations } from '@/i18n'
+import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
+
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import SeriesCard from '@/components/SeriesCard.astro'
-import { getBlogByLang, useTranslations, getLangFromUrl } from '@/i18n'
-import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
 import { getRandomCover } from '@/utils/randomCover'
 
 export const prerender = true
@@ -39,7 +40,9 @@ const items = getSeries()
         <p>{t('series.no_series')}</p>
       ) : (
         <div id='content' class='animate grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5'>
-          {items.map((item) => <SeriesCard {...item} lang={lang} />)}
+          {items.map((item) => (
+            <SeriesCard {...item} lang={lang} />
+          ))}
         </div>
       )
     }

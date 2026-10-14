@@ -1,8 +1,9 @@
 ---
+import { getLangFromUrl, useTranslations } from '@/i18n'
+
 import { Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import AboutHero from '@/components/about/AboutHero.astro'
-import { getLangFromUrl, useTranslations } from '@/i18n'
 
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
@@ -32,13 +33,19 @@ const t = useTranslations(lang)
     events={[
       {
         date: '2026-09',
-        content: '迁移至 <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a>，追求更简洁的阅读体验'
+        content:
+          '迁移至 <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a>，追求更简洁的阅读体验'
       }
     ]}
   />
   <p>{t('about.tech_stack')}</p>
   <ul>
-    <li>框架：<a href='https://astro.build/' target='_blank'>Astro</a> + <a href='https://github.com/cworld1/astro-theme-pure' target='_blank'>Astro Theme Pure</a></li>
+    <li>
+      框架：<a href='https://astro.build/' target='_blank'>Astro</a> + <a
+        href='https://github.com/cworld1/astro-theme-pure'
+        target='_blank'>Astro Theme Pure</a
+      >
+    </li>
     <li>部署：<a href='https://vercel.com/' target='_blank'>Vercel</a></li>
     <li>评论：<a href='https://twikoo.js.org/' target='_blank'>Twikoo</a></li>
     <li>统计：<a href='https://analytics.google.com/' target='_blank'>Google Analytics</a></li>

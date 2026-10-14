@@ -17,7 +17,7 @@ Update public template lists and gallery mappings when new templates are added i
    - `.skills/infographic-creator/SKILL.md` in the "Available Templates" list.
    - `site/src/components/AIPlayground/Prompt.ts` in the template list.
    - `.skills/infographic-syntax-creator/references/prompt.md` in the template list.
-   Keep existing ordering/grouping; add new `list-*` entries near other list templates.
+     Keep existing ordering/grouping; add new `list-*` entries near other list templates.
 3. Sanity check with `rg -n "<template-name>"` across the above files to confirm presence.
 
 ## Notes

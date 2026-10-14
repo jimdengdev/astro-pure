@@ -1,15 +1,14 @@
 ---
-title: "Shoka 主题 Markdown 语法演示"
-publishDate: "2026-02-07T20:00:00"
-description: "展示所有 Shoka 主题兼容的特殊 Markdown 语法"
+title: 'Shoka 主题 Markdown 语法演示'
+publishDate: '2026-02-07T20:00:00'
+description: '展示所有 Shoka 主题兼容的特殊 Markdown 语法'
 tags:
-  - "Shoka"
-  - "Markdown"
-  - "测试"
-  - "笔记"
+  - 'Shoka'
+  - 'Markdown'
+  - '测试'
+  - '笔记'
 draft: true
 ---
-
 
 本文展示了从 Hexo Shoka 主题迁移的所有特殊 Markdown 语法。
 
@@ -184,7 +183,7 @@ E = mc^2^ 是质能方程
 +++
 ```
 
-~~~~markdown
+````markdown
 +++danger 危险操作
 请确保你知道自己在做什么！
 
@@ -192,7 +191,7 @@ E = mc^2^ 是质能方程
 rm -rf /  # 请勿执行此命令
 ```
 +++
-~~~~
+````
 
 +++primary 点击展开详细内容
 这里是折叠的内容，点击标题可以展开或收起。
@@ -201,14 +200,14 @@ rm -rf /  # 请勿执行此命令
 
 - 列表项 1
 - 列表项 2
-+++
+  +++
 
 +++warning 注意事项
 这里列出一些需要注意的问题：
 
 1. 注意事项一
 2. 注意事项二
-+++
+   +++
 
 +++danger 危险操作
 请确保你知道自己在做什么！
@@ -216,50 +215,63 @@ rm -rf /  # 请勿执行此命令
 ```bash
 rm -rf /  # 请勿执行此命令
 ```
+
 +++
 
 ## 标签卡 (Tabs)
 
 ````markdown
 ;;;tab1 JavaScript
+
 ```js
-console.log('Hello, World!');
+console.log('Hello, World!')
 ```
+
 ;;;
 
 ;;;tab1 Python
+
 ```python
 print('Hello, World!')
 ```
+
 ;;;
 
 ;;;tab1 Rust
+
 ```rust
 fn main() {
     println!("Hello, World!");
 }
 ```
+
 ;;;
 ````
 
 ;;;tab1 JavaScript
+
 ```js
-console.log('Hello, World!');
+console.log('Hello, World!')
 ```
+
 ;;;
 
 ;;;tab1 Python
+
 ```python
 print('Hello, World!')
 ```
+
 ;;;
 
 ;;;tab1 Rust
+
 ```rust
 fn main() {
     println!("Hello, World!");
 }
 ```
+
 ;;;
 
 ## 注音
@@ -276,11 +288,11 @@ fn main() {
 
 ## 代码块增强
 
-`````markdown
+````markdown
 ```js title="hello.js" url="https://example.com" linkText="查看源码" mark:1,3
-const greeting = 'Hello';
-const name = 'World';
-console.log(`${greeting}, ${name}!`);
+const greeting = 'Hello'
+const name = 'World'
+console.log(`${greeting}, ${name}!`)
 ```
 
 ```bash command:("$":1-3)
@@ -288,12 +300,12 @@ npm install astro
 npm run dev
 npm run build
 ```
-`````
+````
 
 ```js title="hello.js" url="https://example.com" linkText="查看源码" mark:1,3
-const greeting = 'Hello';
-const name = 'World';
-console.log(`${greeting}, ${name}!`);
+const greeting = 'Hello'
+const name = 'World'
+console.log(`${greeting}, ${name}!`)
 ```
 
 ```bash command:("$":1-3)
@@ -386,20 +398,20 @@ $$
 {% media audio %}
 - title: 诗岸歌单 山山～全是山山～
   list:
-    - https://music.163.com/#/playlist?id=8676645748
+  - https://music.163.com/#/playlist?id=8676645748
 - title: 『诗岸』全是山山！
   list:
-    - https://music.163.com/#/playlist?id=17606384886
+  - https://music.163.com/#/playlist?id=17606384886
 {% endmedia %}
 ```
 
 {% media audio %}
 - title: 诗岸歌单 山山～全是山山～
   list:
-    - https://music.163.com/#/playlist?id=8676645748
+  - https://music.163.com/#/playlist?id=8676645748
 - title: 『诗岸』全是山山！
   list:
-    - https://music.163.com/#/playlist?id=17606384886
+  - https://music.163.com/#/playlist?id=17606384886
 {% endmedia %}
 
 ### 视频
@@ -511,16 +523,15 @@ $$
 :::
 
 ````markdown
-
 :::encrypted{password="test"}
 这里是加密的内容，支持完整的 Markdown 语法：
 
-- **粗体**、*斜体*、~~删除线~~
+- **粗体**、_斜体_、~~删除线~~
 - `行内代码`
 - [链接](https://example.com)
 
 ```js
-console.log('加密内容中的代码也有语法高亮！');
+console.log('加密内容中的代码也有语法高亮！')
 ```
 
 行内公式 $E = mc^2$ 也可以正常渲染。
@@ -534,12 +545,12 @@ console.log('加密内容中的代码也有语法高亮！');
 :::encrypted{password="test"}
 这里是加密的内容，支持完整的 Markdown 语法：
 
-- **粗体**、*斜体*、~~删除线~~
+- **粗体**、_斜体_、~~删除线~~
 - `行内代码`
 - [链接](https://example.com)
 
 ```js
-console.log('加密内容中的代码也有语法高亮！');
+console.log('加密内容中的代码也有语法高亮！')
 ```
 
 行内公式 $E = mc^2$ 也可以正常渲染。

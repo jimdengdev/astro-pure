@@ -1,9 +1,10 @@
 ---
+import { getBlogByLang } from '@/i18n'
+
 import { groupCollectionsByYear, sortMDByDate } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/PostPreview.astro'
-import { getBlogByLang } from '@/i18n'
 
 export const prerender = true
 

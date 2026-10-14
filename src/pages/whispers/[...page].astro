@@ -1,6 +1,8 @@
 ---
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
+import { getCollection } from 'astro:content'
+import { getLangFromUrl, getLocalePath, isEnglishPost, useTranslations } from '@/i18n'
 
 import { prod } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
@@ -8,13 +10,11 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 import WhisperItem from '@/components/WhisperItem.astro'
 import WhisperLoadMore from '@/components/WhisperLoadMore.astro'
 import WhisperSearch, { type WhisperIndexItem } from '@/components/WhisperSearch.astro'
-import { getCollection } from 'astro:content'
-import { getLangFromUrl, isEnglishPost, useTranslations, getLocalePath } from '@/i18n'
 
 export const prerender = true
 
 export const getStaticPaths = (async ({ paginate }) => {
-  // English moments: only entries marked as English
+  // 英文模式使用旧数据（whispers 内容集合）：仅英文标记条目
   const all = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))).filter(
     isEnglishPost
   )
@@ -38,10 +38,8 @@ const meta = {
 
 // 搜索索引：全量条目的轻量信息（静态站点无法服务端检索，改为客户端过滤）
 const tagsBase = getLocalePath(lang, '/whispers/tags')
-const allEntries = (
-  await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))
-)
-  .filter((entry) => (lang === 'en' ? isEnglishPost(entry) : !isEnglishPost(entry)))
+const allEntries = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true)))
+  .filter(isEnglishPost)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
 
 const indexItems: WhisperIndexItem[] = allEntries.map((entry) => ({
@@ -69,9 +67,11 @@ const indexItems: WhisperIndexItem[] = allEntries.map((entry) => ({
       {/* 描述在左、搜索条在右（同一行），窄屏时自动堆叠 */}
       <div class='flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6'>
         <p class='text-sm text-muted-foreground'>{t('whispers.description')}</p>
-        {indexItems.length > 0 && (
-          <WhisperSearch items={indexItems} lang={lang} class='lg:w-auto lg:max-w-xl' />
-        )}
+        {
+          indexItems.length > 0 && (
+            <WhisperSearch items={indexItems} lang={lang} class='lg:w-auto lg:max-w-xl' />
+          )
+        }
       </div>
     </div>
 
@@ -81,7 +81,11 @@ const indexItems: WhisperIndexItem[] = allEntries.map((entry) => ({
           <p>{t('whispers.empty')}</p>
         ) : (
           <>
-            <ol id='whispers-results' class='whispers-timeline flex flex-col' data-whispers-timeline>
+            <ol
+              id='whispers-results'
+              class='whispers-timeline flex flex-col'
+              data-whispers-timeline
+            >
               {page.data.map((entry) => (
                 <WhisperItem entry={entry} lang={lang} />
               ))}

@@ -2,6 +2,7 @@ import type { AstroGlobal, ImageMetadata } from 'astro'
 import { getImage } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
 import rss from '@astrojs/rss'
+import { getPostSlug } from '@/i18n'
 import type { Root } from 'mdast'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
@@ -10,7 +11,6 @@ import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
 
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
-import { getPostSlug } from '@/i18n'
 import config from 'virtual:config'
 
 // Get dynamic import of images as a map collection

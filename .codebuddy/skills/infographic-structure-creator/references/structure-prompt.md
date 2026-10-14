@@ -3,6 +3,7 @@
 本文件用于指导生成符合框架规范的 Structure 组件代码。
 
 ## 目录
+
 - 框架核心概念
 - 结构分类体系
 - 技术规范
@@ -52,47 +53,46 @@
 
 ```tsx
 export interface BaseStructureProps {
-  Title?: ComponentType<Pick<TitleProps, 'title' | 'desc'>>;
+  Title?: ComponentType<Pick<TitleProps, 'title' | 'desc'>>
   Item?: ComponentType<
-    Omit<BaseItemProps, 'themeColors'> &
-      Partial<Pick<BaseItemProps, 'themeColors'>>
-  >;
-  Items?: ComponentType<Omit<BaseItemProps, 'themeColors'>>[];
-  data: Data;
-  options: ParsedInfographicOptions;
+    Omit<BaseItemProps, 'themeColors'> & Partial<Pick<BaseItemProps, 'themeColors'>>
+  >
+  Items?: ComponentType<Omit<BaseItemProps, 'themeColors'>>[]
+  data: Data
+  options: ParsedInfographicOptions
 }
 
 export interface Data {
-  title?: string;
-  desc?: string;
-  items: ItemDatum[];
-  illus?: Record<string, string | ResourceConfig>;
-  [key: string]: any;
+  title?: string
+  desc?: string
+  items: ItemDatum[]
+  illus?: Record<string, string | ResourceConfig>
+  [key: string]: any
 }
 
 export interface ItemDatum {
-  icon?: string | ResourceConfig;
-  label?: string;
-  desc?: string;
-  value?: number;
-  illus?: string | ResourceConfig;
-  children?: ItemDatum[];
-  [key: string]: any;
+  icon?: string | ResourceConfig
+  label?: string
+  desc?: string
+  value?: number
+  illus?: string | ResourceConfig
+  children?: ItemDatum[]
+  [key: string]: any
 }
 
 export interface BaseItemProps {
-  x?: number;
-  y?: number;
-  id?: string;
-  indexes: number[];
-  data: Data;
-  datum: Data['items'][number];
-  themeColors?: ThemeColors;
-  positionH?: 'normal' | 'center' | 'flipped';
-  positionV?: 'normal' | 'middle' | 'flipped';
-  width?: number;
-  height?: number;
-  [key: string]: any;
+  x?: number
+  y?: number
+  id?: string
+  indexes: number[]
+  data: Data
+  datum: Data['items'][number]
+  themeColors?: ThemeColors
+  positionH?: 'normal' | 'center' | 'flipped'
+  positionV?: 'normal' | 'middle' | 'flipped'
+  width?: number
+  height?: number
+  [key: string]: any
 }
 ```
 
@@ -120,7 +120,7 @@ export interface BaseItemProps {
 - **Ellipse**: 椭圆图形
 
   ```tsx
-  <Ellipse x={0} y={0} width={100} height={60} fill="blue" />
+  <Ellipse x={0} y={0} width={100} height={60} fill='blue' />
   // 注意:
   // 1. x/y 为左上角位置，非中心点
   // 2. 使用 width/height,不使用 rx/ry
@@ -138,20 +138,14 @@ export interface BaseItemProps {
 - **Path**: 路径图形
 
   ```tsx
-  <Path
-    d="M 0 0 L 100 100"
-    stroke="black"
-    strokeWidth={2}
-    width={100}
-    height={100}
-  />
+  <Path d='M 0 0 L 100 100' stroke='black' strokeWidth={2} width={100} height={100} />
   // width/height 为 d 的预估尺寸
   ```
 
 - **Rect**: 矩形图形
 
   ```tsx
-  <Rect x={0} y={0} width={100} height={50} fill="red" />
+  <Rect x={0} y={0} width={100} height={50} fill='red' />
   ```
 
 - **Text**: 文本元素(支持换行)
@@ -163,10 +157,10 @@ export interface BaseItemProps {
     width={100}
     height={50}
     fontSize={14}
-    fontWeight="normal" // 或 'bold'
-    alignHorizontal="center" // 'left' | 'center' | 'right'
-    alignVertical="middle" // 'top' | 'middle' | 'bottom'
-    fill="#000000"
+    fontWeight='normal' // 或 'bold'
+    alignHorizontal='center' // 'left' | 'center' | 'right'
+    alignVertical='middle' // 'top' | 'middle' | 'bottom'
+    fill='#000000'
   >
     Text Content
   </Text>
@@ -179,9 +173,9 @@ export interface BaseItemProps {
     points={[
       { x: 0, y: 0 },
       { x: 100, y: 0 },
-      { x: 50, y: 100 },
+      { x: 50, y: 100 }
     ]}
-    fill="green"
+    fill='green'
   />
   // 注意: points 是对象数组 {x, y}[],不是字符串
   ```
@@ -233,7 +227,7 @@ export interface BaseItemProps {
 - **Title**: 默认标题组件
 
   ```tsx
-  <Title title="标题" desc="描述" alignHorizontal="center" />
+  <Title title='标题' desc='描述' alignHorizontal='center' />
   ```
 
 - **ItemLabel**: 数据项标签
@@ -266,7 +260,7 @@ export interface BaseItemProps {
 
 - **ItemIconCircle**: 圆形图标组件
   ```tsx
-  <ItemIconCircle indexes={[0]} x={0} y={0} size={50} fill="#000000" />
+  <ItemIconCircle indexes={[0]} x={0} y={0} size={50} fill='#000000' />
   ```
 
 #### 装饰组件 (从 ../decorations 导入)
@@ -279,21 +273,14 @@ export interface BaseItemProps {
     y={0}
     width={25}
     height={25}
-    colorPrimary="#000000"
+    colorPrimary='#000000'
     rotation={0} // 可选，旋转角度：0, 90, 180, 270
   />
   ```
 
 - **Triangle**: 三角形装饰
   ```tsx
-  <Triangle
-    x={0}
-    y={0}
-    width={10}
-    height={8}
-    rotation={0}
-    colorPrimary="#000000"
-  />
+  <Triangle x={0} y={0} width={10} height={8} rotation={0} colorPrimary='#000000' />
   ```
 
 #### 定义组件 (从 ../defs 导入)
@@ -317,15 +304,15 @@ export interface BaseItemProps {
 ```tsx
 <Defs>
   <linearGradient
-    id="gradient-id"
-    x1="0%"
-    y1="0%"
-    x2="100%"
-    y2="100%"
-    gradientUnits="userSpaceOnUse"
+    id='gradient-id'
+    x1='0%'
+    y1='0%'
+    x2='100%'
+    y2='100%'
+    gradientUnits='userSpaceOnUse'
   >
-    <stop offset="0%" stopColor="#ff0000" />
-    <stop offset="100%" stopColor="#0000ff" />
+    <stop offset='0%' stopColor='#ff0000' />
+    <stop offset='100%' stopColor='#0000ff' />
   </linearGradient>
 </Defs>
 ```
@@ -335,11 +322,11 @@ export interface BaseItemProps {
 - **FlexLayout**: 弹性盒子布局
   ```tsx
   <FlexLayout
-    flexDirection="row" // 'row' | 'column' | 'row-reverse' | 'column-reverse'
-    justifyContent="center" // 'flex-start' | 'flex-end' | 'center' | 'space-between'
-    alignItems="center" // 'flex-start' | 'flex-end' | 'center'
-    alignContent="center" // 'flex-start' | 'flex-end' | 'center' | 'space-between'
-    flexWrap="wrap" // 'wrap' | 'nowrap'
+    flexDirection='row' // 'row' | 'column' | 'row-reverse' | 'column-reverse'
+    justifyContent='center' // 'flex-start' | 'flex-end' | 'center' | 'space-between'
+    alignItems='center' // 'flex-start' | 'flex-end' | 'center'
+    alignContent='center' // 'flex-start' | 'flex-end' | 'center' | 'space-between'
+    flexWrap='wrap' // 'wrap' | 'nowrap'
     gap={20}
   >
     {children}
@@ -355,16 +342,16 @@ export interface BaseItemProps {
 1. 添加 `data-element-type="shape"` 属性
 
 ```tsx
-<Rect data-element-type="shape" width="100" height="100" />
+<Rect data-element-type='shape' width='100' height='100' />
 ```
 
 2. 使用 ShapesGroup 包裹
 
 ```tsx
 <ShapesGroup>
-  <Rect width="100" height="100" />
-  <Rect x="100" width="100" height="100" />
-  <Rect x="200" width="100" height="100" />
+  <Rect width='100' height='100' />
+  <Rect x='100' width='100' height='100' />
+  <Rect x='200' width='100' height='100' />
 </ShapesGroup>
 ```
 
@@ -376,7 +363,7 @@ export interface BaseItemProps {
 
 - **getElementBounds**: 获取元素边界信息
   ```tsx
-  const bounds = getElementBounds(<Rect width={100} height={50} />);
+  const bounds = getElementBounds(<Rect width={100} height={50} />)
   // 返回: { x: number, y: number, width: number, height: number }
   ```
 
@@ -385,32 +372,32 @@ export interface BaseItemProps {
 - **getPaletteColor**: 获取调色板中指定索引的颜色
 
   ```tsx
-  const color = getPaletteColor(options, [index]); // 返回颜色字符串
+  const color = getPaletteColor(options, [index]) // 返回颜色字符串
   ```
 
 - **getPaletteColors**: 获取完整调色板颜色数组
 
   ```tsx
-  const palette = getPaletteColors(options); // 返回颜色数组
+  const palette = getPaletteColors(options) // 返回颜色数组
   ```
 
 - **getColorPrimary**: 获取主题色
 
   ```tsx
-  const colorPrimary = getColorPrimary(options); // 返回主题色字符串
+  const colorPrimary = getColorPrimary(options) // 返回主题色字符串
   ```
 
 - **getThemeColors**: 获取主题配置
   ```tsx
-  const themeColors = getThemeColors(options.themeConfig);
+  const themeColors = getThemeColors(options.themeConfig)
   // 或自定义配置
   const themeColors = getThemeColors(
     {
       colorPrimary: '#FF356A',
-      colorBg: '#ffffff',
+      colorBg: '#ffffff'
     },
-    options,
-  );
+    options
+  )
   // 返回包含 colorText, colorPrimaryBg 等的主题对象
   ```
 
@@ -418,14 +405,14 @@ export interface BaseItemProps {
 
 - **getDatumByIndexes**: 根据索引获取数据项
   ```tsx
-  const datum = getDatumByIndexes(items, [0, 1]); // 获取嵌套数据
+  const datum = getDatumByIndexes(items, [0, 1]) // 获取嵌套数据
   ```
 
 **组件选择函数** (从 ../utils 导入):
 
 - **getItemComponent**: 获取指定层级的 Item 组件（用于 Items 数组）
   ```tsx
-  const ItemComponent = getItemComponent(Items, level);
+  const ItemComponent = getItemComponent(Items, level)
   // Items 为组件数组，level 为层级索引
   // 如果 level 超出数组长度，返回最后一个组件
   ```
@@ -433,17 +420,9 @@ export interface BaseItemProps {
 ### 3. 按需导入
 
 ```tsx
-import type { ComponentType, JSXElement } from '../../jsx';
-import {
-  getElementBounds,
-  Defs,
-  Ellipse,
-  Group,
-  Path,
-  Polygon,
-  Rect,
-  Text,
-} from '../../jsx';
+import type { ComponentType, JSXElement } from '../../jsx'
+import { Defs, Ellipse, getElementBounds, Group, Path, Polygon, Rect, Text } from '../../jsx'
+import { getDatumByIndexes } from '../../utils'
 import {
   BtnAdd,
   BtnRemove,
@@ -455,21 +434,20 @@ import {
   ItemLabel,
   ItemsGroup,
   ItemValue,
-  Title,
-} from '../components';
-import { LinearGradient } from '../defs';
-import { SimpleArrow, Triangle } from '../decorations';
-import { FlexLayout } from '../layouts';
+  Title
+} from '../components'
+import { SimpleArrow, Triangle } from '../decorations'
+import { LinearGradient } from '../defs'
+import { FlexLayout } from '../layouts'
 import {
   getColorPrimary,
+  getItemComponent,
   getPaletteColor,
   getPaletteColors,
-  getThemeColors,
-  getItemComponent,
-} from '../utils';
-import { getDatumByIndexes } from '../../utils';
-import { registerStructure } from './registry';
-import type { BaseStructureProps } from './types';
+  getThemeColors
+} from '../utils'
+import { registerStructure } from './registry'
+import type { BaseStructureProps } from './types'
 ```
 
 **注意事项**:
@@ -691,26 +669,26 @@ composites 数组中的值应该是小写字符串，包括以下几种：
 // 示例 1: 使用了 Title 和 Item props
 registerStructure('list-row', {
   component: ListRow,
-  composites: ['title', 'item'],
-});
+  composites: ['title', 'item']
+})
 
 // 示例 2: 直接在代码中渲染 title，使用 Item prop
 registerStructure('list-sector', {
   component: ListSector,
-  composites: ['title', 'item'], // 虽然没有使用 Title prop，但渲染了 data.title
-});
+  composites: ['title', 'item'] // 虽然没有使用 Title prop，但渲染了 data.title
+})
 
 // 示例 3: 使用了 Items 数组（层级结构）
 registerStructure('hierarchy-tree', {
   component: HierarchyTree,
-  composites: ['title', 'item'], // 注意是 'item' 不是 'items'
-});
+  composites: ['title', 'item'] // 注意是 'item' 不是 'items'
+})
 
 // 示例 4: 使用了 Title, Item 和 Illus
 registerStructure('some-structure', {
   component: SomeStructure,
-  composites: ['title', 'item', 'illus'],
-});
+  composites: ['title', 'item', 'illus']
+})
 ```
 
 **重要提示**：
@@ -902,17 +880,11 @@ registerStructure('some-structure', {
 
 ```tsx
 items.forEach((item, index) => {
-  const itemX = index * (itemBounds.width + gap);
+  const itemX = index * (itemBounds.width + gap)
   itemElements.push(
-    <Item
-      indexes={[index]}
-      datum={item}
-      data={data}
-      x={itemX}
-      positionH="center"
-    />,
-  );
-});
+    <Item indexes={[index]} datum={item} data={data} x={itemX} positionH='center' />
+  )
+})
 ```
 
 ### 示例 2: 层级对比结构
@@ -928,19 +900,15 @@ items.forEach((item, index) => {
 **关键代码片段**:
 
 ```tsx
-const [RootItem, ChildItem] = Items;
+const [RootItem, ChildItem] = Items
 items.forEach((rootItem, rootIndex) => {
-  const { children = [] } = rootItem;
-  itemElements.push(
-    <RootItem indexes={[rootIndex]} datum={rootItem} data={data} />,
-  );
+  const { children = [] } = rootItem
+  itemElements.push(<RootItem indexes={[rootIndex]} datum={rootItem} data={data} />)
 
   children.forEach((child, childIndex) => {
-    itemElements.push(
-      <ChildItem indexes={[rootIndex, childIndex]} datum={child} data={data} />,
-    );
-  });
-});
+    itemElements.push(<ChildItem indexes={[rootIndex, childIndex]} datum={child} data={data} />)
+  })
+})
 ```
 
 ### 示例 3: 带装饰的顺序结构
@@ -956,7 +924,7 @@ items.forEach((rootItem, rootIndex) => {
 **关键代码片段**:
 
 ```tsx
-const colorPrimary = getColorPrimary(options);
+const colorPrimary = getColorPrimary(options)
 items.forEach((item, index) => {
   if (index < items.length - 1) {
     decorElements.push(
@@ -966,10 +934,10 @@ items.forEach((item, index) => {
         width={arrowWidth}
         height={arrowHeight}
         colorPrimary={colorPrimary}
-      />,
-    );
+      />
+    )
   }
-});
+})
 
 return (
   <Group>
@@ -977,7 +945,7 @@ return (
     <ItemsGroup>{itemElements}</ItemsGroup>
     <BtnsGroup>{btnElements}</BtnsGroup>
   </Group>
-);
+)
 ```
 
 ### 示例 4: 使用调色板的圆形布局
@@ -994,10 +962,10 @@ return (
 
 ```tsx
 items.forEach((item, index) => {
-  const angle = (index * 2 * Math.PI) / items.length - Math.PI / 2;
-  const itemX = centerX + radius * Math.cos(angle) - itemBounds.width / 2;
-  const itemY = centerY + radius * Math.sin(angle) - itemBounds.height / 2;
-  const color = getPaletteColor(options, [index]);
+  const angle = (index * 2 * Math.PI) / items.length - Math.PI / 2
+  const itemX = centerX + radius * Math.cos(angle) - itemBounds.width / 2
+  const itemY = centerY + radius * Math.sin(angle) - itemBounds.height / 2
+  const color = getPaletteColor(options, [index])
 
   itemElements.push(
     <Item
@@ -1007,9 +975,9 @@ items.forEach((item, index) => {
       x={itemX}
       y={itemY}
       themeColors={getThemeColors({ colorPrimary: color }, options)}
-    />,
-  );
-});
+    />
+  )
+})
 ```
 
 你可以基于这些模式创造性地设计新的布局结构。
@@ -1036,25 +1004,25 @@ items.forEach((item, index) => {
 **示例输出**:
 
 ```tsx
-import type { ComponentType, JSXElement } from '../../jsx';
-import { getElementBounds, Group } from '../../jsx';
-import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components';
-import { FlexLayout } from '../layouts';
-import { registerStructure } from './registry';
-import type { BaseStructureProps } from './types';
+import type { ComponentType, JSXElement } from '../../jsx'
+import { getElementBounds, Group } from '../../jsx'
+import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components'
+import { FlexLayout } from '../layouts'
+import { registerStructure } from './registry'
+import type { BaseStructureProps } from './types'
 
 export interface ExampleProps extends BaseStructureProps {
-  gap?: number;
+  gap?: number
 }
 
 export const Example: ComponentType<ExampleProps> = (props) => {
   // 组件实现
-};
+}
 
 registerStructure('example', {
   component: Example,
-  composites: ['title', 'item'], // 根据实际使用的组件填写
-});
+  composites: ['title', 'item'] // 根据实际使用的组件填写
+})
 ```
 
 ---

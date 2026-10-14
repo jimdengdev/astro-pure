@@ -1,8 +1,8 @@
 ---
 import type { CollectionEntry, CollectionKey } from 'astro:content'
+import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
 
 import { cn } from 'astro-pure/utils'
-import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
 
 type Props = {
   id: string
@@ -53,11 +53,11 @@ const next = index === -1 ? undefined : collections[index + 1]
               x2='19'
               y2='12'
               class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
-            ></line>
+            />
             <polyline
               points='12 5 19 12 12 19'
               class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'
-            ></polyline>
+            />
           </svg>
           <p class='truncate font-medium transition-colors'>{prev.data.title}</p>
         </a>
@@ -90,11 +90,11 @@ const next = index === -1 ? undefined : collections[index + 1]
               x2='19'
               y2='12'
               class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
-            ></line>
+            />
             <polyline
               points='12 5 19 12 12 19'
               class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'
-            ></polyline>
+            />
           </svg>
         </a>
       )

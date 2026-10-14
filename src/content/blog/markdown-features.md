@@ -1,14 +1,13 @@
 ---
-title: "Markdown 增强功能演示"
-publishDate: "2024-01-02T08:00:00"
-description: "展示 astro-koharu 支持的所有 Markdown 增强功能，包括代码高亮、Mermaid 图表、GFM 表格、Shoka 兼容语法等。"
+title: 'Markdown 增强功能演示'
+publishDate: '2024-01-02T08:00:00'
+description: '展示 astro-koharu 支持的所有 Markdown 增强功能，包括代码高亮、Mermaid 图表、GFM 表格、Shoka 兼容语法等。'
 tags:
-  - "Markdown"
-  - "教程"
-  - "笔记"
-series: "astro-koharu"
+  - 'Markdown'
+  - '教程'
+  - '笔记'
+series: 'astro-koharu'
 ---
-
 
 本文展示 astro-koharu 支持的所有 Markdown 增强功能。
 
@@ -63,32 +62,32 @@ https://codepen.io/botteu/pen/YPKBrJX/
 
 ```javascript
 function greet(name) {
-  console.log(`Hello, ${name}!`);
+  console.log(`Hello, ${name}!`)
   return {
-    message: "Welcome to astro-koharu",
-    timestamp: Date.now(),
-  };
+    message: 'Welcome to astro-koharu',
+    timestamp: Date.now()
+  }
 }
 
-greet("World");
+greet('World')
 ```
 
 ### TypeScript
 
 ```typescript
 interface BlogPost {
-  title: string;
-  date: Date;
-  tags: string[];
-  content: string;
+  title: string
+  date: Date
+  tags: string[]
+  content: string
 }
 
 const post: BlogPost = {
-  title: "My First Post",
+  title: 'My First Post',
   date: new Date(),
-  tags: ["astro", "blog"],
-  content: "Hello World!",
-};
+  tags: ['astro', 'blog'],
+  content: 'Hello World!'
+}
 ```
 
 ### Python

@@ -1,6 +1,7 @@
 ---
+import { getAlternatePath, getLangFromUrl, getLocalePath, languages, useTranslations } from '@/i18n'
+
 import { Icon } from 'astro-pure/user'
-import { getLangFromUrl, getAlternatePath, getLocalePath, languages, useTranslations } from '@/i18n'
 
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
@@ -29,7 +30,9 @@ const { lang: targetLang, path: targetPath } = getAlternatePath(Astro.url)
     aria-label={t('nav.home')}
   >
     <span class='sr-only'>{t('nav.home')}</span>
-    {/* 首页图标：astro-pure 的 Icon 没有 home 图标，此处内联同风格（22px 网格、currentColor 描边）房子图形 */}
+    {
+      /* 首页图标：astro-pure 的 Icon 没有 home 图标，此处内联同风格（22px 网格、currentColor 描边）房子图形 */
+    }
     <svg
       aria-hidden='true'
       class='size-5'
@@ -68,7 +71,11 @@ const { lang: targetLang, path: targetPath } = getAlternatePath(Astro.url)
         }
         {/* 图标区不设额外 gap，靠统一的 px-2.5 让所有间距一致（20px） */}
         <div class='flex w-full grow flex-row items-center justify-end gap-x-2 sm:w-fit sm:gap-x-0'>
-          <a class='px-1 py-2 transition-none sm:px-2.5' href={getLocalePath(lang, '/search')} title={t('nav.search')}>
+          <a
+            class='px-1 py-2 transition-none sm:px-2.5'
+            href={getLocalePath(lang, '/search')}
+            title={t('nav.search')}
+          >
             <span class='sr-only'>Search</span>
             <Icon name='search' class='size-5' />
           </a>

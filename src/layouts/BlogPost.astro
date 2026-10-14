@@ -5,16 +5,17 @@ import type { CollectionEntry } from 'astro:content'
 // Plugin styles
 import 'katex/dist/katex.min.css'
 
+import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
+
 import { MediumZoom } from 'astro-pure/advanced'
 import { TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
-import Copyright from '@/components/Copyright.astro'
-import Hero from '@/components/Hero.astro'
 import ArticleBottom from '@/components/ArticleBottom.astro'
+import Copyright from '@/components/Copyright.astro'
 import ExpressDiagrams from '@/components/ExpressDiagrams.astro'
+import Hero from '@/components/Hero.astro'
 import { Comment } from '@/components/twikoo'
 import { coverUrl, getRandomCover } from '@/utils/randomCover'
-import { getLangFromUrl, getLocalePath, getPostSlug } from '@/i18n'
 import config from 'virtual:config'
 
 interface Props {
@@ -45,9 +46,7 @@ const {
 const fallbackCover = heroImage ? undefined : getRandomCover(String(id))
 const heroData = fallbackCover ? { ...data, heroImage: fallbackCover } : data
 
-const socialImage = heroImage
-  ? coverUrl(heroImage.src)
-  : (fallbackCover?.src ?? config.socialCard)
+const socialImage = heroImage ? coverUrl(heroImage.src) : (fallbackCover?.src ?? config.socialCard)
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-text-opacity))'
 

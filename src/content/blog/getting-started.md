@@ -1,16 +1,15 @@
 ---
-title: "欢迎使用 astro-koharu"
-publishDate: "2024-01-01T08:00:00"
-description: "欢迎使用 astro-koharu 博客主题！这是一个基于 Astro 的现代化博客系统，拥有优雅的界面和丰富的功能。"
+title: '欢迎使用 astro-koharu'
+publishDate: '2024-01-01T08:00:00'
+description: '欢迎使用 astro-koharu 博客主题！这是一个基于 Astro 的现代化博客系统，拥有优雅的界面和丰富的功能。'
 tags:
-  - "入门"
-  - "Astro"
-  - "工具"
-series: "astro-koharu"
+  - '入门'
+  - 'Astro'
+  - '工具'
+series: 'astro-koharu'
 draft: true
 pin: true
 ---
-
 
 欢迎使用 astro-koharu 博客主题！
 

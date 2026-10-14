@@ -3,7 +3,6 @@ name: infographic-creator
 description: Create beautiful infographics based on the given text content. Use this when users request creating infographics.
 ---
 
-
 An infographic (Infographic) transforms data, information, and knowledge into perceivable visual language. It combines visual design with data visualization, using intuitive symbols to compress complex information and help audiences quickly understand and remember key points.
 
 `Infographic = Information Structure + Visual Expression`
@@ -69,77 +68,82 @@ theme
 - Use `theme.base.text.font-family` to specify fonts, such as the handwriting style '851tegakizatsu'
 - Use `theme.stylize` to select built-in styles and pass parameters
   Common stylization types include:
-    - `rough`: Apply hand-drawn style to make graphics look like they were drawn by hand.
-    - `pattern`: Apply pattern fill to add repeated pattern effects to graphics.
-    - `linear-gradient` / `radial-gradient`: Apply gradient fill to add linear or radial gradient effects to graphics.
+  - `rough`: Apply hand-drawn style to make graphics look like they were drawn by hand.
+  - `pattern`: Apply pattern fill to add repeated pattern effects to graphics.
+  - `linear-gradient` / `radial-gradient`: Apply gradient fill to add linear or radial gradient effects to graphics.
 
-    e.g: Hand-drawn style (rough):
-    ```plain
-    infographic list-row-simple-horizontal-arrow
-    theme
-      stylize rough
-      base
-        text
-          font-family 851tegakizatsu
-    data
-      items
-        - label Step 1
-          desc Start
-        - label Step 2
-          desc In Progress
-        - label Step 3
-          desc Complete
-    ```
+  e.g: Hand-drawn style (rough):
+
+  ```plain
+  infographic list-row-simple-horizontal-arrow
+  theme
+    stylize rough
+    base
+      text
+        font-family 851tegakizatsu
+  data
+    items
+      - label Step 1
+        desc Start
+      - label Step 2
+        desc In Progress
+      - label Step 3
+        desc Complete
+  ```
 
 Typescript definition for data field:
+
 ```ts
 interface Data {
-  title?: string;
-  desc?: string;
-  items: ItemDatum[];
-  [key: string]: any;
+  title?: string
+  desc?: string
+  items: ItemDatum[]
+  [key: string]: any
 }
 
 interface ItemDatum {
-  icon?: string;
-  label?: string;
-  desc?: string;
-  value?: number;
-  illus?: string;
-  children?: ItemDatum[];
-  [key: string]: any;
+  icon?: string
+  label?: string
+  desc?: string
+  value?: number
+  illus?: string
+  children?: ItemDatum[]
+  [key: string]: any
 }
 ```
 
 ### Icon and Illustration Resources
 
-  **Icons (from Iconify)**:
-  - Format: `<collection>/<icon-name>`, e.g., `mdi/rocket-launch`
-  - Popular collections:
-    - `mdi/*` - Material Design Icons (most commonly used)
-    - `fa/*` - Font Awesome
-    - `bi/*` - Bootstrap Icons
-    - `heroicons/*` - Heroicons
-  - Browse at: https://icon-sets.iconify.design/
-  - Common icon examples:
-    - Tech: `mdi/code-tags`, `mdi/database`, `mdi/api`, `mdi/cloud`
-    - Business: `mdi/chart-line`, `mdi/briefcase`, `mdi/currency-usd`
-    - Process: `mdi/check-circle`, `mdi/arrow-right`, `mdi/cog`
-    - People: `mdi/account`, `mdi/account-group`, `mdi/shield-account`
+**Icons (from Iconify)**:
 
-  **Illustrations (from unDraw)**:
-  - Format: illustration filename (without .svg), e.g., `coding`
-  - Browse at: https://undraw.co/illustrations
-  - Common themes:
-    - Tech: `coding`, `programmer`, `server`, `cloud-sync`
-    - Business: `business-plan`, `team-work`, `analytics`
-    - Abstract: `abstract`, `building-blocks`, `connection`
-  - Note: Use sparingly as illustrations are larger and more detailed than icons
+- Format: `<collection>/<icon-name>`, e.g., `mdi/rocket-launch`
+- Popular collections:
+  - `mdi/*` - Material Design Icons (most commonly used)
+  - `fa/*` - Font Awesome
+  - `bi/*` - Bootstrap Icons
+  - `heroicons/*` - Heroicons
+- Browse at: https://icon-sets.iconify.design/
+- Common icon examples:
+  - Tech: `mdi/code-tags`, `mdi/database`, `mdi/api`, `mdi/cloud`
+  - Business: `mdi/chart-line`, `mdi/briefcase`, `mdi/currency-usd`
+  - Process: `mdi/check-circle`, `mdi/arrow-right`, `mdi/cog`
+  - People: `mdi/account`, `mdi/account-group`, `mdi/shield-account`
 
-  **Usage Tips**:
-  - For `sequence-*` and `list-*` templates → use `icon`
-  - For larger illustration needs → use `illus`
-  - Not all templates support both icon and illus - refer to template examples
+**Illustrations (from unDraw)**:
+
+- Format: illustration filename (without .svg), e.g., `coding`
+- Browse at: https://undraw.co/illustrations
+- Common themes:
+  - Tech: `coding`, `programmer`, `server`, `cloud-sync`
+  - Business: `business-plan`, `team-work`, `analytics`
+  - Abstract: `abstract`, `building-blocks`, `connection`
+- Note: Use sparingly as illustrations are larger and more detailed than icons
+
+**Usage Tips**:
+
+- For `sequence-*` and `list-*` templates → use `icon`
+- For larger illustration needs → use `illus`
+- Not all templates support both icon and illus - refer to template examples
 
 ### Available Templates
 
@@ -203,6 +207,7 @@ interface ItemDatum {
 - list-zigzag-up-simple
 
 **Template Selection Guidelines:**
+
 - For strict sequential order: processes/steps/development trends → `sequence-*` series
   - Timeline → `sequence-timeline-*`
   - Staircase diagram → `sequence-stairs-*`
@@ -278,6 +283,7 @@ data
       desc Going to market
       illus launch-day
 ```
+
 ## Creation Process
 
 ### Step 1: Understanding User Requirements
@@ -316,104 +322,106 @@ The Html template you can follow:
 <div id="container"></div>
 <script src="https://unpkg.com/@antv/infographic@latest/dist/infographic.min.js"></script>
 <script>
-// Resource Loader Script
-// Use the following resource loader script to handle icon and illustration loading:
-const svgTextCache = new Map();
-const pendingRequests = new Map();
+  // Resource Loader Script
+  // Use the following resource loader script to handle icon and illustration loading:
+  const svgTextCache = new Map()
+  const pendingRequests = new Map()
 
-AntVInfographic.registerResourceLoader(async (config) => {
-    const { data, scene } = config;
+  AntVInfographic.registerResourceLoader(async (config) => {
+    const { data, scene } = config
 
     try {
-        const key = `${scene}::${data}`;
-        let svgText;
+      const key = `${scene}::${data}`
+      let svgText
 
-        // 1. Check cache
-        if (svgTextCache.has(key)) {
-            svgText = svgTextCache.get(key);
-        }
-        // 2. Check if request is already in progress
-        else if (pendingRequests.has(key)) {
-            svgText = await pendingRequests.get(key);
-        }
-        // 3. Make new request
-        else {
-            const fetchPromise = (async () => {
-                try {
-                    let url;
+      // 1. Check cache
+      if (svgTextCache.has(key)) {
+        svgText = svgTextCache.get(key)
+      }
+      // 2. Check if request is already in progress
+      else if (pendingRequests.has(key)) {
+        svgText = await pendingRequests.get(key)
+      }
+      // 3. Make new request
+      else {
+        const fetchPromise = (async () => {
+          try {
+            let url
 
-                    if (scene === 'icon') {
-                        url = `https://api.iconify.design/${data}.svg`;
-                    } else if (scene === 'illus') {
-                        url = `https://raw.githubusercontent.com/balazser/undraw-svg-collection/refs/heads/main/svgs/${data}.svg`;
-                    } else return null;
+            if (scene === 'icon') {
+              url = `https://api.iconify.design/${data}.svg`
+            } else if (scene === 'illus') {
+              url = `https://raw.githubusercontent.com/balazser/undraw-svg-collection/refs/heads/main/svgs/${data}.svg`
+            } else return null
 
-                    if (!url) return null;
+            if (!url) return null
 
-                    const response = await fetch(url, { referrerPolicy: 'no-referrer' });
+            const response = await fetch(url, { referrerPolicy: 'no-referrer' })
 
-                    if (!response.ok) {
-                        console.error(`HTTP ${response.status}: Failed to load ${url}`);
-                        return null;
-                    }
-
-                    const text = await response.text();
-
-                    if (!text || !text.trim().startsWith('<svg')) {
-                        console.error(`Invalid SVG content from ${url}`);
-                        return null;
-                    }
-
-                    svgTextCache.set(key, text);
-                    return text;
-                } catch (fetchError) {
-                    console.error(`Failed to fetch resource ${key}:`, fetchError);
-                    return null;
-                }
-            })();
-
-            pendingRequests.set(key, fetchPromise);
-
-            try {
-                svgText = await fetchPromise;
-            } catch (error) {
-                pendingRequests.delete(key);
-                console.error(`Error loading resource ${key}:`, error);
-                return null;
-            } finally {
-                pendingRequests.delete(key);
+            if (!response.ok) {
+              console.error(`HTTP ${response.status}: Failed to load ${url}`)
+              return null
             }
+
+            const text = await response.text()
+
+            if (!text || !text.trim().startsWith('<svg')) {
+              console.error(`Invalid SVG content from ${url}`)
+              return null
+            }
+
+            svgTextCache.set(key, text)
+            return text
+          } catch (fetchError) {
+            console.error(`Failed to fetch resource ${key}:`, fetchError)
+            return null
+          }
+        })()
+
+        pendingRequests.set(key, fetchPromise)
+
+        try {
+          svgText = await fetchPromise
+        } catch (error) {
+          pendingRequests.delete(key)
+          console.error(`Error loading resource ${key}:`, error)
+          return null
+        } finally {
+          pendingRequests.delete(key)
         }
+      }
 
-        if (!svgText) {
-            return null;
-        }
+      if (!svgText) {
+        return null
+      }
 
-        const resource = AntVInfographic.loadSVGResource(svgText);
+      const resource = AntVInfographic.loadSVGResource(svgText)
 
-        if (!resource) {
-            console.error(`loadSVGResource returned null for ${key}`);
-            svgTextCache.delete(key);
-            return null;
-        }
+      if (!resource) {
+        console.error(`loadSVGResource returned null for ${key}`)
+        svgTextCache.delete(key)
+        return null
+      }
 
-        return resource;
+      return resource
     } catch (error) {
-        console.error('Unexpected error in resource loader:', error);
-        return null;
+      console.error('Unexpected error in resource loader:', error)
+      return null
     }
-});
+  })
 </script>
 <script>
- const infographic = new AntVInfographic.Infographic({
+  const infographic = new AntVInfographic.Infographic({
     container: '#container',
     width: '100%',
-    height: '100%',
-  });
-  infographic.render(`{syntax}`);
-  document.fonts?.ready.then(() => {
-    infographic.render(`{syntax}`);
-  }).catch((error) => console.error('Error waiting for fonts to load:', error));
+    height: '100%'
+  })
+  infographic.render(`{syntax}`)
+  document.fonts?.ready
+    .then(() => {
+      infographic.render(`{syntax}`)
+    })
+    .catch((error) => console.error('Error waiting for fonts to load:', error))
 </script>
 ```
 
@@ -424,6 +432,7 @@ AntVInfographic.registerResourceLoader(async (config) => {
    - Display your output syntax with instruction: "If you need to adjust the template/colors/content, just let me know"
 
 **Note:** The HTML file must include:
+
 - Complete resource loader for handling icon and illustration assets from external sources
 - SVG export functionality via the export button
 - Responsive container that takes 100% width and height

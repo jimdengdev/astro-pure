@@ -1,19 +1,18 @@
 ---
-title: "博客仓库是 copy 来的？手把手带你同步上游主题更新"
+title: '博客仓库是 copy 来的？手把手带你同步上游主题更新'
 link: sync-upstream-theme
-publishDate: "2026-09-06T02:30:00"
-updatedDate: "2026-09-06T02:30:00"
-description: "GitHub 博客仓库是直接 copy 别人的主题仓库，没有共同 git 历史，如何安全同步上游新功能？本文记录从添加 upstream、分类处理 185 个合并冲突到构建排错的完整实战过程。"
+publishDate: '2026-09-06T02:30:00'
+updatedDate: '2026-09-06T02:30:00'
+description: 'GitHub 博客仓库是直接 copy 别人的主题仓库，没有共同 git 历史，如何安全同步上游新功能？本文记录从添加 upstream、分类处理 185 个合并冲突到构建排错的完整实战过程。'
 tags:
-  - "Git"
-  - "GitHub"
-  - "Astro"
-  - "博客"
-  - "随笔"
+  - 'Git'
+  - 'GitHub'
+  - 'Astro'
+  - '博客'
+  - '随笔'
 draft: false
 comment: true
 ---
-
 
 ## 问题：我的仓库和上游"没有血缘关系"
 
@@ -31,11 +30,11 @@ fatal: refusing to merge unrelated histories
 
 ## 三种方案怎么选
 
-| 方案 | 原理 | 适合场景 |
-|------|------|----------|
-| `koharu update` | 主题自带 CLI，自动备份 + 冲突分类 | 主题提供了更新工具的情况 |
-| 手动 `merge --allow-unrelated-histories` | 直接绕过共同祖先限制 | 想完全掌控合并过程 |
-| `koharu update --clean` | 上游文件整体覆盖 + 还原用户内容 | 冲突太多想推倒重来 |
+| 方案                                     | 原理                              | 适合场景                 |
+| ---------------------------------------- | --------------------------------- | ------------------------ |
+| `koharu update`                          | 主题自带 CLI，自动备份 + 冲突分类 | 主题提供了更新工具的情况 |
+| 手动 `merge --allow-unrelated-histories` | 直接绕过共同祖先限制              | 想完全掌控合并过程       |
+| `koharu update --clean`                  | 上游文件整体覆盖 + 还原用户内容   | 冲突太多想推倒重来       |
 
 我的选择是第一种作为入口，冲突部分手动处理。因为我清楚自己的改动分布，一刀切的覆盖会把我的 200 多行自定义样式全部冲掉。
 
@@ -73,11 +72,11 @@ git ls-tree -r <initial-commit> | awk '{print $4 " " $3}' > initial-blobs.txt
 
 22 个真冲突里，我的处理逻辑很简单：
 
-| 判断标准 | 处理 |
-|----------|------|
+| 判断标准                                       | 处理                           |
+| ---------------------------------------------- | ------------------------------ |
 | 属于我的核心自定义（相册、日记、主题色、路由） | `git checkout --ours` 保留我的 |
-| 上游改动与我的功能无关，且上游更完善 | 取上游 |
-| i18n 翻译文件，双方都加了 key | 写脚本做 key 级合并 |
+| 上游改动与我的功能无关，且上游更完善           | 取上游                         |
+| i18n 翻译文件，双方都加了 key                  | 写脚本做 key 级合并            |
 
 i18n 的合并值得一提。我的 `en.ts`/`zh.ts` 里加了相册相关的翻译 key，上游也加了 90 多个新 key，两边都不能丢。写了个 Node 脚本：以我的版本为基线，把上游独有的 key 追加进来，同 key 冲突时保留我的值。三行核心逻辑，比手动复制粘贴可靠得多。
 
@@ -96,7 +95,7 @@ i18n 的合并值得一提。我的 `en.ts`/`zh.ts` 里加了相册相关的翻�
 这类问题的本质是：**合并冲突时"保留我的版本"的决策，可能切断上游代码内部的新依赖链**。既然我暂时不用上游的 Moments 功能，直接把 live collection 置空：
 
 ```ts
-export const collections = {} as unknown as ReturnType<typeof defineLiveCollection>;
+export const collections = {} as unknown as ReturnType<typeof defineLiveCollection>
 ```
 
 ### 坑 3：我的组件引用了上游没有的依赖

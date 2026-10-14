@@ -1,12 +1,13 @@
 ---
 /**
  * 时光页内搜索：关键词 + 时间范围。
- * 静态站点无法服务端检索，故把全量条目的轻量索引内嵌到页面，
+ * 数据在 SSR 时从 memos 拉取，轻量索引内嵌到页面，
  * 由客户端脚本过滤并渲染结果（样式复用 WhisperItem 的全局类）。
  */
+import type { Lang } from '@/i18n'
+
 import { Icon } from 'astro-pure/user'
 import { cn } from 'astro-pure/utils'
-import type { Lang } from '@/i18n'
 
 export interface WhisperIndexItem {
   id: string
@@ -15,6 +16,8 @@ export interface WhisperIndexItem {
   tags: string[]
   /** 标签页基础路径（含语言前缀），客户端渲染标签链接用 */
   tagBase: string
+  /** 详情页基础路径（含语言前缀），客户端渲染结果跳转用；旧数据无详情页则省略 */
+  detailBase?: string
 }
 
 interface Props {
@@ -113,14 +116,11 @@ const labels = {
     excerpt: string
     tags: string[]
     tagBase: string
+    detailBase?: string
   }
 
   const escapeHtml = (value: string) =>
-    value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
+    value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
   class WhispersSearch extends HTMLElement {
     private target: HTMLElement | null = null
@@ -223,12 +223,17 @@ const labels = {
                 )}">${escapeHtml(tag)}</a></li>`
             )
             .join('')
+          const detail = item.detailBase
+            ? `<a class="text-sm leading-relaxed text-foreground/85 transition-colors hover:text-primary" href="${item.detailBase}/${encodeURIComponent(
+                item.id
+              )}">${escapeHtml(item.excerpt)}</a>`
+            : `<div class="text-sm leading-relaxed text-foreground/85">${escapeHtml(item.excerpt)}</div>`
           return `<li class="whispers-item" data-date="${item.iso}">
             <div class="whispers-time"><span class="text-xs font-medium">${formatDate(item.iso)}</span></div>
             <div class="whispers-axis" aria-hidden="true"></div>
             <div class="whispers-body">
               <article class="whispers-card">
-                <div class="text-sm leading-relaxed text-foreground/85">${escapeHtml(item.excerpt)}</div>
+                ${detail}
                 ${tags ? `<ul class="mt-2.5 flex flex-wrap gap-1.5">${tags}</ul>` : ''}
               </article>
             </div>
@@ -237,7 +242,10 @@ const labels = {
         .join('')
 
       if (this.count) {
-        this.count.textContent = (this.dataset.countTemplate ?? '{n}').replace('{n}', String(items.length))
+        this.count.textContent = (this.dataset.countTemplate ?? '{n}').replace(
+          '{n}',
+          String(items.length)
+        )
         this.count.classList.remove('hidden')
       }
     }

@@ -1,0 +1,104 @@
+---
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+import { listWhispers, type WhisperView } from '@/lib/memos'
+
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import WhisperItem from '@/components/WhisperItem.astro'
+
+export const prerender = false
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const { id } = Astro.params
+
+// SSR：按需从 memos 拉取（未认证 → 仅 PUBLIC）
+let items: WhisperView[] = []
+let unavailable = false
+try {
+  items = await listWhispers()
+} catch (error) {
+  console.error('[whispers] memos feed unavailable:', error)
+  unavailable = true
+  Astro.cache.set(false)
+}
+if (!unavailable) Astro.cache.set({ maxAge: 300, swr: 30 })
+
+const index = id ? items.findIndex((entry) => entry.id === id) : -1
+const notFound = !unavailable && index < 0
+if (notFound) {
+  Astro.response.status = 404
+  Astro.cache.set(false)
+}
+
+const item = index >= 0 ? items[index] : undefined
+// 信息流新→旧：前一条更新，后一条更旧
+const newer = index > 0 ? items[index - 1] : undefined
+const older = index >= 0 && index < items.length - 1 ? items[index + 1] : undefined
+const detailBase = (mid: string) => getLocalePath(lang, `/whispers/m/${mid}`)
+
+const meta = item
+  ? {
+      title: `${item.description.slice(0, 40) || t('whispers.title')} · ${t('whispers.title')}`,
+      description: item.description.slice(0, 160) || t('whispers.description')
+    }
+  : { title: t('whispers.title'), description: t('whispers.description') }
+---
+
+<PageLayout {meta}>
+  <Button title='Back' href={getLocalePath(lang, '/whispers')} variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-3 mt-6 text-3xl font-medium sm:mt-10'>{t('whispers.title')}</h1>
+      <p class='text-sm text-muted-foreground'>{t('whispers.description')}</p>
+    </div>
+
+    <section id='content' class='animate mt-8' aria-label='Moment detail'>
+      {
+        unavailable ? (
+          <p>{t('whispers.unavailable')}</p>
+        ) : notFound ? (
+          <p>404</p>
+        ) : item ? (
+          <>
+            <ol class='whispers-timeline flex flex-col' data-whispers-timeline>
+              <WhisperItem item={item} lang={lang} />
+            </ol>
+
+            <nav
+              class='mt-6 flex items-center justify-between gap-4 text-sm'
+              aria-label='Adjacent moments'
+            >
+              {older ? (
+                <a
+                  href={detailBase(older.id)}
+                  class='group flex max-w-[45%] flex-col gap-0.5 rounded-xl border px-3 py-2 transition-colors hover:bg-muted hover:text-primary'
+                  aria-label={older.description.slice(0, 60)}
+                >
+                  <span class='text-xs text-muted-foreground'>← {t('whispers.older')}</span>
+                  <span class='truncate'>{older.description.slice(0, 60) || older.id}</span>
+                </a>
+              ) : (
+                <span aria-hidden='true' />
+              )}
+              {newer ? (
+                <a
+                  href={detailBase(newer.id)}
+                  class='group flex max-w-[45%] flex-col items-end gap-0.5 rounded-xl border px-3 py-2 text-right transition-colors hover:bg-muted hover:text-primary'
+                  aria-label={newer.description.slice(0, 60)}
+                >
+                  <span class='text-xs text-muted-foreground'>{t('whispers.newer')} →</span>
+                  <span class='truncate'>{newer.description.slice(0, 60) || newer.id}</span>
+                </a>
+              ) : (
+                <span aria-hidden='true' />
+              )}
+            </nav>
+          </>
+        ) : (
+          <p>{t('whispers.empty')}</p>
+        )
+      }
+    </section>
+  </main>
+</PageLayout>

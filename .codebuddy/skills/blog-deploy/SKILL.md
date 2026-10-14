@@ -18,6 +18,7 @@ description: 一键部署博客到 GitHub，触发 Vercel 自动构建部署。�
 ```
 
 脚本会自动完成：
+
 1. `git add .` — 暂存所有变更
 2. `git commit -m "feat: 博客标题"` — 提交（feat: 前缀）
 3. `git push origin main` — 推送到 main 分支

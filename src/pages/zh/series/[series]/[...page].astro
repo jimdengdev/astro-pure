@@ -1,14 +1,14 @@
 ---
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
+import { getBlogByLang, getLocalePath, useTranslations } from '@/i18n'
+import { findSeriesBySlug, getSeries, getSeriesPosts, localizeSeries } from '@/lib/series'
 
 import { Paginator } from 'astro-pure/components/pages'
 import { sortMDByDate } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/PostPreview.astro'
-import { getBlogByLang, useTranslations, getLocalePath } from '@/i18n'
-import { findSeriesBySlug, getSeries, getSeriesPosts, localizeSeries } from '@/lib/series'
 import { getRandomCover } from '@/utils/randomCover'
 import config from '@/site-config'
 
@@ -76,9 +76,7 @@ const paginationProps = {
             {t('series.title')}：
             <span class='text-xl sm:text-2xl'>{series?.title ?? slug}</span>
           </h1>
-          {series?.description && (
-            <p class='text-sm text-muted-foreground'>{series.description}</p>
-          )}
+          {series?.description && <p class='text-sm text-muted-foreground'>{series.description}</p>}
           <span class='text-xs text-muted-foreground'>{postCount} {t('series.posts')}</span>
         </div>
       </div>
@@ -90,7 +88,9 @@ const paginationProps = {
           <p>{t('series.no_posts')}</p>
         ) : (
           <ul class='flex flex-col gap-y-3 text-start'>
-            {page.data.map((post) => <PostPreview {post} detailed />)}
+            {page.data.map((post) => (
+              <PostPreview {post} detailed />
+            ))}
           </ul>
         )
       }

@@ -1,6 +1,8 @@
 ---
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
+import { getBlogByLang, getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
 
 import { Paginator } from 'astro-pure/components/pages'
 import { getUniqueTagsWithCount, sortMDByDate } from 'astro-pure/server'
@@ -8,8 +10,6 @@ import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/PostPreview.astro'
 import SeriesBar from '@/components/SeriesBar.astro'
-import { getLangFromUrl, useTranslations, getLocalePath, getBlogByLang } from '@/i18n'
-import { getSeries, getSeriesStats, localizeSeries } from '@/lib/series'
 import config from '@/site-config'
 
 export const prerender = true
@@ -94,9 +94,14 @@ const paginationProps = {
           <section aria-label='Blog posts list' class='animate' id='content'>
             <div class='mb-3 flex flex-col justify-between text-sm sm:mb-5 sm:flex-row'>
               <span class='text-muted-foreground'>
-                {t('blog.page')} {page.currentPage} - {t('blog.showing')} {page.data.length} / {collectionsCount} {t('blog.posts')}
+                {t('blog.page')} {page.currentPage} - {t('blog.showing')} {page.data.length} /{' '}
+                {collectionsCount} {t('blog.posts')}
               </span>
-              <a aria-label='View all blog by years' href={getLocalePath(lang, '/archives')} data-astro-prefetch>
+              <a
+                aria-label='View all blog by years'
+                href={getLocalePath(lang, '/archives')}
+                data-astro-prefetch
+              >
                 {t('blog.view_all')}
               </a>
             </div>

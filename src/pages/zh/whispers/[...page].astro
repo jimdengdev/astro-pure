@@ -1,92 +1,109 @@
 ---
-import type { GetStaticPaths, Page } from 'astro'
-import type { CollectionEntry } from 'astro:content'
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+import { listWhispers, type WhisperView } from '@/lib/memos'
 
-import { prod } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import WhisperItem from '@/components/WhisperItem.astro'
 import WhisperLoadMore from '@/components/WhisperLoadMore.astro'
 import WhisperSearch, { type WhisperIndexItem } from '@/components/WhisperSearch.astro'
-import { getCollection } from 'astro:content'
-import { getLangFromUrl, isEnglishPost, useTranslations, getLocalePath } from '@/i18n'
 
-export const prerender = true
+export const prerender = false
 
-export const getStaticPaths = (async ({ paginate }) => {
-  // Chinese moments: entries without an English language tag
-  const all = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))).filter(
-    (entry) => !isEnglishPost(entry)
-  )
-  const sorted = all.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  // 每页 10 条（getStaticPaths 不能引用 frontmatter 变量，故内联）
-  return paginate(sorted, { pageSize: 10 })
-}) satisfies GetStaticPaths
+const PAGE_SIZE = 10
 
-interface Props {
-  page: Page<CollectionEntry<'whispers'>>
-}
-
-const { page } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
+
+// SSR：按需从 memos 拉取（未认证 → 仅 PUBLIC），失败降级为不可用提示
+let items: WhisperView[] = []
+let unavailable = false
+try {
+  items = await listWhispers()
+} catch (error) {
+  console.error('[whispers] memos feed unavailable:', error)
+  unavailable = true
+}
+if (unavailable) {
+  Astro.cache.set(false)
+} else {
+  Astro.cache.set({ maxAge: 300, swr: 30 })
+}
+
+const total = items.length
+const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+// /zh/whispers → 第 1 页；/zh/whispers/3 → 第 3 页；非数字或越界 → 404
+const rawPage = Astro.params.page
+let page = 1
+let notFound = false
+if (rawPage !== undefined) {
+  const parsed = Number.parseInt(rawPage, 10)
+  if (!Number.isInteger(parsed) || parsed < 1 || String(parsed) !== rawPage) notFound = true
+  else page = parsed
+}
+if (page > totalPages) notFound = true
+if (notFound) {
+  Astro.response.status = 404
+  Astro.cache.set(false)
+}
+
+const slice = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+const nextUrl = page < totalPages ? getLocalePath(lang, `/whispers/${page + 1}`) : undefined
 
 const meta = {
   title: t('whispers.title'),
   description: t('whispers.description')
 }
 
-// 搜索索引：全量条目的轻量信息（静态站点无法服务端检索，改为客户端过滤）
+// 搜索索引：全量条目的轻量信息（客户端过滤）
 const tagsBase = getLocalePath(lang, '/whispers/tags')
-const allEntries = (
-  await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))
-)
-  .filter((entry) => (lang === 'en' ? isEnglishPost(entry) : !isEnglishPost(entry)))
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-
-const indexItems: WhisperIndexItem[] = allEntries.map((entry) => ({
-  id: entry.id,
-  iso: entry.data.publishDate.toISOString(),
-  excerpt:
-    entry.data.description ??
-    (entry.body ?? '')
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-      .replace(/[#>*`_\-]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 120),
-  tags: entry.data.tags,
-  tagBase: tagsBase
+const indexItems: WhisperIndexItem[] = items.map((item) => ({
+  id: item.id,
+  iso: item.publishDate.toISOString(),
+  excerpt: item.description,
+  tags: item.tags,
+  tagBase: tagsBase,
+  detailBase: getLocalePath(lang, '/whispers/m')
 }))
 ---
 
 <PageLayout {meta}>
-  <Button title='返回' href={getLocalePath(lang, '/')} variant='back' />
+  <Button title='Back' href='/' variant='back' />
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
       <h1 class='mb-3 mt-6 text-3xl font-medium sm:mt-10'>{t('whispers.title')}</h1>
       {/* 描述在左、搜索条在右（同一行），窄屏时自动堆叠 */}
       <div class='flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6'>
         <p class='text-sm text-muted-foreground'>{t('whispers.description')}</p>
-        {indexItems.length > 0 && (
-          <WhisperSearch items={indexItems} lang={lang} class='lg:w-auto lg:max-w-xl' />
-        )}
+        {
+          indexItems.length > 0 && (
+            <WhisperSearch items={indexItems} lang={lang} class='lg:w-auto lg:max-w-xl' />
+          )
+        }
       </div>
     </div>
 
-    <section id='content' class='animate mt-8' aria-label='时光轴'>
+    <section id='content' class='animate mt-8' aria-label='Moments timeline'>
       {
-        page.data.length === 0 ? (
+        unavailable ? (
+          <p>{t('whispers.unavailable')}</p>
+        ) : notFound ? (
+          <p>404</p>
+        ) : slice.length === 0 ? (
           <p>{t('whispers.empty')}</p>
         ) : (
           <>
-            <ol id='whispers-results' class='whispers-timeline flex flex-col' data-whispers-timeline>
-              {page.data.map((entry) => (
-                <WhisperItem entry={entry} lang={lang} />
+            <ol
+              id='whispers-results'
+              class='whispers-timeline flex flex-col'
+              data-whispers-timeline
+            >
+              {slice.map((item) => (
+                <WhisperItem item={item} lang={lang} />
               ))}
             </ol>
-            <WhisperLoadMore nextUrl={page.url.next} lang={lang} />
+            <WhisperLoadMore nextUrl={nextUrl} lang={lang} />
           </>
         )
       }

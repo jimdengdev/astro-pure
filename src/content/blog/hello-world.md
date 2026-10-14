@@ -1,13 +1,12 @@
 ---
-title: "Hello World"
-publishDate: "2024-01-05T08:00:00"
-description: "你好，世界！这是我的第一篇随笔。 这篇文章故意没有设置 description 字段，用于测试以下功能： 1. 自动描述提取 系统会自动从正文提取前 150 字作为描述 2. AI 摘要 如果运行了 pnpm generate:summaries ，会使用 AI 生成的摘要 随笔分类适合记录：..."
+title: 'Hello World'
+publishDate: '2024-01-05T08:00:00'
+description: '你好，世界！这是我的第一篇随笔。 这篇文章故意没有设置 description 字段，用于测试以下功能： 1. 自动描述提取 系统会自动从正文提取前 150 字作为描述 2. AI 摘要 如果运行了 pnpm generate:summaries ，会使用 AI 生成的摘要 随笔分类适合记录：...'
 tags:
-  - "随笔"
-  - "生活"
+  - '随笔'
+  - '生活'
 draft: true
 ---
-
 
 你好，世界！这是我的第一篇随笔。
 

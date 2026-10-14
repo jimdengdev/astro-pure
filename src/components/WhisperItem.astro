@@ -1,24 +1,37 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
+import { getLocalePath, type Lang } from '@/i18n'
+import type { WhisperView } from '@/lib/memos'
 
 import { Button, FormattedDate } from 'astro-pure/user'
-import { getLocalePath, type Lang } from '@/i18n'
 
 interface Props {
-  entry: CollectionEntry<'whispers'>
+  /** 旧数据（英文模式）：内容集合条目 */
+  entry?: CollectionEntry<'whispers'>
+  /** memos 数据（中文模式）：适配后的视图 */
+  item?: WhisperView
   lang: Lang
 }
 
-const { entry, lang } = Astro.props
-const { data } = entry
-const { Content } = await render(entry)
+const { entry, item, lang } = Astro.props
+const data = entry?.data
+// 旧数据走 Astro 内容管线（主题 Markdown 配置）；memos 数据在适配层已渲染并消毒
+let Content: Awaited<ReturnType<typeof render>>['Content'] | undefined
+if (entry) ({ Content } = await render(entry))
+
+const images = data ? data.images : (item?.images ?? [])
+const tags = data ? data.tags : (item?.tags ?? [])
 ---
 
-<li class='whispers-item' data-whisper-id={entry.id} data-date={data.publishDate.toISOString()}>
+<li
+  class='whispers-item'
+  data-whisper-id={entry ? entry.id : item?.id}
+  data-date={(data ? data.publishDate : item?.publishDate)?.toISOString()}
+>
   {/* 时间 */}
   <div class='whispers-time'>
-    <FormattedDate class='text-xs font-medium' date={data.publishDate} />
+    <FormattedDate class='text-xs font-medium' date={data ? data.publishDate : item!.publishDate} />
   </div>
 
   {/* 时间轴：节点 + 竖线（竖线由全局 CSS 的 :last-child 规则控制） */}
@@ -27,15 +40,31 @@ const { Content } = await render(entry)
   {/* 内容卡片 */}
   <div class='whispers-body'>
     <article class='whispers-card'>
-      {data.title && <h2 class='mb-1 font-medium'>{data.title}</h2>}
-      <div class='text-sm leading-relaxed text-foreground/85'>
-        <Content />
-      </div>
+      {data?.title && <h2 class='mb-1 font-medium'>{data.title}</h2>}
+      {
+        entry && Content ? (
+          <div class='text-sm leading-relaxed text-foreground/85'>
+            <Content />
+          </div>
+        ) : item ? (
+          <div class='flex items-start justify-between gap-2'>
+            <div class='min-w-0 flex-1 text-sm leading-relaxed text-foreground/85' set:html={item.html} />
+            <a
+              href={item.sourceUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              class='shrink-0 pt-0.5 text-xs text-muted-foreground transition-colors hover:text-primary'
+            >
+              {lang === 'zh' ? '查看原文 ↗' : 'View original ↗'}
+            </a>
+          </div>
+        ) : null
+      }
 
       {
-        data.images.length > 0 && (
+        images.length > 0 && (
           <ul class='mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3'>
-            {data.images.map((src) => (
+            {images.map((src) => (
               <li>
                 <a href={src} target='_blank' rel='noopener noreferrer' title={src}>
                   <img
@@ -52,28 +81,32 @@ const { Content } = await render(entry)
       }
 
       {
-        data.tags.length > 0 && (
-          <ul class='mt-2.5 flex flex-wrap gap-1.5'>
-            {data.tags.map((tag) => (
-              <li>
-                <Button
-                  title={tag}
-                  href={getLocalePath(lang, `/whispers/tags/${tag}`)}
-                  variant='pill'
-                />
-              </li>
-            ))}
-          </ul>
+        tags.length > 0 && (
+          <div class='mt-2.5 flex flex-wrap items-center gap-2'>
+            <ul class='flex flex-wrap gap-1.5'>
+              {tags.map((tag) => (
+                <li>
+                  <Button
+                    title={tag}
+                    href={getLocalePath(lang, `/whispers/tags/${tag}`)}
+                    variant='pill'
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
         )
       }
     </article>
   </div>
 </li>
 
-{/*
+{
+  /*
   全局样式：服务端渲染、无限滚动追加、客户端搜索结果三处共用，
   因此不能使用 scoped style（动态插入的 DOM 拿不到 scope hash）
-*/}
+*/
+}
 <style is:global>
   .whispers-timeline > .whispers-item {
     position: relative;

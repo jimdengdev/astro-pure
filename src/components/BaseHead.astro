@@ -1,9 +1,9 @@
 ---
 import { Font } from 'astro:assets'
+import { getLangFromUrl } from '@/i18n'
 
 import { prod } from 'astro-pure/server'
 import type { SiteMeta } from 'astro-pure/types'
-import { getLangFromUrl } from '@/i18n'
 import config from 'virtual:config'
 
 type Props = SiteMeta

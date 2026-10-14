@@ -77,7 +77,8 @@ export function getAlternatePath(currentUrl: URL): { lang: Lang; path: string } 
   // Normalize home path to '' to avoid trailing slash when concatenating
   // (site uses trailingSlash: 'never', so '/zh/' would 404 — must be '/zh')
   const normalizedPath = pathname === '/' ? '' : pathname
-  const targetPath = targetLang === defaultLang ? normalizedPath || '/' : `/${targetLang}${normalizedPath}`
+  const targetPath =
+    targetLang === defaultLang ? normalizedPath || '/' : `/${targetLang}${normalizedPath}`
 
   return { lang: targetLang, path: targetPath }
 }

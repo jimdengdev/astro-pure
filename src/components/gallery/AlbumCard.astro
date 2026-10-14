@@ -1,6 +1,6 @@
 ---
-import type { GalleryAlbum } from '@/lib/gallery'
 import { getLangFromUrl, getLocalePath } from '@/i18n'
+import type { GalleryAlbum } from '@/lib/gallery'
 
 interface Props {
   album: GalleryAlbum
@@ -26,7 +26,9 @@ const photosLabel = lang === 'zh' ? '张照片' : 'photos'
     />
   </div>
 
-  <div class='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent p-4 pt-10'>
+  <div
+    class='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent p-4 pt-10'
+  >
     <h3 class='text-lg font-medium text-white'>{album.title}</h3>
     <p class='mt-0.5 line-clamp-1 text-sm text-white/80'>{album.description}</p>
     <div class='mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/70'>

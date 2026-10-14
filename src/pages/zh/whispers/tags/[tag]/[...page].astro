@@ -1,42 +1,58 @@
 ---
-import type { GetStaticPaths, Page } from 'astro'
-import type { CollectionEntry } from 'astro:content'
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+import { countWhisperTags, listWhispers, type WhisperView } from '@/lib/memos'
 
 import { Paginator } from 'astro-pure/components/pages'
-import { prod, getUniqueTagsWithCount } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import WhisperItem from '@/components/WhisperItem.astro'
-import { getCollection } from 'astro:content'
-import { getLangFromUrl, isEnglishPost, useTranslations, getLocalePath } from '@/i18n'
 
-export const prerender = true
+export const prerender = false
 
-export const getStaticPaths = (async ({ paginate }) => {
-  // Chinese moments only
-  const all = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))).filter(
-    (entry) => !isEnglishPost(entry)
-  )
-  const allTags = getUniqueTagsWithCount(all)
-  return allTags.flatMap(([tag]) => {
-    const filtered = all
-      .filter((entry) => entry.data.tags.includes(tag))
-      .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-    return paginate(filtered, {
-      pageSize: 10,
-      params: { tag }
-    })
-  })
-}) satisfies GetStaticPaths
+const PAGE_SIZE = 10
 
-interface Props {
-  page: Page<CollectionEntry<'whispers'>>
-}
-
-const { page } = Astro.props
-const { tag } = Astro.params
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
+const { tag } = Astro.params
+
+// SSR：按需从 memos 拉取
+let items: WhisperView[] = []
+let unavailable = false
+try {
+  items = await listWhispers()
+} catch (error) {
+  console.error('[whispers] memos feed unavailable:', error)
+  unavailable = true
+  Astro.cache.set(false)
+}
+if (!unavailable) Astro.cache.set({ maxAge: 300, swr: 30 })
+
+// 标签必须真实存在，否则 404
+let notFound = false
+if (!tag || !countWhisperTags(items).some(([known]) => known === tag)) {
+  notFound = true
+}
+
+const filtered = tag && !notFound ? items.filter((item) => item.tags.includes(tag)) : []
+const total = filtered.length
+const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+// /zh/whispers/tags/{tag} → 第 1 页；/zh/whispers/tags/{tag}/3 → 第 3 页
+const rawPage = Astro.params.page
+let page = 1
+if (rawPage !== undefined) {
+  const parsed = Number.parseInt(rawPage, 10)
+  if (Number.isInteger(parsed) && parsed >= 1 && String(parsed) === rawPage) page = parsed
+  else notFound = true
+}
+if (page > totalPages) notFound = true
+if (notFound) {
+  Astro.response.status = 404
+  Astro.cache.set(false)
+}
+
+const slice = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+const tagBase = () => getLocalePath(lang, `/whispers/tags/${tag}`)
 
 const meta = {
   title: `${t('whispers.tags')}: ${tag}`,
@@ -44,21 +60,21 @@ const meta = {
 }
 
 const paginationProps = {
-  ...(page.url.prev && {
-    prevUrl: { text: '← 上一页', url: page.url.prev }
+  ...(page > 1 && {
+    prevUrl: { text: '← Previous', url: `${tagBase()}${page - 1 > 1 ? `/${page - 1}` : ''}` }
   }),
-  ...(page.url.next && {
-    nextUrl: { text: '下一页 →', url: page.url.next }
+  ...(page < totalPages && {
+    nextUrl: { text: 'Next →', url: `${tagBase()}/${page + 1}` }
   })
 }
 ---
 
 <PageLayout {meta}>
-  <Button title='返回' href={getLocalePath(lang, '/whispers')} variant='back' />
+  <Button title='Back' href={getLocalePath(lang, '/whispers')} variant='back' />
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
       <h1 class='mb-6 flex items-end gap-x-2 text-3xl font-medium'>
-        {t('whispers.tags')}：
+        {t('whispers.tags')}:
         <span class='text-2xl'>#{tag}</span>
       </h1>
       <span class='mt-4 block text-sm text-muted-foreground'>
@@ -71,15 +87,19 @@ const paginationProps = {
       </span>
     </div>
 
-    <section id='content' class='animate mt-8' aria-label='该标签下的时光'>
+    <section id='content' class='animate mt-8' aria-label='Moments with tag'>
       {
-        page.data.length === 0 ? (
+        unavailable ? (
+          <p>{t('whispers.unavailable')}</p>
+        ) : notFound ? (
+          <p>404</p>
+        ) : slice.length === 0 ? (
           <p>{t('whispers.empty')}</p>
         ) : (
           <>
             <ol class='whispers-timeline flex flex-col' data-whispers-timeline>
-              {page.data.map((entry) => (
-                <WhisperItem entry={entry} lang={lang} />
+              {slice.map((item) => (
+                <WhisperItem item={item} lang={lang} />
               ))}
             </ol>
             <Paginator {...paginationProps} />

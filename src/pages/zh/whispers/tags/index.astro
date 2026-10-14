@@ -1,21 +1,29 @@
 ---
-import { prod } from 'astro-pure/server'
+import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
+import { countWhisperTags, listWhispers, type WhisperView } from '@/lib/memos'
+
 import { Button } from 'astro-pure/user'
 import { cn } from 'astro-pure/utils'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import { getCollection } from 'astro:content'
-import { getUniqueTagsWithCount } from 'astro-pure/server'
-import { getLangFromUrl, isEnglishPost, useTranslations, getLocalePath } from '@/i18n'
 
-export const prerender = true
+export const prerender = false
 
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
 
-const all = (await getCollection('whispers', ({ data }) => (prod ? !data.draft : true))).filter(
-  (entry) => !isEnglishPost(entry)
-)
-const allTags = getUniqueTagsWithCount(all)
+// SSR：按需从 memos 拉取
+let items: WhisperView[] = []
+let unavailable = false
+try {
+  items = await listWhispers()
+} catch (error) {
+  console.error('[whispers] memos feed unavailable:', error)
+  unavailable = true
+  Astro.cache.set(false)
+}
+if (!unavailable) Astro.cache.set({ maxAge: 300, swr: 30 })
+
+const allTags = countWhisperTags(items)
 
 const meta = {
   title: t('whispers.tags'),
@@ -24,7 +32,7 @@ const meta = {
 ---
 
 <PageLayout {meta}>
-  <Button title='返回' href={getLocalePath(lang, '/whispers')} variant='back' />
+  <Button title='Back' href={getLocalePath(lang, '/whispers')} variant='back' />
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
       <h1 class='mb-6 mt-6 text-3xl font-medium sm:mt-10'>{t('whispers.tags')}</h1>
@@ -32,7 +40,9 @@ const meta = {
 
     <div id='content' class='animate'>
       {
-        allTags.length > 0 ? (
+        unavailable ? (
+          <p>{t('whispers.unavailable')}</p>
+        ) : allTags.length > 0 ? (
           <ul class='flex flex-wrap gap-4'>
             {allTags.map(([tag, val]) => (
               <li>

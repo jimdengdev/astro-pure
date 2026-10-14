@@ -25,8 +25,11 @@ export const translations = {
     'nav.whispers': 'Moments',
     // Whispers (moments)
     'whispers.title': 'Moments',
-    'whispers.description': 'Short notes, small observations and life updates.',
+    'whispers.description': 'Fragments of time, captured as they happen.',
     'whispers.empty': 'No moments yet.',
+    'whispers.unavailable': 'Moments are temporarily unavailable.',
+    'whispers.older': 'Older',
+    'whispers.newer': 'Newer',
     'whispers.tags': 'Tags',
     'whispers.tags_desc': 'All topics used in moments',
     'whispers.view_all_tags': 'View all tags →',
@@ -39,7 +42,8 @@ export const translations = {
     'gallery.photos': 'photos',
     // Home
     'home.about': 'About',
-    'home.about.desc': 'Backend engineer / AI application developer. Passionate about building high-performance systems and exploring AI applications in real-world scenarios.',
+    'home.about.desc':
+      'Backend engineer / AI application developer. Passionate about building high-performance systems and exploring AI applications in real-world scenarios.',
     'home.more_about': 'More about me',
     'home.posts': 'Blog',
     'home.more_posts': 'More posts',
@@ -69,7 +73,8 @@ export const translations = {
     // About
     'about.title': 'About',
     'about.intro': 'Backend engineer / AI application developer',
-    'about.desc': 'I am an engineer focused on backend technology and AI application development, passionate about building high-performance, highly available system architectures, while actively exploring the practical application of AI.',
+    'about.desc':
+      'I am an engineer focused on backend technology and AI application development, passionate about building high-performance, highly available system architectures, while actively exploring the practical application of AI.',
     'about.me': 'About Me',
     'about.find_me': 'Find Me',
     'about.blog_label': 'Blog',
@@ -113,8 +118,11 @@ export const translations = {
     'nav.whispers': '时光',
     // Whispers (moments)
     'whispers.title': '时光',
-    'whispers.description': '记录零散的片段、细小的观察与日常。',
+    'whispers.description': '来自 memos 的时光碎片，随手记录的日常。',
     'whispers.empty': '暂无记录。',
+    'whispers.unavailable': '时光暂时不可用，请稍后再试。',
+    'whispers.older': '较旧',
+    'whispers.newer': '较新',
     'whispers.tags': '标签',
     'whispers.tags_desc': '时光中用到的全部话题',
     'whispers.view_all_tags': '查看全部标签 →',
@@ -127,12 +135,13 @@ export const translations = {
     'gallery.photos': '张照片',
     // Home
     'home.about': '关于',
-    'home.about.desc': '后端工程师 / AI 应用从业者。专注于构建高性能、高可用的系统架构，同时积极探索人工智能在实际场景中的落地应用。',
+    'home.about.desc':
+      '后端工程师 / AI 应用从业者。专注于构建高性能、高可用的系统架构，同时积极探索人工智能在实际场景中的落地应用。',
     'home.more_about': '了解更多',
     'home.posts': '博客',
     'home.more_posts': '更多文章',
-    'home.whispers': '时光',
-    'home.more_whispers': '更多时光',
+    'home.whispers': '碎碎念',
+    'home.more_whispers': '更多碎碎念',
     'home.skills': '技能',
     'home.location': '中国 北京',
     // Blog
@@ -157,7 +166,8 @@ export const translations = {
     // About
     'about.title': '关于',
     'about.intro': '后端工程师 / AI 应用从业者',
-    'about.desc': '我是一名专注于后端技术和 AI 应用开发的工程师，热衷于构建高性能、高可用的系统架构，同时积极探索人工智能在实际场景中的落地应用。',
+    'about.desc':
+      '我是一名专注于后端技术和 AI 应用开发的工程师，热衷于构建高性能、高可用的系统架构，同时积极探索人工智能在实际场景中的落地应用。',
     'about.me': '关于我',
     'about.find_me': '找到我',
     'about.blog_label': '个人博客',

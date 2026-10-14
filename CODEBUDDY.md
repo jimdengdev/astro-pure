@@ -1,4 +1,5 @@
 # CODEBUDDY.md
+
 This file provides guidance to CodeBuddy when working with code in this repository.
 
 ## Overview

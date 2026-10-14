@@ -1,16 +1,15 @@
 ---
-title: "主题定制指南"
-publishDate: "2024-01-03T08:00:00"
-description: "介绍如何定制 astro-koharu 的外观，包括配色、布局和动画效果。"
+title: '主题定制指南'
+publishDate: '2024-01-03T08:00:00'
+description: '介绍如何定制 astro-koharu 的外观，包括配色、布局和动画效果。'
 tags:
-  - "定制"
-  - "CSS"
-  - "Tailwind"
-  - "笔记"
-  - "前端"
+  - '定制'
+  - 'CSS'
+  - 'Tailwind'
+  - '笔记'
+  - '前端'
 draft: true
 ---
-
 
 本文介绍如何定制 astro-koharu 的外观和样式。
 
@@ -57,11 +56,11 @@ export default {
     extend: {
       colors: {
         primary: 'var(--primary-color)',
-        secondary: 'var(--secondary-color)',
-      },
-    },
-  },
-};
+        secondary: 'var(--secondary-color)'
+      }
+    }
+  }
+}
 ```
 
 ## 布局调整
@@ -74,20 +73,20 @@ export default {
 export const LAYOUT = {
   maxWidth: '1200px',
   sidebarWidth: '300px',
-  contentPadding: '1.5rem',
-};
+  contentPadding: '1.5rem'
+}
 ```
 
 ### 响应式断点
 
 主题使用 Tailwind 的默认断点：
 
-| 断点 | 宽度 | 用途 |
-|------|------|------|
-| sm | 640px | 小型手机 |
-| md | 768px | 平板 |
-| lg | 1024px | 桌面 |
-| xl | 1280px | 大屏幕 |
+| 断点 | 宽度   | 用途     |
+| ---- | ------ | -------- |
+| sm   | 640px  | 小型手机 |
+| md   | 768px  | 平板     |
+| lg   | 1024px | 桌面     |
+| xl   | 1280px | 大屏幕   |
 
 ## 动画效果
 
@@ -99,14 +98,14 @@ export const LAYOUT = {
 // spring.ts - 弹簧动画
 export const springConfig = {
   stiffness: 100,
-  damping: 10,
-};
+  damping: 10
+}
 
 // variants.ts - 动画变体
 export const fadeIn = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
+  visible: { opacity: 1 }
+}
 ```
 
 ### 禁用动画
@@ -119,13 +118,13 @@ export const fadeIn = {
 
 ```typescript
 export const christmasConfig = {
-  enabled: false,  // 设为 true 启用
+  enabled: false, // 设为 true 启用
   features: {
-    snowfall: true,        // 雪花飘落
-    christmasColorScheme: true,  // 圣诞配色
-    christmasHat: true,    // 圣诞帽
-  },
-};
+    snowfall: true, // 雪花飘落
+    christmasColorScheme: true, // 圣诞配色
+    christmasHat: true // 圣诞帽
+  }
+}
 ```
 
 ## 总结

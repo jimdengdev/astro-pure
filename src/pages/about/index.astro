@@ -1,8 +1,9 @@
 ---
+import { getLangFromUrl, useTranslations } from '@/i18n'
+
 import { Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import AboutHero from '@/components/about/AboutHero.astro'
-import { getLangFromUrl, useTranslations } from '@/i18n'
 
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
@@ -32,13 +33,19 @@ const t = useTranslations(lang)
     events={[
       {
         date: '2026-09',
-        content: 'Migrated to <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a> for a cleaner reading experience'
+        content:
+          'Migrated to <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a> for a cleaner reading experience'
       }
     ]}
   />
   <p>{t('about.tech_stack')}</p>
   <ul>
-    <li>Framework: <a href='https://astro.build/' target='_blank'>Astro</a> + <a href='https://github.com/cworld1/astro-theme-pure' target='_blank'>Astro Theme Pure</a></li>
+    <li>
+      Framework: <a href='https://astro.build/' target='_blank'>Astro</a> + <a
+        href='https://github.com/cworld1/astro-theme-pure'
+        target='_blank'>Astro Theme Pure</a
+      >
+    </li>
     <li>Hosting: <a href='https://vercel.com/' target='_blank'>Vercel</a></li>
     <li>Comments: <a href='https://twikoo.js.org/' target='_blank'>Twikoo</a></li>
     <li>Analytics: <a href='https://analytics.google.com/' target='_blank'>Google Analytics</a></li>

@@ -20,8 +20,10 @@ const { title, headings, view, comment: enableComment, ...props } = Astro.props
 
   <Fragment slot='header'>
     <h1 class='text-2xl font-medium sm:mb-2 sm:text-3xl'>{title}</h1>
-    {/* Optional hero: rendered under the page title, inside the article column
-        (outside #content so typography/prose styles don't leak in) */}
+    {
+      /* Optional hero: rendered under the page title, inside the article column
+        (outside #content so typography/prose styles don't leak in) */
+    }
     <slot name='hero' />
   </Fragment>
 

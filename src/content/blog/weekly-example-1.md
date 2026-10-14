@@ -1,13 +1,12 @@
 ---
-title: "示例周刊 Vol.1"
-publishDate: "2024-01-04T08:00:00"
-description: "这是一期示例周刊，展示周刊功能的使用方式。周刊适合发布定期更新的系列内容。"
+title: '示例周刊 Vol.1'
+publishDate: '2024-01-04T08:00:00'
+description: '这是一期示例周刊，展示周刊功能的使用方式。周刊适合发布定期更新的系列内容。'
 tags:
-  - "样例"
-  - "周刊"
+  - '样例'
+  - '周刊'
 draft: true
 ---
-
 
 这是一期示例周刊，展示周刊/系列文章功能的使用方式。
 
@@ -28,12 +27,12 @@ draft: true
 
 ```yaml
 featuredSeries:
-  categoryName: 周刊       # 分类名称
-  label: 我的周刊          # 显示标签
+  categoryName: 周刊 # 分类名称
+  label: 我的周刊 # 显示标签
   fullName: 我的技术周刊
   description: 周刊描述...
   cover: /img/weekly_header.webp
-  enabled: true            # 设为 false 可关闭
+  enabled: true # 设为 false 可关闭
 ```
 
 ## 周刊特点

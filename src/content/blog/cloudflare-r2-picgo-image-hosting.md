@@ -1,16 +1,15 @@
 ---
-title: "使用 Cloudflare R2 + PicGo 搭建免费图床，博客写作效率翻倍"
-publishDate: "2026-07-06T07:50:00"
-description: "手把手教你用 Cloudflare R2 搭建免费图床，配合 PicGo 最新版实现截图即上传、粘贴即引用，彻底告别手动管理图片的繁琐流程。"
+title: '使用 Cloudflare R2 + PicGo 搭建免费图床，博客写作效率翻倍'
+publishDate: '2026-07-06T07:50:00'
+description: '手把手教你用 Cloudflare R2 搭建免费图床，配合 PicGo 最新版实现截图即上传、粘贴即引用，彻底告别手动管理图片的繁琐流程。'
 tags:
-  - "Cloudflare"
-  - "R2"
-  - "PicGo"
-  - "图床"
-  - "工具"
+  - 'Cloudflare'
+  - 'R2'
+  - 'PicGo'
+  - '图床'
+  - '工具'
 comment: true
 ---
-
 
 ## 痛点：写博客时图片管理的烦恼
 
@@ -25,12 +24,12 @@ comment: true
 
 ## 为什么选 Cloudflare R2 + PicGo
 
-| 方案 | 存储费 | 流量费 | 速度 | 稳定性 |
-|------|--------|--------|------|--------|
-| 微博图床 | 免费 | 免费 | 快 | ❌ 随时可能挂 |
-| GitHub + jsDelivr | 免费 | 免费 | 一般 | ❌ 仓库大小有限制 |
-| 阿里云 OSS | 收费 | 收费 | 快 | ✅ |
-| **Cloudflare R2** | **10GB 免费** | **免费** | **快** | **✅** |
+| 方案              | 存储费        | 流量费   | 速度   | 稳定性            |
+| ----------------- | ------------- | -------- | ------ | ----------------- |
+| 微博图床          | 免费          | 免费     | 快     | ❌ 随时可能挂     |
+| GitHub + jsDelivr | 免费          | 免费     | 一般   | ❌ 仓库大小有限制 |
+| 阿里云 OSS        | 收费          | 收费     | 快     | ✅                |
+| **Cloudflare R2** | **10GB 免费** | **免费** | **快** | **✅**            |
 
 R2 的核心优势是**不收流量费**。对象存储的流量费往往比存储费贵得多，R2 直接免了这笔开销。免费额度包含每月 10GB 存储空间、100 万次 Class A 操作（写入、列举等）和 1000 万次 Class B 操作（读取），并且没有 egress 流量费用，这对于博客图床来说非常友好。
 
@@ -95,16 +94,16 @@ R2 兼容 AWS S3 API，PicGo 通过 S3 插件来对接。
 
 进入「图床设置」→「Amazon S3」，填写以下参数：
 
-| 参数 | 填写内容 | 说明 |
-|------|----------|------|
-| 应用密钥 ID | R2 的 Access Key ID | 短字符串，别和 Key 搞混 |
-| 应用密钥 | R2 的 Secret Access Key | 长字符串 |
-| 桶 | `blog-images` | 你创建的存储桶名称 |
-| 文件路径 | `{year}/{month}/{md5}.{extName}` | 按年月分类，MD5 防重名 |
-| 自定义节点 | `https://xxx.r2.cloudflarestorage.com` | S3 API 端点，带 https:// |
-| 自定义域名 | `https://img.yourdomain.com` | 公开访问域名，带 https:// |
-| 区域 | `auto` | R2 会忽略此参数 |
-| 上传方式 | **路径式** | 必须选此项 |
+| 参数        | 填写内容                               | 说明                      |
+| ----------- | -------------------------------------- | ------------------------- |
+| 应用密钥 ID | R2 的 Access Key ID                    | 短字符串，别和 Key 搞混   |
+| 应用密钥    | R2 的 Secret Access Key                | 长字符串                  |
+| 桶          | `blog-images`                          | 你创建的存储桶名称        |
+| 文件路径    | `{year}/{month}/{md5}.{extName}`       | 按年月分类，MD5 防重名    |
+| 自定义节点  | `https://xxx.r2.cloudflarestorage.com` | S3 API 端点，带 https://  |
+| 自定义域名  | `https://img.yourdomain.com`           | 公开访问域名，带 https:// |
+| 区域        | `auto`                                 | R2 会忽略此参数           |
+| 上传方式    | **路径式**                             | 必须选此项                |
 
 > ⚠️ 文件路径开头**不要加 `/`**，正确写法：`{year}/{month}/{md5}.{extName}`，错误写法：`/{year}/{month}/{md5}.{extName}`
 

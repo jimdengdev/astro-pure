@@ -49,13 +49,44 @@ const { photos } = Astro.props
     </figure>
 
     <button type='button' id='lightbox-close' class='lb-btn lb-close' aria-label='Close'>
-      <svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18' /><line x1='6' y1='6' x2='18' y2='18' /></svg>
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        width='22'
+        height='22'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        ><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg
+      >
     </button>
     <button type='button' id='lightbox-prev' class='lb-btn lb-prev' aria-label='Previous'>
-      <svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='15 18 9 12 15 6' /></svg>
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        width='28'
+        height='28'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'><polyline points='15 18 9 12 15 6'></polyline></svg
+      >
     </button>
     <button type='button' id='lightbox-next' class='lb-btn lb-next' aria-label='Next'>
-      <svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6' /></svg>
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        width='28'
+        height='28'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'><polyline points='9 18 15 12 9 6'></polyline></svg
+      >
     </button>
   </div>
 </dialog>
@@ -90,7 +121,7 @@ const { photos } = Astro.props
   .photo-lightbox-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%);
     pointer-events: none;
   }
 
@@ -145,7 +176,9 @@ const { photos } = Astro.props
     cursor: pointer;
     padding: 10px;
     backdrop-filter: blur(4px);
-    transition: background 0.2s, transform 0.2s;
+    transition:
+      background 0.2s,
+      transform 0.2s;
   }
   .lb-btn:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -174,8 +207,13 @@ const { photos } = Astro.props
 
   /* 移动端：隐藏左右箭头（用滑动手势） */
   @media (max-width: 640px) {
-    .lb-prev, .lb-next { display: none; }
-    .photo-lightbox-img { max-width: calc(100vw - 32px); }
+    .lb-prev,
+    .lb-next {
+      display: none;
+    }
+    .photo-lightbox-img {
+      max-width: calc(100vw - 32px);
+    }
   }
 </style>
 
@@ -226,8 +264,12 @@ const { photos } = Astro.props
 
     private bindControls() {
       document.getElementById('lightbox-close')?.addEventListener('click', () => this.close())
-      document.getElementById('lightbox-prev')?.addEventListener('click', () => this.show(this.current - 1))
-      document.getElementById('lightbox-next')?.addEventListener('click', () => this.show(this.current + 1))
+      document
+        .getElementById('lightbox-prev')
+        ?.addEventListener('click', () => this.show(this.current - 1))
+      document
+        .getElementById('lightbox-next')
+        ?.addEventListener('click', () => this.show(this.current + 1))
 
       // 点击空白区域关闭（figure 外层的 inner div）
       this.dialog.querySelector('.photo-lightbox-inner')?.addEventListener('click', (e) => {
@@ -243,13 +285,21 @@ const { photos } = Astro.props
 
       // 触屏滑动切换
       let touchStartX = 0
-      this.dialog.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX
-      }, { passive: true })
-      this.dialog.addEventListener('touchend', (e) => {
-        const dx = e.changedTouches[0].clientX - touchStartX
-        if (Math.abs(dx) > 50) this.show(this.current + (dx < 0 ? 1 : -1))
-      }, { passive: true })
+      this.dialog.addEventListener(
+        'touchstart',
+        (e) => {
+          touchStartX = e.touches[0].clientX
+        },
+        { passive: true }
+      )
+      this.dialog.addEventListener(
+        'touchend',
+        (e) => {
+          const dx = e.changedTouches[0].clientX - touchStartX
+          if (Math.abs(dx) > 50) this.show(this.current + (dx < 0 ? 1 : -1))
+        },
+        { passive: true }
+      )
     }
 
     private show(index: number) {

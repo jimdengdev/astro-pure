@@ -1,14 +1,13 @@
 ---
-title: "关闭目录编号示例"
-publishDate: "2024-01-07T08:00:00"
-description: "展示如何关闭文章目录的自动编号功能。"
+title: '关闭目录编号示例'
+publishDate: '2024-01-07T08:00:00'
+description: '展示如何关闭文章目录的自动编号功能。'
 tags:
-  - "目录"
-  - "教程"
-  - "笔记"
+  - '目录'
+  - '教程'
+  - '笔记'
 draft: true
 ---
-
 
 本文展示如何关闭目录的自动编号功能。
 
@@ -57,7 +56,7 @@ tocNumbering: false
 
 .toc-numbering h2::before {
   counter-increment: h2;
-  content: counter(h2) ". ";
+  content: counter(h2) '. ';
 }
 ```
 

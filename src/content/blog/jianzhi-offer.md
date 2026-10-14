@@ -1,18 +1,18 @@
 ---
-title: "剑指offer(Go版本)-数组"
-publishDate: "2024-09-07T23:43:34"
-updatedDate: "2024-09-07T23:43:34"
-description: "剑指offer Go 版本"
+title: '剑指offer(Go版本)-数组'
+publishDate: '2024-09-07T23:43:34'
+updatedDate: '2024-09-07T23:43:34'
+description: '剑指offer Go 版本'
 tags:
-  - "Go语言"
-  - "数组"
-  - "算法"
-  - "笔记"
+  - 'Go语言'
+  - '数组'
+  - '算法'
+  - '笔记'
 draft: false
 ---
 
-
 # 剑指 offer(Go 版本)-数组
+
 ### 1.和为 S 的两个数字
 
 输入一个递增排序的数组和一个数字 S，在数组中查找两个数，使得他们的和正好是 S，如果有多对数字的和等于 S，输出两个数的乘积最小的。
@@ -25,7 +25,7 @@ draft: false
 func findNumbersWithSum(a []int, sum int) []int {
   result := []int{}
   length := len(a)
-  
+
   if length == 0 {
     return result
   }
@@ -68,8 +68,8 @@ func findContinuousSequence(sum int) [][]int {
    high := 2
 
    for low < high {
-      
-      cur := (low + high) * (high - low + 1) / 2 
+
+      cur := (low + high) * (high - low + 1) / 2
       if cur == sum {
          temp := []int{}
          for i := low; i <= high; i++ {
@@ -165,8 +165,8 @@ func getFirstK(num []int, k int, start int, end int) int {
     return getFirstK(num, k, start, mid-1)
   } else if num[mid] < k {
     return getFirstK(num, k, mid+1, end)
-  } else if mid-1 >= 0 && num[mid-1] == k { 
-    return getFirstK(num, k, start, mid-1) 
+  } else if mid-1 >= 0 && num[mid-1] == k {
+    return getFirstK(num, k, start, mid-1)
   } else {
     return mid
   }
@@ -180,8 +180,8 @@ func getLastK(num []int, k int, start int, end int) int {
       end = mid - 1
     } else if num[mid] < k {
       start = mid + 1
-    } else if mid+1 <= length-1 && num[mid+1] == k { 
-      start = mid + 1 
+    } else if mid+1 <= length-1 && num[mid+1] == k {
+      start = mid + 1
     } else {
       return mid
     }
@@ -206,7 +206,7 @@ func getLastK(num []int, k int, start int, end int) int {
 func singleNumber(nums []int) int {
     result := 0
     for _, x := range nums {
-        result ^= x 
+        result ^= x
     }
     return result
 }
@@ -235,10 +235,10 @@ func minNumberInRotateArray(rotate []int) int {
       return rotate[0]
    }
    for i := 0; i < length-1; i++ {
-      
+
       if rotate[i] > rotate[i+1] {
          return rotate[i+1]
-      } else { 
+      } else {
          if i == length-2 {
             return rotate[0]
          }
@@ -261,7 +261,7 @@ func minNumberInRotateArray(rotate []int) int {
    high := length - 1
    for low < high {
       mid := (low + high) / 2
-      
+
       if rotate[mid] > rotate[high] {
          low = mid + 1
       } else if rotate[mid] < rotate[high] {
@@ -314,7 +314,7 @@ func mergeSort(nums []int, l, r int) int {
     if l >= r {
         return 0
     }
-    
+
     mid := l + (r-l)/2
     cnt := mergeSort(nums, l, mid) + mergeSort(nums, mid+1, r)
     tmp := []int{}
@@ -445,7 +445,7 @@ func partition(nums []int,i,j int) int {
         }
     }
     nums[m],nums[l]=nums[l],nums[m]
-    
+
     return l
 }
 ```
@@ -469,11 +469,11 @@ func partition(nums []int,i,j int) int {
 
 - 投票算法：维护一个候选众数 candidate 和它出现的次数 count。初始时 candidate 可以为任意值，count 为 0；遍历数组 nums 中的所有元素，对于每个元素 x，在判断 x 之前，如果 count=0，先将 x 的值赋予 candidate，随后我们判断 x：
 
-    - 如果 x 与 candidate 相等，那么计数器 count 的值增加 1；
+  - 如果 x 与 candidate 相等，那么计数器 count 的值增加 1；
 
-    - 如果 x 与 candidate 不等，那么计数器 count 的值减少 1。
+  - 如果 x 与 candidate 不等，那么计数器 count 的值减少 1。
 
-    在遍历完成后，candidate 即为整个数组的众数。
+  在遍历完成后，candidate 即为整个数组的众数。
 
 - O(n), O(1)
 
@@ -513,9 +513,9 @@ func majorityElement(nums []int) int {
 
 - 思路：排序算法，修改排序规则,O(nlogn)，O(n)
 - 设数组 numsnums 中任意两数字的字符串为 xx 和 yy ，则规定 排序判断规则 为：
-    - 若拼接字符串 x + y > y + xx+y>y+x ，则 xx “大于” yy ；
-        反之，若 x + y < y + xx+y<y+x ，则 xx “小于” yy ；
-    - xx “小于” yy 代表：排序完成后，数组中 xx 应在 yy 左边；“大于” 则反之。
+  - 若拼接字符串 x + y > y + xx+y>y+x ，则 xx “大于” yy ；
+    反之，若 x + y < y + xx+y<y+x ，则 xx “小于” yy ；
+  - xx “小于” yy 代表：排序完成后，数组中 xx 应在 yy 左边；“大于” 则反之。
 
 ```go
 func minNumber(nums []int) string {
@@ -582,24 +582,24 @@ func findRepeatNumber(nums []int) int {
 输出: [3,3,5,5,6,7]
 解释:
 
-滑动窗口的位置                最大值
+滑动窗口的位置 最大值
 
 ---
 
-[1  3  -1] -3  5  3  6  7       3
-1 [3  -1  -3] 5  3  6  7       3
-1  3 [-1  -3  5] 3  6  7       5
-1  3  -1 [-3  5  3] 6  7       5
-1  3  -1  -3 [5  3  6] 7       6
-1  3  -1  -3  5 [3  6  7]      7
+[1 3 -1] -3 5 3 6 7 3
+1 [3 -1 -3] 5 3 6 7 3
+1 3 [-1 -3 5] 3 6 7 5
+1 3 -1 [-3 5 3] 6 7 5
+1 3 -1 -3 [5 3 6] 7 6
+1 3 -1 -3 5 [3 6 7] 7
 
 提示：
 
 你可以假设 k 总是有效的，在输入数组不为空的情况下，1 ≤ k ≤ 输入数组的大小。
 
 - 思路：
-    - 方法一：暴力求解，共有 n-k+1 个框，每个框求最大值, 时间复杂度 O((n-k+1)k)=O(nk)。
-    - 方法二：
+  - 方法一：暴力求解，共有 n-k+1 个框，每个框求最大值, 时间复杂度 O((n-k+1)k)=O(nk)。
+  - 方法二：
 
 ```go
 func maxInWindows(nums []int, k int) []int {
@@ -608,12 +608,12 @@ func maxInWindows(nums []int, k int) []int {
       return nil
    }
    var result []int
-   
+
    for i := 0; i <= length-k; i++ {
       if k == 1 {
          return nums
       }
-      
+
       temp := nums[i]
       for j := i+1; j < i+k; j++ {
          if nums[j] > temp {
@@ -644,8 +644,8 @@ func maxInWindows(nums []int, k int) []int {
 a.length <= 100000
 
 - 思路：方法一：先将数组中所有元素相乘，然后遍历到那个元素直接除以该元素即可，但是如果数组中有 0 则失效。
-    - 方法二：构建左右乘积列表，遍历两次数组，得到左右两个乘积列表 L[i],R[i]。其中 L[i] = L[i-1]*a[i]。i 在[1,n-1],R[i]=R[i+1]*a[i] i 在[n-2,0],从后往前。O(n),O(n)
-    - 方法三：在方法二的基础上，把结果数组和 L[i]共有，并且没有 R[i]，R 在动态创建。具体就是先初试话 res[i]为 L[i]，然后 R = R * a[i], res[i] = res[i]*R, R 更新 res[i]也在更新。 O(n)，O(1)
+  - 方法二：构建左右乘积列表，遍历两次数组，得到左右两个乘积列表 L[i],R[i]。其中 L[i] = L[i-1]*a[i]。i 在[1,n-1],R[i]=R[i+1]*a[i] i 在[n-2,0],从后往前。O(n),O(n)
+  - 方法三：在方法二的基础上，把结果数组和 L[i]共有，并且没有 R[i]，R 在动态创建。具体就是先初试话 res[i]为 L[i]，然后 R = R * a[i], res[i] = res[i]*R, R 更新 res[i]也在更新。 O(n)，O(1)
 
 ```go
 func constructArr(a []int) []int {
@@ -695,10 +695,10 @@ func searchMatrix(matrix [][]int, target int) bool {
     if matrix == nil || len(matrix[0]) < 1  {
         return false
     }
-    
+
     row := 0
     col := len(matrix[0]) - 1
-    
+
     //从右上角元素开始，大于目标元素则左移，小于目标元素则下移，直到找到或便利一遍为止
     for row <= len(matrix) - 1 && col >= 0 {
         if matrix[row][col] > target {
@@ -709,7 +709,7 @@ func searchMatrix(matrix [][]int, target int) bool {
             return true
         }
     }
-    
+
     return false
 }
 
@@ -787,8 +787,8 @@ func spiralOrder(matrix [][]int) []int {
 数组的数取值为 [0, 13] .
 
 - 思路：55 张牌是顺子的 **充分条件** 如下：
-    - 除大小王外，所有牌 无重复 ；
-    - 设此 55 张牌中最大的牌为 maxmax ，最小的牌为 minmin （大小王除外），则需满足：max - min < 5
+  - 除大小王外，所有牌 无重复 ；
+  - 设此 55 张牌中最大的牌为 maxmax ，最小的牌为 minmin （大小王除外），则需满足：max - min < 5
 - 判断重复问题用 map，最大值和最小值在遍历时用 ma，mi 标记。
 - O(1)，O(1), mp 和 nums 只有 5 个数，所以 O(5)=O(1)
 
@@ -831,9 +831,9 @@ func isStraight(nums []int) bool {
 0 <= nums[i] <= 10000
 
 - 思路：
-    - 方法一：两个数组，一个保留奇数，一个保留偶数。O(n)，O(n).
-    - 方法二：不用偶数切片，只需要先计算好奇数个数 count，然后偶数直接放在 ans 切片从 count 位置开始的后面即可。O(n)，O(1)
-    - 方法三：前两种方法都保留了之前数字的相对位置，**如果不用保留相对位置并且可以修改原数组的话**，可以用双指针从两端遍历，左指针找偶数，右指针找奇数，然后互换就行了。O(n)，O(1)
+  - 方法一：两个数组，一个保留奇数，一个保留偶数。O(n)，O(n).
+  - 方法二：不用偶数切片，只需要先计算好奇数个数 count，然后偶数直接放在 ans 切片从 count 位置开始的后面即可。O(n)，O(1)
+  - 方法三：前两种方法都保留了之前数字的相对位置，**如果不用保留相对位置并且可以修改原数组的话**，可以用双指针从两端遍历，左指针找偶数，右指针找奇数，然后互换就行了。O(n)，O(1)
 
 ```go
 func exchange(nums []int) []int {
@@ -865,7 +865,7 @@ func exchange(nums []int) []int {
             count++
         }
     }
-    
+
     return ans
 }
 
@@ -884,7 +884,7 @@ func exchange(nums []int) []int {
         l++
         r--
     }
-    
+
     return nums
 }
 ```
@@ -907,11 +907,11 @@ func exchange(nums []int) []int {
 1 <= 数组长度 <= 10000
 
 - 思路：缺失有三种情况：
-    - 1)在 0~n-1 中间缺少，比如 0,1,3。
-    - 2)缺少最右边元素，比如 0,1
-    - 3)缺少最左边元素，比如 1,2
-    - 方法一：对于第一种和第三种，遍历一遍，对每个元素与下标对比，如果不相等就输出 item-1。第二种，会通过前面的判断，此时缺少的就是最右边元素，只需输出 len(nums)。O(n),O(1)
-    - 方法二：二分查找，判断 nums[mid] 与 mid 是否相等，若相等则左边[0,mid]是从 0 开始连续的，mid 右移，否则不连续左移。当 l 与 r 相等时还要判断一次，比如到了[7,9]时，mid=7 == nums[mid] = 7，表示[0,7]都是有序的，mid 右移,此时 l = r = 8,还需要循环一次，mid=8 != nums[mid]=9 此时 r = mid-1, l > r 退出循环，l 所指位置即为所缺数字 8。如果缺最右边数字，比如 0,1，l 会一直在第一个判断中循环，最后 l=len(nums) > r 退出循环体。O(logn),O(1)
+  - 1)在 0~n-1 中间缺少，比如 0,1,3。
+  - 2)缺少最右边元素，比如 0,1
+  - 3)缺少最左边元素，比如 1,2
+  - 方法一：对于第一种和第三种，遍历一遍，对每个元素与下标对比，如果不相等就输出 item-1。第二种，会通过前面的判断，此时缺少的就是最右边元素，只需输出 len(nums)。O(n),O(1)
+  - 方法二：二分查找，判断 nums[mid] 与 mid 是否相等，若相等则左边[0,mid]是从 0 开始连续的，mid 右移，否则不连续左移。当 l 与 r 相等时还要判断一次，比如到了[7,9]时，mid=7 == nums[mid] = 7，表示[0,7]都是有序的，mid 右移,此时 l = r = 8,还需要循环一次，mid=8 != nums[mid]=9 此时 r = mid-1, l > r 退出循环，l 所指位置即为所缺数字 8。如果缺最右边数字，比如 0,1，l 会一直在第一个判断中循环，最后 l=len(nums) > r 退出循环体。O(logn),O(1)
 
 ```go
 func missingNumber(nums []int) int {
@@ -920,7 +920,7 @@ func missingNumber(nums []int) int {
             return item-1
         }
     }
-    
+
     return len(nums)
 }
 func missingNumber(nums []int) int {

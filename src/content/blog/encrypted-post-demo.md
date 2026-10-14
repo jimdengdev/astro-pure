@@ -1,14 +1,13 @@
 ---
-title: "加密文章演示"
-publishDate: "2026-02-17T08:00:00"
-description: "这是一篇演示加密功能的文章"
+title: '加密文章演示'
+publishDate: '2026-02-17T08:00:00'
+description: '这是一篇演示加密功能的文章'
 tags:
-  - "加密"
-  - "测试"
-  - "笔记"
+  - '加密'
+  - '测试'
+  - '笔记'
 draft: true
 ---
-
 
 恭喜你解锁了这篇文章！！
 
@@ -17,10 +16,10 @@ draft: true
 ## 代码示例
 
 ```javascript
-console.log("Hello from encrypted post!");
+console.log('Hello from encrypted post!')
 
 function secret() {
-  return "This was hidden behind encryption";
+  return 'This was hidden behind encryption'
 }
 ```
 

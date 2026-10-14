@@ -27,15 +27,15 @@ Genkit 提供的一些关键功能包括：
 
 Genkit 专为多种语言环境下的服务端部署而设计，同时通过专用的辅助工具和[客户端 SDK](https://genkit.org.cn/docs/js/deployment/firebase/) 提供无缝的客户端集成。
 
-|                        |                                                              |
-| ---------------------- | ------------------------------------------------------------ |
-| **广泛的 AI 模型支持** | 使用统一的接口与来自 [Google](https://genkit.org.cn/docs/go/integrations/google-genai/)、[OpenAI](https://genkit.org.cn/docs/go/integrations/openai/)、[Anthropic](https://genkit.org.cn/docs/go/integrations/anthropic/)、[Ollama](https://genkit.org.cn/docs/go/integrations/ollama/) 等提供商的数百个模型进行集成。探索、比较并使用最适合您需求的模型。 |
+|                        |                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **广泛的 AI 模型支持** | 使用统一的接口与来自 [Google](https://genkit.org.cn/docs/go/integrations/google-genai/)、[OpenAI](https://genkit.org.cn/docs/go/integrations/openai/)、[Anthropic](https://genkit.org.cn/docs/go/integrations/anthropic/)、[Ollama](https://genkit.org.cn/docs/go/integrations/ollama/) 等提供商的数百个模型进行集成。探索、比较并使用最适合您需求的模型。  |
 | **简化的 AI 开发**     | 利用简化的 API 构建 AI 功能，支持[结构化输出](https://genkit.org.cn/docs/models#structured-output)、[智能体工具调用](https://genkit.org.cn/docs/go/tool-calling/)、[上下文感知生成](https://genkit.org.cn/docs/go/rag/)、[多模态输入/输出](https://genkit.org.cn/docs/models#multimodal-input)等。Genkit 处理了 AI 开发的复杂性，让您能够更快地构建和迭代。 |
-| **支持 Web 和移动端**  | 使用专用的[客户端 SDK](https://genkit.org.cn/docs/js/deployment/firebase/) 和辅助工具，与 Next.js、React、Angular、iOS 和 Android 等框架及平台无缝集成。 |
-| **跨语言支持**         | 使用最适合您项目的语言进行构建。Genkit 提供 JavaScript/TypeScript、Go、Python 和 Dart SDK，并在所有支持的语言中提供一致的 API 和功能。 |
-| **随处部署**           | 将 AI 逻辑部署到任何支持您所选编程语言的环境中，例如 [Cloud Functions for Firebase](https://genkit.org.cn/docs/js/deployment/firebase/)、[Google Cloud Run](https://genkit.org.cn/docs/go/deployment/cloud-run/) 或[第三方平台](https://genkit.org.cn/docs/go/deployment/any-platform/)（无论是否使用 Google 服务）。 |
-| **开发者工具**         | 使用专门构建的本地 [CLI 和开发人员 UI](https://genkit.org.cn/docs/go/devtools/) 加速 AI 开发。针对单个输入或数据集测试提示词（prompts）和流程，比较不同模型的输出，通过详细的执行追踪进行调试，并利用即时视觉反馈快速迭代提示词。 |
-| **生产监控**           | 利用全面的生产监控，自信地交付 AI 功能。在[专用仪表板](https://genkit.org.cn/docs/go/observability/getting-started/)中跟踪模型性能、请求量、延迟和错误率。通过详细的观测指标快速识别问题，并确保您的 AI 功能在实际使用中达到质量和性能目标。 |
+| **支持 Web 和移动端**  | 使用专用的[客户端 SDK](https://genkit.org.cn/docs/js/deployment/firebase/) 和辅助工具，与 Next.js、React、Angular、iOS 和 Android 等框架及平台无缝集成。                                                                                                                                                                                                    |
+| **跨语言支持**         | 使用最适合您项目的语言进行构建。Genkit 提供 JavaScript/TypeScript、Go、Python 和 Dart SDK，并在所有支持的语言中提供一致的 API 和功能。                                                                                                                                                                                                                      |
+| **随处部署**           | 将 AI 逻辑部署到任何支持您所选编程语言的环境中，例如 [Cloud Functions for Firebase](https://genkit.org.cn/docs/js/deployment/firebase/)、[Google Cloud Run](https://genkit.org.cn/docs/go/deployment/cloud-run/) 或[第三方平台](https://genkit.org.cn/docs/go/deployment/any-platform/)（无论是否使用 Google 服务）。                                       |
+| **开发者工具**         | 使用专门构建的本地 [CLI 和开发人员 UI](https://genkit.org.cn/docs/go/devtools/) 加速 AI 开发。针对单个输入或数据集测试提示词（prompts）和流程，比较不同模型的输出，通过详细的执行追踪进行调试，并利用即时视觉反馈快速迭代提示词。                                                                                                                           |
+| **生产监控**           | 利用全面的生产监控，自信地交付 AI 功能。在[专用仪表板](https://genkit.org.cn/docs/go/observability/getting-started/)中跟踪模型性能、请求量、延迟和错误率。通过详细的观测指标快速识别问题，并确保您的 AI 功能在实际使用中达到质量和性能目标。                                                                                                                |
 
 ## 2. Quickstart
 

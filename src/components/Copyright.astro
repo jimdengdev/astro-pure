@@ -11,11 +11,10 @@
  */
 import type { CollectionKey, InferEntrySchema } from 'astro:content'
 
-import config from 'virtual:config'
-
 import { QRCode } from 'astro-pure/advanced'
 import { Icon } from 'astro-pure/user'
 import { cn, getFormattedDate } from 'astro-pure/utils'
+import config from 'virtual:config'
 
 interface Props<T extends CollectionKey> {
   data: InferEntrySchema<T>

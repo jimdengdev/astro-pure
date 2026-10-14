@@ -1,17 +1,16 @@
 ---
-title: "newapi、sub2api、cpa三件套同数据库部署"
-publishDate: "2026-07-06T07:02:00"
-description: "在一台 Linux 服务器上，使用 Docker Compose 一键部署 New-API、Sub2API、CPA 三个 AI API 服务，共享同一个 PostgreSQL 和 Redis 实例，并通过 Caddy 实现域名反向代理和自动 HTTPS 证书，解决迁移备份难题。"
+title: 'newapi、sub2api、cpa三件套同数据库部署'
+publishDate: '2026-07-06T07:02:00'
+description: '在一台 Linux 服务器上，使用 Docker Compose 一键部署 New-API、Sub2API、CPA 三个 AI API 服务，共享同一个 PostgreSQL 和 Redis 实例，并通过 Caddy 实现域名反向代理和自动 HTTPS 证书，解决迁移备份难题。'
 tags:
-  - "Caddy"
-  - "newapi"
-  - "sub2api"
-  - "CPA"
-  - "笔记"
-  - "后端"
+  - 'Caddy'
+  - 'newapi'
+  - 'sub2api'
+  - 'CPA'
+  - '笔记'
+  - '后端'
 comment: true
 ---
-
 
 ## 背景
 
@@ -107,7 +106,7 @@ GRANT ALL ON SCHEMA public TO newapi;
 ### `docker-compose.yml`
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # ==================== 基础设施 ====================
@@ -119,14 +118,14 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "127.0.0.1:54321:5432"
+      - '127.0.0.1:54321:5432'
     volumes:
       - ./pgdata:/var/lib/postgresql/data
       - ./pg-init:/docker-entrypoint-initdb.d
     networks:
       - ai-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -137,13 +136,13 @@ services:
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
-      - "127.0.0.1:6379:6379"
+      - '127.0.0.1:6379:6379'
     volumes:
       - ./redisdata:/data
     networks:
       - ai-net
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -154,11 +153,11 @@ services:
     container_name: new-api
     restart: always
     ports:
-      - "127.0.0.1:${NEW_API_PORT}:3000"
+      - '127.0.0.1:${NEW_API_PORT}:3000'
     environment:
-      SQL_DSN: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres"
-      REDIS_CONN_STRING: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      SESSION_SECRET: "change-me-to-random-string"
+      SQL_DSN: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres'
+      REDIS_CONN_STRING: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      SESSION_SECRET: 'change-me-to-random-string'
     depends_on:
       postgres:
         condition: service_healthy
@@ -172,18 +171,18 @@ services:
     container_name: sub2api
     restart: always
     ports:
-      - "127.0.0.1:${SUB2API_PORT}:28080"
+      - '127.0.0.1:${SUB2API_PORT}:28080'
     environment:
       DATABASE_TYPE: postgres
       DATABASE_HOST: postgres
-      DATABASE_PORT: "5432"
+      DATABASE_PORT: '5432'
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_NAME: ${SUB2API_DB}
       REDIS_HOST: redis
-      REDIS_PORT: "6379"
+      REDIS_PORT: '6379'
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_DB: "1"
+      REDIS_DB: '1'
     depends_on:
       postgres:
         condition: service_healthy
@@ -197,12 +196,12 @@ services:
     container_name: cpa
     restart: always
     ports:
-      - "127.0.0.1:${CPA_PORT}:8317"
+      - '127.0.0.1:${CPA_PORT}:8317'
     environment:
-      PORT: "8317"
-      SQL_DSN: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres"
-      REDIS_CONN_STRING: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      SESSION_SECRET: "change-me-to-random-string"
+      PORT: '8317'
+      SQL_DSN: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres'
+      REDIS_CONN_STRING: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      SESSION_SECRET: 'change-me-to-random-string'
     depends_on:
       postgres:
         condition: service_healthy
