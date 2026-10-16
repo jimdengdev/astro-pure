@@ -140,8 +140,8 @@ export const translations = {
     'home.more_about': '了解更多',
     'home.posts': '博客',
     'home.more_posts': '更多文章',
-    'home.whispers': '碎碎念',
-    'home.more_whispers': '更多碎碎念',
+    'home.whispers': '时光',
+    'home.more_whispers': '更多时光',
     'home.skills': '技能',
     'home.location': '中国 北京',
     // Blog

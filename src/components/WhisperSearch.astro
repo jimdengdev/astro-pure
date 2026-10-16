@@ -55,12 +55,12 @@ const labels = {
   data-empty-text={labels.empty}
   data-count-template={labels.hint}
 >
-  <form class='flex w-full items-center gap-2'>
+  <form class='flex w-full items-center gap-1.5'>
     {/* 关键词 */}
     <label
-      class='flex min-w-0 flex-1 items-center gap-1.5 rounded-xl border bg-background px-2.5 py-1.5'
+      class='flex min-w-0 flex-1 items-center gap-1 rounded-lg border bg-background px-2 py-1'
     >
-      <Icon name='search' class='text-muted-foreground size-3.5 shrink-0' />
+      <Icon name='search' class='text-muted-foreground size-3 shrink-0' />
       <span class='sr-only'>{labels.search}</span>
       <input
         type='search'
@@ -68,18 +68,18 @@ const labels = {
         autocomplete='off'
         placeholder={labels.placeholder}
         aria-label={labels.search}
-        class='w-full bg-transparent text-sm leading-5 outline-none placeholder:text-muted-foreground'
+        class='w-full bg-transparent text-xs leading-4 outline-none placeholder:text-muted-foreground'
       />
     </label>
 
     {/* 时间范围 */}
-    <label class='flex items-center gap-1.5 rounded-xl border bg-background px-2.5 py-1.5'>
-      <Icon name='time' class='text-muted-foreground size-3.5 shrink-0' />
+    <label class='flex items-center gap-1 rounded-lg border bg-background px-2 py-1'>
+      <Icon name='time' class='text-muted-foreground size-3 shrink-0' />
       <span class='sr-only'>{labels.time}</span>
       <select
         name='range'
         aria-label={labels.time}
-        class='bg-transparent text-sm leading-5 outline-none'
+        class='bg-transparent text-xs leading-4 outline-none'
       >
         {timeRanges.map((r) => <option value={r.value}>{r.label}</option>)}
       </select>
@@ -90,18 +90,18 @@ const labels = {
       type='submit'
       aria-label={labels.search}
       title={labels.search}
-      class='flex items-center justify-center rounded-xl border border-[hsl(var(--primary))] bg-[hsl(var(--primary))] px-2.5 py-1.5 text-white transition-opacity hover:opacity-90'
+      class='flex items-center justify-center rounded-lg border border-[hsl(var(--primary))] bg-[hsl(var(--primary))] px-2 py-1 text-white transition-opacity hover:opacity-90'
     >
-      <Icon name='search' class='size-3.5' />
+      <Icon name='search' class='size-3' />
     </button>
 
     <a
       href={tagsPath}
       aria-label={labels.tags}
       title={labels.tags}
-      class='flex shrink-0 items-center gap-1 self-center rounded-lg border px-2 py-1 text-sm leading-5 transition-colors hover:bg-muted hover:text-primary'
+      class='flex shrink-0 items-center gap-1 self-center rounded-md border px-1.5 py-1 text-xs leading-4 transition-colors hover:bg-muted hover:text-primary'
     >
-      <Icon name='tag-2' class='size-3.5' />
+      <Icon name='tag-2' class='size-3' />
       <span class='hidden sm:inline'>{labels.tags}</span>
     </a>
   </form>

@@ -44,17 +44,30 @@ const excerpt = source
       <FormattedDate class='min-w-[9.5rem] text-xs' date={publishDate} />
       <div class='flex flex-1 items-center justify-between gap-2'>
         <span class='text-sm'>{excerpt}</span>
+        {/* 箭头：与首页博客条目同款 hover 动画（横线展开 + 右移） */}
         <svg
           xmlns='http://www.w3.org/2000/svg'
-          class='size-4 shrink-0 stroke-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:stroke-primary'
+          width='16'
+          height='16'
           viewBox='0 0 24 24'
           fill='none'
-          stroke-width='2'
+          stroke-width='2.5'
           stroke-linecap='round'
           stroke-linejoin='round'
+          class='preview-redirect my-1 shrink-0 stroke-muted-foreground group-hover:stroke-primary'
           aria-hidden='true'
         >
-          <polyline points='9 18 15 12 9 6'></polyline>
+          <line
+            x1='5'
+            y1='12'
+            x2='19'
+            y2='12'
+            class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
+          >
+          </line>
+          <polyline
+            points='12 5 19 12 12 19'
+            class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'></polyline>
         </svg>
       </div>
     </div>
