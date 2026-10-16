@@ -173,6 +173,27 @@ const collapseText = lang === 'zh' ? '收起' : 'Collapse'
   .whispers-timeline > .whispers-item:last-child .whispers-axis::after {
     display: none;
   }
+  /* 手机端：日期横排显示在卡片上方，隐藏时间轴节点与竖线，正文获得全宽 */
+  @media (max-width: 639px) {
+    .whispers-timeline > .whispers-item {
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
+    }
+    .whispers-item .whispers-time {
+      width: 100%;
+      flex-shrink: 0;
+      padding-top: 0;
+      text-align: start;
+      white-space: nowrap;
+    }
+    .whispers-item .whispers-axis {
+      display: none;
+    }
+    .whispers-item .whispers-body {
+      flex: 0 0 100%;
+      padding-bottom: 1rem;
+    }
+  }
   .whispers-item .whispers-body {
     min-width: 0;
     flex: 1;

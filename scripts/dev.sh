@@ -17,6 +17,27 @@ fi
 # 清理旧构建缓存（避免 safe-delete 问题）
 rm -rf .vercel/output dist 2>/dev/null
 
+# 检查 4321 端口占用：展示占用进程信息并关闭，避免 Astro 自动顺延到 4322 等端口
+PORT=4321
+PIDS=$(lsof -nP -iTCP:$PORT -sTCP:LISTEN -t 2>/dev/null)
+if [ -n "$PIDS" ]; then
+  echo "⚠️  端口 $PORT 已被占用，占用进程信息："
+  lsof -nP -iTCP:$PORT -sTCP:LISTEN 2>/dev/null
+  echo ""
+  echo "🧹 正在关闭占用进程: $PIDS"
+  kill $PIDS 2>/dev/null
+  sleep 1
+  # 进程未退出则强制结束
+  REMAIN=$(lsof -nP -iTCP:$PORT -sTCP:LISTEN -t 2>/dev/null)
+  if [ -n "$REMAIN" ]; then
+    echo "⚠️  进程未响应，强制结束: $REMAIN"
+    kill -9 $REMAIN 2>/dev/null
+    sleep 1
+  fi
+  echo "✅ 端口 $PORT 已释放"
+  echo ""
+fi
+
 # 启动开发服务器
 echo "🚀 启动开发服务器..."
 echo "   英文首页: http://localhost:4321/"

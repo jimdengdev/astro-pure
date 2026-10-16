@@ -118,7 +118,7 @@ export const translations = {
     'nav.whispers': '时光',
     // Whispers (moments)
     'whispers.title': '时光',
-    'whispers.description': '来自 memos 的时光碎片，随手记录的日常。',
+    'whispers.description': '记录美好时光',
     'whispers.empty': '暂无记录。',
     'whispers.unavailable': '时光暂时不可用，请稍后再试。',
     'whispers.older': '较旧',
