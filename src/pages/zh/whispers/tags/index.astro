@@ -15,9 +15,9 @@ const t = useTranslations(lang)
 let items: WhisperView[] = []
 let unavailable = false
 try {
-  items = await listWhispers()
-} catch (error) {
-  console.error('[whispers] memos feed unavailable:', error)
+  items = await listWhispers({ lang })
+} catch {
+  // 失败原因已由 listWhispers 统一记录
   unavailable = true
   Astro.cache.set(false)
 }

@@ -24,12 +24,12 @@ const MAX_POSTS = 6
 const MAX_WHISPERS = 5
 const allPosts = await getBlogByLang(lang)
 const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
-// 时光：SSR 实时来自 memos，失败降级为空列表
+// 时光：SSR 实时来自 memos（带内存快照与失败降级），无数据时隐藏该区块
 let allWhispers: WhisperView[] = []
 try {
-  allWhispers = (await listWhispers()).slice(0, MAX_WHISPERS)
-} catch (error) {
-  console.error('[whispers] homepage feed unavailable:', error)
+  allWhispers = await listWhispers({ limit: MAX_WHISPERS, lang })
+} catch {
+  // 失败原因已由 listWhispers 统一记录
 }
 
 const imagePath = config.logo.src

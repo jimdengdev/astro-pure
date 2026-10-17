@@ -8,9 +8,9 @@ export const prerender = false
 export async function GET(context: { site?: URL }) {
   let items: WhisperView[]
   try {
-    items = await listWhispers()
-  } catch (error) {
-    console.error('[whispers] zh rss unavailable:', error)
+    items = await listWhispers({ lang: 'zh' })
+  } catch {
+    // 失败原因已由 listWhispers 统一记录；无快照可降级，只能返回 503
     return new Response('memos feed unavailable', { status: 503 })
   }
   const site = context.site ?? new URL(import.meta.env.SITE)

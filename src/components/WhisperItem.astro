@@ -62,40 +62,42 @@ const collapseText = lang === 'zh' ? '收起' : 'Collapse'
               class='min-w-0 flex-1 text-sm leading-relaxed text-foreground/85'
               set:html={item.html}
             />
-            {/* 源链接箭头：与首页博客条目同款 hover 动画（横线展开 + 右移） */}
-            <a
-              href={item.sourceUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              title={lang === 'zh' ? '查看原文' : 'View original'}
-              aria-label={lang === 'zh' ? '查看原文' : 'View original'}
-              class='shrink-0 pt-0.5'
-            >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke-width='2.5'
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                class='preview-redirect stroke-muted-foreground group-hover:stroke-primary'
-                aria-hidden='true'
+            {/* 源链接箭头：与首页博客条目同款 hover 动画（横线展开 + 右移）；本地兜底条目无原文链接 */}
+            {item.sourceUrl && (
+              <a
+                href={item.sourceUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                title={lang === 'zh' ? '查看原文' : 'View original'}
+                aria-label={lang === 'zh' ? '查看原文' : 'View original'}
+                class='shrink-0 pt-0.5'
               >
-                <line
-                  x1='5'
-                  y1='12'
-                  x2='19'
-                  y2='12'
-                  class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke-width='2.5'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  class='preview-redirect stroke-muted-foreground group-hover:stroke-primary'
+                  aria-hidden='true'
                 >
-                </line>
-                <polyline
-                  points='12 5 19 12 12 19'
-                  class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'></polyline>
-              </svg>
-            </a>
+                  <line
+                    x1='5'
+                    y1='12'
+                    x2='19'
+                    y2='12'
+                    class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
+                  >
+                  </line>
+                  <polyline
+                    points='12 5 19 12 12 19'
+                    class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'></polyline>
+                </svg>
+              </a>
+            )}
           </div>
         ) : null
       }
