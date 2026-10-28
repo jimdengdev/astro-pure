@@ -42,3 +42,6 @@ bunfig.toml
 
 # 相册脚本本地输出
 gallery-out/
+
+# dev server runtime files
+.tmp/

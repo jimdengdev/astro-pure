@@ -1,28 +1,40 @@
 ---
 import { getLangFromUrl, getLocalePath, useTranslations } from '@/i18n'
-import { listWhispers, type WhisperView } from '@/lib/memos'
+import { listWhispers, listWhispersPage, WHISPERS_PAGE_SIZE, type WhisperView } from '@/lib/memos'
 
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import WhisperItem from '@/components/WhisperItem.astro'
 import WhisperLoadMore from '@/components/WhisperLoadMore.astro'
-import WhisperSearch, { type WhisperIndexItem } from '@/components/WhisperSearch.astro'
+import WhisperSearch from '@/components/WhisperSearch.astro'
 
 export const prerender = false
-
-const PAGE_SIZE = 10
 
 const lang = getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
 
-// SSR：按需从 memos 拉取（未认证 → 仅 PUBLIC），失败降级为不可用提示
+// 旧数字分页（/zh/whispers/2）已被无限滚动替代：统一回到第 1 页
+if (Astro.params.page !== undefined) {
+  Astro.cache.set(false)
+  return Astro.redirect(getLocalePath(lang, '/whispers'), 302)
+}
+
+// 首屏：单次请求最新一页（20 条），后续滚动经 /zh/whispers/more 游标翻页
 let items: WhisperView[] = []
+let nextPageToken: string | undefined
 let unavailable = false
 try {
-  items = await listWhispers({ lang })
+  const page = await listWhispersPage()
+  items = page.items
+  nextPageToken = page.nextPageToken
 } catch {
-  // 失败原因已由 listWhispers 统一记录
+  // 失败原因已由 listWhispersPage 抛出；这里走 listWhispers 的降级链路（本地兜底，无游标）
   unavailable = true
+  try {
+    items = await listWhispers({ limit: WHISPERS_PAGE_SIZE, lang })
+  } catch {
+    // 保持空列表，页面显示不可用提示
+  }
 }
 if (unavailable) {
   Astro.cache.set(false)
@@ -30,42 +42,18 @@ if (unavailable) {
   Astro.cache.set({ maxAge: 300, swr: 30 })
 }
 
-const total = items.length
-const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-
-// /zh/whispers → 第 1 页；/zh/whispers/3 → 第 3 页；非数字或越界 → 404
-const rawPage = Astro.params.page
-let page = 1
-let notFound = false
-if (rawPage !== undefined) {
-  const parsed = Number.parseInt(rawPage, 10)
-  if (!Number.isInteger(parsed) || parsed < 1 || String(parsed) !== rawPage) notFound = true
-  else page = parsed
-}
-if (page > totalPages) notFound = true
-if (notFound) {
-  Astro.response.status = 404
-  Astro.cache.set(false)
-}
-
-const slice = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-const nextUrl = page < totalPages ? getLocalePath(lang, `/whispers/${page + 1}`) : undefined
+const moreBase = getLocalePath(lang, '/whispers/more')
+const nextUrl = nextPageToken
+  ? `${moreBase}?pageToken=${encodeURIComponent(nextPageToken)}`
+  : undefined
 
 const meta = {
   title: t('whispers.title'),
   description: t('whispers.description')
 }
 
-// 搜索索引：全量条目的轻量信息（客户端过滤）
-const tagsBase = getLocalePath(lang, '/whispers/tags')
-const indexItems: WhisperIndexItem[] = items.map((item) => ({
-  id: item.id,
-  iso: item.publishDate.toISOString(),
-  excerpt: item.description,
-  tags: item.tags,
-  tagBase: tagsBase,
-  detailBase: getLocalePath(lang, '/whispers/m')
-}))
+// 搜索索引不再随首屏内嵌（避免每次渲染拉全量），改为用户搜索时按需加载
+const indexUrl = getLocalePath(lang, '/whispers/search-index.json')
 ---
 
 <PageLayout {meta}>
@@ -73,12 +61,12 @@ const indexItems: WhisperIndexItem[] = items.map((item) => ({
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
       <h1 class='mb-3 mt-6 text-3xl font-medium sm:mt-10'>{t('whispers.title')}</h1>
-      {/* 描述在左、搜索条在右（同一行，sm 起并排），窄屏时自动堆叠 */}
+      {/* 描述在左、搜索条在右（同一行），窄屏时自动堆叠 */}
       <div class='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
         <p class='shrink-0 text-sm text-muted-foreground'>{t('whispers.description')}</p>
         {
-          indexItems.length > 0 && (
-            <WhisperSearch items={indexItems} lang={lang} class='sm:w-auto sm:max-w-md' />
+          items.length > 0 && (
+            <WhisperSearch indexUrl={indexUrl} lang={lang} class='sm:w-auto sm:max-w-md' />
           )
         }
       </div>
@@ -88,9 +76,7 @@ const indexItems: WhisperIndexItem[] = items.map((item) => ({
       {
         unavailable ? (
           <p>{t('whispers.unavailable')}</p>
-        ) : notFound ? (
-          <p>404</p>
-        ) : slice.length === 0 ? (
+        ) : items.length === 0 ? (
           <p>{t('whispers.empty')}</p>
         ) : (
           <>
@@ -99,7 +85,7 @@ const indexItems: WhisperIndexItem[] = items.map((item) => ({
               class='whispers-timeline flex flex-col'
               data-whispers-timeline
             >
-              {slice.map((item) => (
+              {items.map((item) => (
                 <WhisperItem item={item} lang={lang} />
               ))}
             </ol>

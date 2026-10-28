@@ -1,0 +1,56 @@
+---
+/**
+ * 时光线滑动加载端点（HTML 片段，非完整页面）：
+ *
+ *   GET /zh/whispers/more?pageToken=<上一页返回的游标>
+ *
+ * 返回下一页 20 条的 <ol><li>…（whispers-load-more 组件解析后追加到时间线），
+ * 还有下一页时附带带新游标的 <whispers-load-more data-next>，没有则省略（组件
+ * 自行移除，结束无限滚动）。Markdown 仍服务端渲染并消毒，与首屏完全一致。
+ */
+import { getLangFromUrl, getLocalePath } from '@/i18n'
+import { listWhispersPage, type WhispersPage } from '@/lib/memos'
+
+import WhisperItem from '@/components/WhisperItem.astro'
+
+export const prerender = false
+
+const lang = getLangFromUrl(Astro.url)
+const token = Astro.url.searchParams.get('pageToken')?.trim() ?? ''
+
+let page: WhispersPage | null = null
+let failed = false
+if (!token) {
+  Astro.response.status = 400
+  Astro.cache.set(false)
+} else {
+  try {
+    page = await listWhispersPage(token)
+    // 游标是偏移量语义：上游新增内容会让窗口平移，缓存不宜过长
+    Astro.cache.set({ maxAge: 60, swr: 30 })
+  } catch {
+    failed = true
+    Astro.response.status = 502
+    Astro.cache.set(false)
+  }
+}
+
+const items = page?.items ?? []
+const moreBase = getLocalePath(lang, '/whispers/more')
+const nextUrl = page?.nextPageToken
+  ? `${moreBase}?pageToken=${encodeURIComponent(page.nextPageToken)}`
+  : undefined
+---
+
+{
+  !failed && token && (
+    <>
+      <ol class='whispers-timeline flex flex-col' data-whispers-timeline>
+        {items.map((item) => (
+          <WhisperItem item={item} lang={lang} />
+        ))}
+      </ol>
+      {nextUrl && <whispers-load-more class='flex justify-center py-2' data-next={nextUrl} />}
+    </>
+  )
+}

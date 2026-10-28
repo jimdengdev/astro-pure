@@ -7,6 +7,12 @@ import sanitizeHtml from 'sanitize-html'
 // 数据源为外部 memos 实例：未认证请求只会返回 PUBLIC memo（服务端强制过滤），
 // 不携带任何 token。本地再次校验 visibility === 'PUBLIC' 双保险，不做标签筛选。
 // 页面为 SSR（output: 'server'），数据随请求刷新，建议配合 Astro.cache 控制频率。
+//
+// 拉取策略（分页游标，不做全量）：
+// - 时间线首屏：listWhispersPage() 单次请求最新 20 条（WHISPERS_PAGE_SIZE）
+// - 滑动加载：/zh/whispers/more?pageToken=… 每次取下一页 20 条（游标翻页）
+// - 聚合视图（标签云 / RSS / 搜索索引 / 详情页）：仍走 listWhispers 全量快照
+//   （100 条/页 × 最多 10 页，封顶 300 条，60s 实例内复用）
 // =============================================================================
 
 export const MEMOS_ORIGIN = 'https://memos.kits.de5.net'
@@ -14,11 +20,18 @@ export const MEMOS_ORIGIN = 'https://memos.kits.de5.net'
 const REQUEST_TIMEOUT_MS = 4_000
 /** 全量拉取的总时限：Serverless（如 Vercel Hobby 默认 10s）必须在函数超时前返回 */
 const TOTAL_BUDGET_MS = 6_000
+/** 全量拉取（标签云 / RSS / 搜索索引等聚合视图）的单页步长 */
 const MAX_PAGE_SIZE = 100
 /** 单次渲染最多向后翻 10 页游标（1000 条封顶，防止极端数据量拖垮响应） */
 const MAX_FETCH_PAGES = 10
-/** 单次渲染保留的条目上限（列表页每页 10 条，足够翻 30 页） */
+/** 单次渲染保留的条目上限（聚合视图封顶） */
 const MAX_ITEMS = 300
+/** 时光时间线单页条数：首屏与滚动翻页共用（用户要求一次拉最新 20 条） */
+export const WHISPERS_PAGE_SIZE = 20
+/** 游标页的实例内复用时长：滚动触发的重复请求不再回源 */
+const PAGE_CACHE_TTL_MS = 60_000
+/** 游标页缓存条数上限（含首屏页，防内存无限增长） */
+const PAGE_CACHE_MAX = 32
 /** 成功快照的复用时长：实例内重复请求（首页/列表/标签）不再打上游 */
 const CACHE_TTL_MS = 60_000
 /** 上游失败后的退避窗口：期间直接用旧快照，避免每次请求都白等一次超时 */
@@ -76,19 +89,22 @@ export class MemosApiError extends Error {
   }
 }
 
-function listUrl(pageToken?: string): URL {
+function listUrl(pageToken?: string, pageSize: number = MAX_PAGE_SIZE): URL {
   const url = new URL('/api/v1/memos', MEMOS_ORIGIN)
-  url.searchParams.set('pageSize', String(MAX_PAGE_SIZE))
+  url.searchParams.set('pageSize', String(pageSize))
   if (pageToken) url.searchParams.set('pageToken', pageToken)
   return url
 }
 
-async function fetchMemosPage(pageToken?: string): Promise<MemosListResponseDto> {
+async function fetchMemosPage(
+  pageToken?: string,
+  pageSize: number = MAX_PAGE_SIZE
+): Promise<MemosListResponseDto> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   try {
     // 未认证：memos 只返回 PUBLIC 记录，无需（也不应）携带 token
-    const response = await fetch(listUrl(pageToken), {
+    const response = await fetch(listUrl(pageToken, pageSize), {
       headers: { Accept: 'application/json' },
       signal: controller.signal
     })
@@ -186,7 +202,8 @@ function toWhisperView(memo: MemosMemoDto): WhisperView {
   }
 }
 
-/** 拉取全量时光信息流（新→旧）。失败抛 MemosApiError，由页面层决定呈现方式。 */
+/** 拉取全量时光信息流（新→旧）。失败抛 MemosApiError，由页面层决定呈现方式。
+ * 仅供聚合视图（标签云 / RSS / 搜索索引 / 详情页邻近条目）使用。 */
 async function fetchAll(): Promise<WhisperView[]> {
   const deadline = Date.now() + TOTAL_BUDGET_MS
   const collected: MemosMemoDto[] = []
@@ -204,6 +221,51 @@ async function fetchAll(): Promise<WhisperView[]> {
     .sort((a, b) => b.createTime.localeCompare(a.createTime))
     .slice(0, MAX_ITEMS)
     .map(toWhisperView)
+}
+
+/** 游标分页的一页结果：条目 + 下一页游标（无下一页则省略） */
+export interface WhispersPage {
+  items: WhisperView[]
+  nextPageToken?: string
+}
+
+/** 游标页缓存与并发去重：同一游标的并发/重复请求只打一次上游 */
+const pageCache = new Map<string, { page: WhispersPage; at: number }>()
+const pageInflight = new Map<string, Promise<WhispersPage>>()
+
+/**
+ * 按游标拉取一页时光（一次 20 条，新→旧）：
+ * - 首屏不传 pageToken，拉最新一页；滑动加载传上一页返回的 nextPageToken
+ * - 结果在实例内缓存 60s，滚动重复请求不回源
+ * - 失败抛 MemosApiError，由调用万（时间线页 / more 端点）决定降级方式
+ */
+export async function listWhispersPage(pageToken?: string): Promise<WhispersPage> {
+  const key = pageToken ?? ''
+  const hit = pageCache.get(key)
+  if (hit && Date.now() - hit.at < PAGE_CACHE_TTL_MS) return hit.page
+
+  const pending = pageInflight.get(key)
+  if (pending) return pending
+
+  const task = (async () => {
+    const data = await fetchMemosPage(pageToken, WHISPERS_PAGE_SIZE)
+    const items = (data.memos ?? [])
+      .filter(inFeed)
+      .sort((a, b) => b.createTime.localeCompare(a.createTime))
+      .map(toWhisperView)
+    const page: WhispersPage = { items, nextPageToken: data.nextPageToken || undefined }
+
+    pageCache.set(key, { page, at: Date.now() })
+    if (pageCache.size > PAGE_CACHE_MAX) {
+      // Map 按插入序迭代，首键即最旧
+      const oldest = pageCache.keys().next().value
+      if (oldest !== undefined) pageCache.delete(oldest)
+    }
+    return page
+  })().finally(() => pageInflight.delete(key))
+
+  pageInflight.set(key, task)
+  return task
 }
 
 /** 最近一次成功的上游快照（模块级，实例内共享） */
@@ -271,6 +333,20 @@ export async function listWhispers(options: ListWhispersOptions = {}): Promise<W
   if (inCooldown) {
     const local = localFallback.get(lang ?? 'zh')
     if (local) return take(local, limit)
+  }
+  // 轻量路径：只要 ≤ 一页（20 条）时，单次请求取最新一页，不做全量翻页。
+  // 首页（5 条）与时光线首屏（20 条）都走这里，避免每次渲染都拉全量 300 条。
+  if (limit !== undefined && limit <= WHISPERS_PAGE_SIZE) {
+    try {
+      const first = await listWhispersPage()
+      if (first.items.length > 0) return take(first.items, limit)
+      // 上游可达但无内容：落入下方全量路径，统一按「无数据」走本地兜底
+    } catch (error) {
+      cooldownUntil = Date.now() + COOLDOWN_MS
+      warnUnavailable(error, 'local content')
+      const local = await loadLocalFallback(lang)
+      return take(local, limit)
+    }
   }
   const pending = (inflight ??= fetchAll().finally(() => {
     inflight = null

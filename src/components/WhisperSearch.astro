@@ -21,14 +21,17 @@ export interface WhisperIndexItem {
 }
 
 interface Props {
-  items: WhisperIndexItem[]
+  /** 内嵌索引（英文静态模式：SSR 时全量已知） */
+  items?: WhisperIndexItem[]
+  /** 懒加载索引地址（memos 模式：首屏只拉 20 条，用户搜索时才取全量索引） */
+  indexUrl?: string
   lang: Lang
   /** 客户端渲染结果的目标列表容器 id */
   targetId?: string
   class?: string
 }
 
-const { items, lang, targetId = 'whispers-results', class: className } = Astro.props
+const { items, lang, indexUrl, targetId = 'whispers-results', class: className } = Astro.props
 const tagsPath = lang === 'zh' ? '/zh/whispers/tags' : '/whispers/tags'
 
 const timeRanges = [
@@ -54,12 +57,11 @@ const labels = {
   data-target={targetId}
   data-empty-text={labels.empty}
   data-count-template={labels.hint}
+  data-index-url={indexUrl}
 >
   <form class='flex w-full items-center gap-1.5'>
     {/* 关键词 */}
-    <label
-      class='flex min-w-0 flex-1 items-center gap-1 rounded-lg border bg-background px-2 py-1'
-    >
+    <label class='flex min-w-0 flex-1 items-center gap-1 rounded-lg border bg-background px-2 py-1'>
       <Icon name='search' class='text-muted-foreground size-3 shrink-0' />
       <span class='sr-only'>{labels.search}</span>
       <input
@@ -109,7 +111,11 @@ const labels = {
   <p class='hidden text-xs text-muted-foreground' data-whispers-count></p>
 </whispers-search>
 
-<script type='application/json' data-whispers-index set:html={JSON.stringify(items)} />
+{
+  items && items.length > 0 && (
+    <script type='application/json' data-whispers-index set:html={JSON.stringify(items)} />
+  )
+}
 
 <script>
   interface IndexItem {
@@ -132,6 +138,8 @@ const labels = {
     private select: HTMLSelectElement | null = null
     private count: HTMLElement | null = null
     private index: IndexItem[] = []
+    /** 懒加载索引地址（memos 模式），已成功加载后置空避免重复请求 */
+    private indexUrl: string | null = null
 
     constructor() {
       super()
@@ -156,6 +164,9 @@ const labels = {
         } catch {
           this.index = []
         }
+      } else if (this.dataset.indexUrl) {
+        // memos 模式：索引不随首屏内嵌，首次搜索时才拉取
+        this.indexUrl = this.dataset.indexUrl
       }
 
       // 点击搜索按钮或按回车时过滤（避免输入过程中列表频繁跳动）
@@ -174,8 +185,27 @@ const labels = {
       return start.getTime()
     }
 
-    private apply() {
+    private async ensureIndex() {
+      if (this.index.length > 0 || !this.indexUrl) return
+      try {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), 10000)
+        const res = await fetch(this.indexUrl, { signal: controller.signal })
+        clearTimeout(timer)
+        if (!res.ok) throw new Error(`status ${res.status}`)
+        const loaded = (await res.json()) as IndexItem[]
+        if (Array.isArray(loaded)) this.index = loaded
+      } catch (error) {
+        console.warn('[whispers] failed to load search index:', error)
+      } finally {
+        // 失败也不再重试本次会话，避免每次提交都打接口
+        this.indexUrl = null
+      }
+    }
+
+    private async apply() {
       if (!this.target) return
+      await this.ensureIndex()
       const q = (this.input?.value ?? '').trim().toLowerCase()
       const range = this.select?.value ?? 'all'
 
