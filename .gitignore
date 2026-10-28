@@ -39,3 +39,6 @@ ignore.*
 bunfig.toml
 /src/content/blog/test.*
 /test/
+
+# 相册脚本本地输出
+gallery-out/
